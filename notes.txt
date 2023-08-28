@@ -1,0 +1,10 @@
+Is the newline symbol part of the comment?
+
+
+
+
+
+
+
+REGEX:
+one line comment:       "//.*\n"gm
