@@ -2,53 +2,18 @@ import os
 import re
 import pprint 
 import graphviz as gv
+import glob
 
 pp = pprint.PrettyPrinter(indent=4)
 
 
-path = "./course-02242-examples/src/dependencies/java/dtu/deps/tricky/"
-# path = "./course-02242-examples/src/dependencies/java/dtu/deps/simple/"
-
+#path = "./course-02242-examples/src/dependencies/java/dtu/deps/tricky/"
+path = "./course-02242-examples/src/dependencies/java/dtu/deps/simple/"
+proj_path = "./course-02242-examples/src"
 # { principal class : [ immediate dependencies ] }
 dict = {}
 
-def strip_elems( l ):
-    return [ elem.strip() for elem in l]
-
-
-for file in os.listdir( path ):
-    with open(path + file) as f:
-
-        src_code = f.read()
-
-        no_comment = re.sub( "/\*(?:[^*]|\*(?!/s))*\*/", "", src_code)
-        no_comment = re.sub( "//.*\n", "", no_comment)
-
-        # print(src_code)
-        # print("no commentt" + no_comment)
-         
-
-        package = strip_elems( re.findall(r"(?<=package\s)[\s\S]+?(?=;)", no_comment ) )
-        class_name = strip_elems( re.findall(r"(?<=class\s)[\s\S]+?(?=\{)", no_comment ))
-
-
-        direct_imports = strip_elems( re.findall(r"(?<=import\s)[\s\S]+?(?=;)", no_comment ) )
-        new_objects = strip_elems( re.findall(r"(?<=new\s)[\s\S]+?(?=\()", no_comment ) )
-        classes_from_arguments = re.findall("(?:public|private)\s+(?:\S*\s+|s*)(?:\S+\s+\S+)\(\s*(\S+)(?:\[\]|<.*>)\s+\S+\s*(?:,(\S+)(?:\[\]|<.*>)\s+\S+)*\)",no_comment)
-        return_types = re.findall("(?:public|private)\s+(?:\S+\s+|s*)(?:(\S+)\s+\S+)\((?:.*)\)",no_comment)    
-
-        print("filename:", file,
-              "\t| class name: ", package + class_name, 
-              "\t| direct imports: ", direct_imports,
-              "\t| objects created: ", new_objects )
-        
-
-        main_class = package[0] + "." if package != [] else ""
-        main_class += class_name[0]
-
-        dict[ main_class ] = direct_imports + new_objects
-
-        # Create the graph
+def create_graph():
         # Conditions has to be improved with loop for all the list 
         dot = gv.Digraph()
         dot.node('A', file)
@@ -75,6 +40,49 @@ for file in os.listdir( path ):
         # print(dot.source)  
         dot.render(f'output-graph/{file}').replace('\\', '/')
 
+def strip_elems( l ):
+    return [ elem.strip() for elem in l]
+
+
+# for file in os.listdir( path ):
+# for file in glob.iglob("**/*.java", recursive=True):
+for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
+    print( file )
+    with open(file) as f:
+
+        src_code = f.read()
+
+        no_comment = re.sub( "/\*(?:[^*]|\*(?!/s))*\*/", "", src_code)
+        no_comment = re.sub( "//.*\n", "", no_comment)
+
+        # print(src_code)
+        # print("no commentt" + no_comment)
+         
+
+        package = strip_elems( re.findall(r"(?<=package\s)[\s\S]+?(?=;)", no_comment ) )
+        class_name = strip_elems( re.findall(r"(?<=class\s)[\s\S]+?(?=\{)", no_comment ))
+
+
+        direct_imports = strip_elems( re.findall(r"(?<=import\s)[\s\S]+?(?=;)", no_comment ) )
+        new_objects = strip_elems( re.findall(r"(?<=new\s)[\s\S]+?(?=\()", no_comment ) )
+
+        classes_from_arguments = re.findall(r"(?:public|private)\s+(?:\S*\s+|s*)(?:\S+\s+\S+)\(\s*(\S+)(?:\[\]|<.*>)\s+\S+\s*(?:,(\S+)(?:\[\]|<.*>)\s+\S+)*\)",no_comment)
+        return_types = re.findall(r"(?:public|private)\s+(?:\S+\s+|s*)(?:(\S+)\s+\S+)\((?:.*)\)",no_comment)    
+
+        print("filename:", file,
+              "\t| class name: ", package + class_name, 
+              "\t| direct imports: ", direct_imports,
+              "\t| objects created: ", new_objects )
+        
+
+        main_class = package[0] + "." if package != [] else ""
+        main_class += class_name[0]
+
+
+        dict[ main_class ] = direct_imports + new_objects # + classes_from_arguments + return_types
+
+        # Create the graph
+        create_graph()
 
 
 def complete_dict():
@@ -101,12 +109,17 @@ def complete_dict():
 
     return new_dict
 
+
+
+
 print()
 print( dict )
 
 
 
 new_dict= complete_dict()
+# TODO: removed for now cause it needs fixing
+del new_dict[ "dtu.deps.normal.Primes implements Iterable<Integer>" ]
 
 print("--")
 
