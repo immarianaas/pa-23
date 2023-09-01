@@ -29,15 +29,9 @@ java_lang = "java.lang"
 
 
 def create_graph(dict_):
-    # dict_ = {k:v for k,v in dict_.items() if v != ''}
-    # for elem in dict_['dtu.deps.normal.Primes']: 
-    #     if elem == '':
-    #         dict_['dtu.deps.normal.Primes'].remove(elem)
-    # print(dict_['dtu.deps.normal.Primes'][0][:3], "--------------------------")
     for key, value in dict_.items():
         dot.node(key, key)
         for elem in value:
-            # print(elem)
             if (elem != ''):
                 dot.node(elem, elem)
                 dot.edge(key, elem)
