@@ -15,7 +15,7 @@ public class Primes implements Iterable<Integer> {
     private final List<Integer> primes = new ArrayList<>();
 
     @Override
-    public Iterator<Integer> iterator(String[] args,String[] args) {
+    public Iterator<Integer> iterator() {
         return new PrimesIterator();
     }
 
