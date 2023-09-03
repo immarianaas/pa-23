@@ -8,7 +8,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 lookup_table = {
     "String": "java.lang.String",
-    "Integer": "java.lang.Integer"
+    "Integer": "java.lang.Integer",
+    "System": "java.lang.System"
 }
 
 #maybe change the wrong name
@@ -20,32 +21,22 @@ proj_path = "./course-02242-examples/src"
 # { principal class : [ immediate dependencies ] }
 dict = {}
 
-def create_graph():
-        # Conditions has to be improved with loop for all the list 
-        dot = gv.Digraph()
-        dot.node('A', file)
 
-        if (direct_imports != []):
-            dot.node('C', direct_imports[0]) 
-            if dot.source.find('C') != -1:
-                dot.edge('C', 'A')
+dot = gv.Digraph()
+path_folders = "dtu.deps"
+java_util = "java.util"
+java_lang = "java.lang"
 
 
-        if (new_objects != []):
-            dot.node('B', new_objects[0])
-            dot.edge('B', 'A')
-        
-        if (package != []):
-            dot.node('D', package[0])
-            if dot.source.find('C') != -1:
-                dot.edge('D', 'C')
-            else:
-                dot.edge('D', 'A')
+def create_graph(dict_):
+    for key, value in dict_.items():
+        dot.node(key, key)
+        for elem in value:
+            if (elem != ''):
+                dot.node(elem, elem)
+                dot.edge(key, elem)
 
     
-
-        # print(dot.source)  
-        dot.render(f'output-graph/{file}').replace('\\', '/')
 
 def strip_elems( l ):
     return [ elem.strip() for elem in l]
@@ -54,9 +45,8 @@ def strip_elems( l ):
 # for file in os.listdir( path ):
 # for file in glob.iglob("**/*.java", recursive=True):
 for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
-    print( file )
     with open(file) as f:
-
+        filename = file.split('/')[-1].split('.')[0]
         src_code = f.read()
 
         no_comment = re.sub( "/\*(?:[^*]|\*(?!/s))*\*/", "", src_code)
@@ -69,10 +59,10 @@ for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
         package = strip_elems( re.findall(r"(?<=package\s)[\s\S]+?(?=;)", no_comment ) )
         class_name = strip_elems( re.findall(r"(?<=class\s)[\s\S]+?(?=\{|implements|extends)", no_comment ))
 
-
         direct_imports = strip_elems( re.findall(r"(?<=import\s)[\s\S]+?(?=;)", no_comment ) )
+        system_imports = re.findall(r"((System).(?:err|out|in)..*\(.*);", no_comment )
+        system_imports = [ elem for tup in system_imports for elem in tup if elem == "System"]
         new_objects = strip_elems( re.findall(r"(?<=new\s)[\s\S]+?(?=\(|<)", no_comment ) )
-
 
         # TODO: change pattern to match only what is before < ---> "Iterator<Integer>" should be 2: Interator and Integer
         #       (in this case doesn't really matter )
@@ -90,11 +80,12 @@ for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
         main_class = package[0] + "." if package != [] else ""
         main_class += class_name[0]
 
-
-        dict[ main_class ] = direct_imports + new_objects + classes_from_arguments + return_types
-
         # Create the graph
-        create_graph()
+        # create_graph(filename, package, direct_imports, system_imports, new_objects, classes_from_arguments, return_types)
+
+        dict[ main_class ] = direct_imports + system_imports + new_objects + classes_from_arguments + return_types
+        
+        
 
 
 def is_complete_class( c ):
@@ -118,12 +109,12 @@ def find_package( short_class, package, asterisk_classes, total_complete_classes
         print( "possible_class", possible_class )
         if possible_class in total_complete_classes:
             return possible_class
-        
+    
     if short_class in lookup_table:
         return lookup_table[short_class]
         
-    return "WILL BE IGNORED: " + short_class
-
+    # return "WILL BE IGNORED: " + short_class
+    return ''
 
 def complete_dict():
     # complete single classes
@@ -166,7 +157,12 @@ def complete_dict():
 
 
 
+
 new_dict= complete_dict()
 
+
 pp.pprint(new_dict)
+
+create_graph(new_dict)
+dot.render('output-graph/Graph').replace('\\', '/')
 

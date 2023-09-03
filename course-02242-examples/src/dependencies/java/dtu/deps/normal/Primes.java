@@ -5,6 +5,7 @@ package dtu.deps.normal;
 // -> java.util.List
 // -> java.lang.Integer
 // -> java.lang.String
+// -> java.lang.System
 
 import java.util.ArrayList;
 import java.util.Iterator;
