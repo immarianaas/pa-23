@@ -1,12 +1,4 @@
 digraph {
-	"dtu.deps.util.Utils" [label="dtu.deps.util.Utils"]
-	"java.lang.System" [label="java.lang.System"]
-	"dtu.deps.util.Utils" -> "java.lang.System"
-	"dtu.deps.tricky.Tricky" [label="dtu.deps.tricky.Tricky"]
-	"dtu.deps.simple.Other" [label="dtu.deps.simple.Other"]
-	"dtu.deps.tricky.Tricky" -> "dtu.deps.simple.Other"
-	"dtu.deps.simple.Example" [label="dtu.deps.simple.Example"]
-	"dtu.deps.tricky.Tricky" -> "dtu.deps.simple.Example"
 	"dtu.deps.simple.Example" [label="dtu.deps.simple.Example"]
 	"dtu.deps.util.Utils" [label="dtu.deps.util.Utils"]
 	"dtu.deps.simple.Example" -> "dtu.deps.util.Utils"
@@ -30,4 +22,10 @@ digraph {
 	"dtu.deps.normal.Primes" -> "java.lang.System"
 	"java.lang.Integer" [label="java.lang.Integer"]
 	"dtu.deps.normal.Primes" -> "java.lang.Integer"
+	"dtu.deps.tricky.Tricky" [label="dtu.deps.tricky.Tricky"]
+	"dtu.deps.simple.Example" [label="dtu.deps.simple.Example"]
+	"dtu.deps.tricky.Tricky" -> "dtu.deps.simple.Example"
+	"dtu.deps.util.Utils" [label="dtu.deps.util.Utils"]
+	"java.lang.System" [label="java.lang.System"]
+	"dtu.deps.util.Utils" -> "java.lang.System"
 }
