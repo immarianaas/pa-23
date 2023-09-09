@@ -5,7 +5,8 @@ JAVA_LANGUAGE = Language(FILE, "java")
 parser = Parser()
 parser.set_language(JAVA_LANGUAGE)
 
-example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/normal/Primes.java"
+# example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/normal/Primes.java"
+example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/simple/Example.java"
 
 with open(example_path, "rb") as f:
     tree = parser.parse(f.read())
@@ -42,6 +43,9 @@ class TypeIdentifiers( SyntaxFold ):
     imported = []
     class_name = []
     package_name = []
+    types = []
+
+    possible_class_or_object = []
     
     def import_declaration( self, node, results ):
         ret = []
@@ -71,19 +75,19 @@ class TypeIdentifiers( SyntaxFold ):
         # print( dir(node) )
         #return set()
     
-    def class_body( self,node, results ):
-        return set()
+    # def class_body( self,node, results ):
+    #     return set()
 
     def identifier(self, node, results ):
         # print("identifyer: ", node.text )
+
+        if ( node.parent.type == 'method_invocation'):
+            print( 'HERE', node.text )
         return { node.text }
     
     def generic_type( self, node, results ):
         # print('generic type: ', node.text)
         return {}
-    
-    def type_identifier(self, node, results):
-        return { b"a: " + node.text }
     
     def scoped_identifier( self, node, results):
         return { b"b: " + node.text }
@@ -93,6 +97,43 @@ class TypeIdentifiers( SyntaxFold ):
         assert ( len(ret) <= 1 )
         self.package_name += ret
         return set()
+    
+    def field_declaration( self, node, results):
+        print( node.text)
+        return set()
+    
+    def type_identifier( self, node, results ):
+        print( "node.parent.type", node.parent.type)
+        if node.parent.type not in [
+            'field_declaration',
+            'object_creation_expression'
+        ]:
+            return set()
+        
+        self.types += [ node.text ]
+        return { node.text }
+    
+    def method_invocation( self, node, results ):
+
+        class_or_object = node.children_by_field_name('object')
+
+        print( "metod", node.text)
+
+        if len(class_or_object) > 0:
+            self.possible_class_or_object += list( self.visit(class_or_object[0]) )
+
+        return set()
+    
+    def field_access(self, node, results):
+        print ( "field acess", node.text)
+
+        class_or_object = node.children_by_field_name('object')
+
+        if len(class_or_object) > 0:
+            return self.visit(class_or_object[0])
+
+
+        # return set()
 
 # Printer().visit( tree.root_node )
 
@@ -104,12 +145,23 @@ class ClassName( SyntaxFold ):
         # print("identifyer: ", node.text )
         return { node.text }
 
+'''
+class Test( SyntaxFold ):
+        
+    def type_identifier( self, node, results ):
+        return {node.text}
 
-
+print( Test().visit(tree.root_node))
+'''
 
 print()
 print( TypeIdentifiers().visit( tree.root_node ) )
+print()
 
 
 print( "direct imports: ",TypeIdentifiers().imported )
 print( "class name: ",TypeIdentifiers().class_name )
+print( "package name: ",TypeIdentifiers().package_name )
+print( "types: ",set( TypeIdentifiers().types ))
+print( "possible class or object: ", set( TypeIdentifiers().possible_class_or_object ) )
+
