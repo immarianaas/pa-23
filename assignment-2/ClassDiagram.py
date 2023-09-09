@@ -1,17 +1,19 @@
 from tree_sitter import Language, Parser
+import os
+
 FILE = "./../java.so" # the ./ is important
-Language.build_library(FILE, ["./../tree-sitter-java"])
+Language.build_library(FILE, ["tree-sitter-java"])
 JAVA_LANGUAGE = Language(FILE, "java")
 parser = Parser()
 parser.set_language(JAVA_LANGUAGE)
 
 # example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/normal/Primes.java"
-example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/simple/Example.java"
+# example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/simple/Example.java"
 
-with open(example_path, "rb") as f:
-    tree = parser.parse(f.read())
-# the tree is now ready for analysing
-print(tree.root_node.sexp())
+# with open(example_path, "rb") as f:
+#     tree = parser.parse(f.read())
+# # the tree is now ready for analysing
+# print(tree.root_node.sexp())
 
 
 
@@ -31,21 +33,37 @@ class SyntaxFold:
     def default(self, node, results):
         return set().union(*results)
     
-class Printer( SyntaxFold ):
-    def default(self,node, results):
-        print(node)
-        print(results)
+# class Printer( SyntaxFold ):
+#     def default(self,node, results):
+#         print(node)
+#         print(results)
 
 
 
 class TypeIdentifiers( SyntaxFold ):
-    
-    imported = []
-    class_name = []
-    package_name = []
-    types = []
+    # Need reset function to call a new class TypeIdentifiers every while loop
+    def __init__(self):
+        self.imported = []
+        self.class_name = []
+        self.package_name = []
+        self.types = []
+        self.possible_class_or_object = []
+        self.reset()
 
-    possible_class_or_object = []
+    def reset(self):
+        #define all the attributes
+        self.imported.clear()
+        self.class_name.clear()
+        self.package_name.clear()
+        self.types.clear()
+        self.possible_class_or_object.clear()
+
+
+    # imported = []
+    # class_name = []
+    # package_name = []
+    # types = []
+    # possible_class_or_object = []
     
     def import_declaration( self, node, results ):
         ret = []
@@ -81,8 +99,8 @@ class TypeIdentifiers( SyntaxFold ):
     def identifier(self, node, results ):
         # print("identifyer: ", node.text )
 
-        if ( node.parent.type == 'method_invocation'):
-            print( 'HERE', node.text )
+        # if ( node.parent.type == 'method_invocation'):
+            # print( 'HERE', node.text )
         return { node.text }
     
     def generic_type( self, node, results ):
@@ -99,11 +117,11 @@ class TypeIdentifiers( SyntaxFold ):
         return set()
     
     def field_declaration( self, node, results):
-        print( node.text)
+        # print( node.text)
         return set()
     
     def type_identifier( self, node, results ):
-        print( "node.parent.type", node.parent.type)
+        # print( "node.parent.type", node.parent.type)
         if node.parent.type not in [
             'field_declaration',
             'object_creation_expression'
@@ -117,7 +135,7 @@ class TypeIdentifiers( SyntaxFold ):
 
         class_or_object = node.children_by_field_name('object')
 
-        print( "metod", node.text)
+        # print( "metod", node.text)
 
         if len(class_or_object) > 0:
             self.possible_class_or_object += list( self.visit(class_or_object[0]) )
@@ -125,7 +143,7 @@ class TypeIdentifiers( SyntaxFold ):
         return set()
     
     def field_access(self, node, results):
-        print ( "field acess", node.text)
+        # print ( "field acess", node.text)
 
         class_or_object = node.children_by_field_name('object')
 
@@ -154,14 +172,36 @@ class Test( SyntaxFold ):
 print( Test().visit(tree.root_node))
 '''
 
-print()
-print( TypeIdentifiers().visit( tree.root_node ) )
-print()
+# print()
+# print( TypeIdentifiers().visit( tree.root_node ) )
+# print()
 
 
-print( "direct imports: ",TypeIdentifiers().imported )
-print( "class name: ",TypeIdentifiers().class_name )
-print( "package name: ",TypeIdentifiers().package_name )
-print( "types: ",set( TypeIdentifiers().types ))
-print( "possible class or object: ", set( TypeIdentifiers().possible_class_or_object ) )
+# print( "direct imports: ",TypeIdentifiers().imported )
+# print( "class name: ",TypeIdentifiers().class_name )
+# print( "package name: ",TypeIdentifiers().package_name )
+# print( "types: ",set( TypeIdentifiers().types ))
+# print( "possible class or object: ", set( TypeIdentifiers().possible_class_or_object ) )
+
+
+java_files_directory = '../course-02242-examples/src/dependencies/java/dtu/deps/'
+for root, _, files in os.walk(java_files_directory):
+    for file in files:
+        tree = None
+        if file.endswith('.java'):
+            file_path = os.path.join(root, file)
+            print()
+            print(f"Analyzing {file_path}:")
+            tree = None
+            with open(file_path, "rb") as f:
+                tree = parser.parse(f.read())
+
+                typeIdentifierClass = TypeIdentifiers()
+                print( typeIdentifierClass.visit( tree.root_node ) )
+                print( "direct imports: ",typeIdentifierClass.imported )
+                print( "class name: ",typeIdentifierClass.class_name )
+                print( "package name: ",typeIdentifierClass.package_name )
+                print( "types: ",set( typeIdentifierClass.types ))
+                print( "possible class or object: ", set( typeIdentifierClass.possible_class_or_object ) )
+                typeIdentifierClass.reset()
 
