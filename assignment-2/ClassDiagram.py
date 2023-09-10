@@ -1,5 +1,8 @@
 from tree_sitter import Language, Parser
 import os
+import pprint 
+import glob
+
 
 FILE = "./../java.so" # the ./ is important
 Language.build_library(FILE, ["tree-sitter-java"])
@@ -7,16 +10,83 @@ JAVA_LANGUAGE = Language(FILE, "java")
 parser = Parser()
 parser.set_language(JAVA_LANGUAGE)
 
-# example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/normal/Primes.java"
-# example_path = "../course-02242-examples/src/dependencies/java/dtu/deps/simple/Example.java"
+pp = pprint.PrettyPrinter(indent=4)
 
-# with open(example_path, "rb") as f:
-#     tree = parser.parse(f.read())
-# # the tree is now ready for analysing
-# print(tree.root_node.sexp())
+# -----------------------------------------------------------------------------------------------------------------------
+#                                 HELPER FUNCTIONS TO MERGE PACKAGES AND CLASSES, ETC
+# -----------------------------------------------------------------------------------------------------------------------
 
 
+lookup_table = {
+    "String": "java.lang.String",
+    "Integer": "java.lang.Integer",
+    "System": "java.lang.System"
+}
 
+def is_complete_class( c ):
+    return len( c.split('.') ) > 1
+
+def is_asterisk_class( c ):
+    return len( c.split('.') ) > 1 and c[-1] == '*'
+
+def is_short_class( c ):
+    return len( c.split('.') ) == 1
+
+def complete_dict( dict ):
+    # complete single classes
+    all_classes = list( dict.keys() ) + [ elem for l in dict.values() for elem in l ]
+    total_complete_classes = [ elem for elem in all_classes if is_complete_class( elem ) and not is_asterisk_class(elem) ]
+
+    new_dict = {}
+    for k, v in dict.items():
+        list_complete_classes = list( filter( is_complete_class, v ) ) + [k]
+        complete_classes_short = set( [ elem.split('.')[-1] for elem in list_complete_classes ] )
+        short_classes = set( filter( is_short_class, v ) )
+
+        missing_package = short_classes - complete_classes_short
+        # print( "in the same package (missing package):", missing_package )
+
+        package = k.rsplit('.', 1 )[0]
+        #list_complete_classes += [ package + "." + sc for sc in missing_package ]
+        # def find_package( short_class, package, asterisk_classes, total_complete_classes ):
+        asterisk_classes = [ elem for elem in list_complete_classes if elem[-1] == '*']
+
+        list_complete_classes += [ find_package( sc, package, asterisk_classes, total_complete_classes) for sc in missing_package ]
+        list_complete_classes = [elem for elem in list_complete_classes if not is_asterisk_class( elem )]
+
+        new_dict[k] = [elem for elem in list_complete_classes if elem != k ]
+
+
+    # del new_dict[ "dtu.deps.normal.Primes implements Iterable<Integer>" ]
+
+    # complete single classes
+    all_classes = list( dict.keys() ) + [ elem for l in dict.values() for elem in l ]
+    total_complete_classes = [ elem for elem in all_classes if len( elem.split('.') ) > 1 and elem[-1] != '*' ]
+
+    return new_dict
+
+def find_package( short_class, package, asterisk_classes, total_complete_classes ):
+    global lookup_table
+
+    if package + "." + short_class in total_complete_classes:
+        return package + "." + short_class
+    
+    for ac in asterisk_classes:
+        possible_class = ac[:-1] + short_class
+        if possible_class in total_complete_classes:
+            return possible_class
+    
+    if short_class in lookup_table:
+        return lookup_table[short_class]
+        
+    return "WILL BE IGNORED: " + short_class
+    # return ''
+
+# -----------------------------------------------------------------------------------------------------------------------
+#                                                     "REAL" PROGRAM STARTS HERE
+# -----------------------------------------------------------------------------------------------------------------------
+
+# base class for visiting
 class SyntaxFold:
 
     def visit( self, node ):
@@ -26,182 +96,110 @@ class SyntaxFold:
             return getattr(self, node.type)(node, results)
         
         return self.default(node, results)
-    
-    # def default(self, node, results): # TODO: we prob dont need these 'results'
-    #     print("DEFAULT:", node )
 
     def default(self, node, results):
         return set().union(*results)
     
-# class Printer( SyntaxFold ):
-#     def default(self,node, results):
-#         print(node)
-#         print(results)
-
-
-
-class TypeIdentifiers( SyntaxFold ):
-    # Need reset function to call a new class TypeIdentifiers every while loop
-    def __init__(self):
-        self.imported = []
-        self.class_name = []
-        self.package_name = []
-        self.types = []
-        self.possible_class_or_object = []
-        self.reset()
-
-    def reset(self):
-        #define all the attributes
-        self.imported.clear()
-        self.class_name.clear()
-        self.package_name.clear()
-        self.types.clear()
-        self.possible_class_or_object.clear()
-
-
-    # imported = []
-    # class_name = []
-    # package_name = []
-    # types = []
-    # possible_class_or_object = []
-    
-    def import_declaration( self, node, results ):
-        ret = []
-        for c in node.children:
-            ret += [ r for r in self.visit( c ) ]
-
-        self.imported += ret
-        return set(ret)
-    
-    def class_declaration(self, node, results):
-        if node.parent.type == 'program':
-            a = ClassName().visit( node )
-            self.class_name += list( a )
-
-        ret = []
-        for c in node.children:
-            ret += [ r for r in self.visit( c ) ]
-
-        return set(ret)
+# get the main class name of the file
+class ClassName( SyntaxFold ):
         
-        #ret = []
-        # print( node.text )
-        #for c in node.children:
-        #    ret += [ r for r in self.visit( c ) ]
-        # print( "class_declaration: ", ret )
+    def class_declaration(self, node, results):
+        if node.parent.type != 'program':
+            return set()
+        
 
-        # print( dir(node) )
-        #return set()
+        names = node.children_by_field_name('name')
+        return { name.text for name in names }
+
+    def class_body( self,node, results ):
+        return set()
     
-    # def class_body( self,node, results ):
-    #     return set()
+# get the classes imported with import statements
+class DirectImports( SyntaxFold ):
 
-    def identifier(self, node, results ):
-        # print("identifyer: ", node.text )
+    def import_declaration( self, node, results):
+        ret = []
+        for c in node.children:
+            ret += list( self.visit(c) )
+            if c.text == b'*':
+                ret[-1] += b'.*'
 
-        # if ( node.parent.type == 'method_invocation'):
-            # print( 'HERE', node.text )
+        return ret
+
+    def scoped_identifier( self, node, results):
         return { node.text }
     
-    def generic_type( self, node, results ):
-        # print('generic type: ', node.text)
-        return {}
+    def class_body( self, node, results ):
+        return set()
     
-    def scoped_identifier( self, node, results):
-        return { b"b: " + node.text }
+    def package_declaration( self, node, results):
+        return set()
     
-    def package_declaration( self, node, results ):
+# get the package name of the current file
+class PackageName( SyntaxFold ):
+    def package_declaration( self, node, results):
         ret = [ c.text for c in node.children if c.type == 'scoped_identifier']
-        assert ( len(ret) <= 1 )
-        self.package_name += ret
-        return set()
+        return set(ret)
     
-    def field_declaration( self, node, results):
-        # print( node.text)
-        return set()
-    
+# get the classes of declared/instantiated objects
+class ObjectTypes( SyntaxFold ):
+
     def type_identifier( self, node, results ):
         # print( "node.parent.type", node.parent.type)
         if node.parent.type not in [
             'field_declaration',
-            'object_creation_expression'
+            'object_creation_expression',
+            'local_variable_declaration'
         ]:
             return set()
         
-        self.types += [ node.text ]
         return { node.text }
     
-    def method_invocation( self, node, results ):
+# get the classes of which static functions are called
+class StaticFunctionClasses( SyntaxFold ):
 
-        class_or_object = node.children_by_field_name('object')
+    _variables = []
 
-        # print( "metod", node.text)
-
-        if len(class_or_object) > 0:
-            self.possible_class_or_object += list( self.visit(class_or_object[0]) )
-
-        return set()
+    def visit( self, node):
+        self._variables.clear()
+        candidates = super().visit(node)
+        return candidates - set( self._variables )
     
     def field_access(self, node, results):
-        # print ( "field acess", node.text)
+        object = node.children_by_field_name('object')
+        return set([o.text for o in object])
 
-        class_or_object = node.children_by_field_name('object')
-
-        if len(class_or_object) > 0:
-            return self.visit(class_or_object[0])
-
-
-        # return set()
-
-# Printer().visit( tree.root_node )
-
-class ClassName( SyntaxFold ):
-    def class_body( self,node, results ):
+    def variable_declarator( self, node, results):
+        vars = node.children_by_field_name('name')
+        self._variables += [ v.text for v in vars ]
         return set()
-    
-    def identifier(self, node, results ):
-        # print("identifyer: ", node.text )
-        return { node.text }
-
-'''
-class Test( SyntaxFold ):
-        
-    def type_identifier( self, node, results ):
-        return {node.text}
-
-print( Test().visit(tree.root_node))
-'''
-
-# print()
-# print( TypeIdentifiers().visit( tree.root_node ) )
-# print()
 
 
-# print( "direct imports: ",TypeIdentifiers().imported )
-# print( "class name: ",TypeIdentifiers().class_name )
-# print( "package name: ",TypeIdentifiers().package_name )
-# print( "types: ",set( TypeIdentifiers().types ))
-# print( "possible class or object: ", set( TypeIdentifiers().possible_class_or_object ) )
+dict = {}
+
+proj_path = "../course-02242-examples"
+for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
+    with open(file, "rb") as f:
+
+        tree = parser.parse(f.read())
+
+        print()
+
+        package_name = PackageName().visit( tree.root_node )
+        class_name = ClassName().visit( tree.root_node ) 
+
+        assert( len(package_name) == 1 )
+        assert( len(class_name) == 1 )
+
+        main_class = (package_name.pop() + b'.' + class_name.pop() ).decode()
+
+        direct_imports = DirectImports().visit( tree.root_node )
+        object_types = ObjectTypes().visit( tree.root_node )
+        static_function_class = StaticFunctionClasses().visit( tree.root_node )
+
+        dict[ main_class] = list(direct_imports) + list(object_types) + list( static_function_class )
+        dict[ main_class] = [ elem.decode() for elem in dict[main_class]]
 
 
-java_files_directory = '../course-02242-examples/src/dependencies/java/dtu/deps/'
-for root, _, files in os.walk(java_files_directory):
-    for file in files:
-        tree = None
-        if file.endswith('.java'):
-            file_path = os.path.join(root, file)
-            print()
-            print(f"Analyzing {file_path}:")
-            tree = None
-            with open(file_path, "rb") as f:
-                tree = parser.parse(f.read())
-
-                typeIdentifierClass = TypeIdentifiers()
-                print( typeIdentifierClass.visit( tree.root_node ) )
-                print( "direct imports: ",typeIdentifierClass.imported )
-                print( "class name: ",typeIdentifierClass.class_name )
-                print( "package name: ",typeIdentifierClass.package_name )
-                print( "types: ",set( typeIdentifierClass.types ))
-                print( "possible class or object: ", set( typeIdentifierClass.possible_class_or_object ) )
-                typeIdentifierClass.reset()
-
+new_dict = complete_dict( dict )
+pp.pprint(new_dict)
