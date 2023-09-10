@@ -145,7 +145,6 @@ class PackageName( SyntaxFold ):
 class ObjectTypes( SyntaxFold ):
 
     def type_identifier( self, node, results ):
-        # print( "node.parent.type", node.parent.type)
         if node.parent.type not in [
             'field_declaration',
             'object_creation_expression',
@@ -174,6 +173,44 @@ class StaticFunctionClasses( SyntaxFold ):
         self._variables += [ v.text for v in vars ]
         return set()
 
+class ArgumentTypes( SyntaxFold ):
+    def formal_parameter( self, node, results):
+        res = []
+        for c in node.children_by_field_name('type'):
+            if c.type == 'array_type':
+                res += [ elem.text for elem in c.children_by_field_name('element') ]
+            else:
+                res += [ c.text ]
+        return set(res)
+    
+class ReturnTypes( SyntaxFold ):
+    def method_declaration( self, node, results ):
+
+        res = []
+        for c in node.children_by_field_name('type'):
+            if c.type == 'generic_type':
+                self.visit( c )
+            else:
+                res += [ c.text ]
+        return set(res)
+    
+    def generic_type(self, node, results):
+        res = []
+        for c in node.children:
+            res += list(self.visit( c ))
+        return set(res)
+
+    def type_identifier( self, node, results ):
+        if node.parent.type not in ['generic_type', 'type_arguments'] :
+            return set()
+        return { node.text }
+    
+    def type_arguments( self, node, results ):
+        res = []
+        for c in node.children:
+            res += list( self.visit( c ) )
+        return set(res)
+    
 
 dict = {}
 
@@ -196,8 +233,10 @@ for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
         direct_imports = DirectImports().visit( tree.root_node )
         object_types = ObjectTypes().visit( tree.root_node )
         static_function_class = StaticFunctionClasses().visit( tree.root_node )
+        argument_types = ArgumentTypes().visit( tree.root_node )
+        return_types = ReturnTypes().visit( tree.root_node )
 
-        dict[ main_class] = list(direct_imports) + list(object_types) + list( static_function_class )
+        dict[ main_class] = list(direct_imports) + list(object_types) + list( static_function_class ) + list( argument_types ) + list( return_types )
         dict[ main_class] = [ elem.decode() for elem in dict[main_class]]
 
 
