@@ -7,6 +7,8 @@ import glob
 import graphviz
 from graphviz import nohtml
 
+from ClassDiagram import *
+
 
 FILE = "./../java.so"  # the ./ is important
 Language.build_library(FILE, ["tree-sitter-java"])
@@ -111,7 +113,7 @@ def getInterfaces(child):
     return implements_interfaces
 
 
-proj_path = "course-02242-examples\src\dependencies\java\dtu\deps"
+proj_path = "../course-02242-examples"
 for file in glob.iglob(proj_path + "/**/*.java", recursive=True):
     with open(file, "rb") as f:
         tree = parser.parse(f.read())
@@ -119,12 +121,18 @@ for file in glob.iglob(proj_path + "/**/*.java", recursive=True):
         walk_tree(tree.root_node)
 
 
-print(json.dumps(dict, indent=4))
+# print(json.dumps(dict, indent=4))
 
+dict = clean_brackets( dict )
+dep_dict = get_dependencies()
+
+final_dict = add_dependencies( dep_dict, dict )
+
+print(json.dumps(final_dict, indent=4))
 
 s = graphviz.Digraph("structs", node_attr={"shape": "record"})
 
-
+dict = final_dict
 for key, value in dict.items():
     s.node(key, r"{" + re.sub("<.*>", "", key) + r"|}")
     for val in value["composition"]:
@@ -135,6 +143,8 @@ for key, value in dict.items():
         s.edge(key, val, arrowhead="normalo")
     for val in value["aggregation"]:
         s.edge(key, val, arrowhead="diamondo")
+    for val in value["dependency"]:
+        s.edge(key, val, arrowhead="none")
 
 
 s.render("assignment-2/classs-graph/class-diagram.gv").replace("\\", "/")

@@ -2,15 +2,8 @@ from tree_sitter import Language, Parser
 import os
 import pprint 
 import glob
+import re
 
-
-FILE = "./../java.so" # the ./ is important
-Language.build_library(FILE, ["tree-sitter-java"])
-JAVA_LANGUAGE = Language(FILE, "java")
-parser = Parser()
-parser.set_language(JAVA_LANGUAGE)
-
-pp = pprint.PrettyPrinter(indent=4)
 
 # -----------------------------------------------------------------------------------------------------------------------
 #                                 HELPER FUNCTIONS TO MERGE PACKAGES AND CLASSES, ETC
@@ -23,64 +16,65 @@ lookup_table = {
     "System": "java.lang.System"
 }
 
-def is_complete_class( c ):
-    return len( c.split('.') ) > 1
+primitiva_java_types = {
+    "int",
+    "byte",
+    "short",
+    "long",
+    "float",
+    "double",
+    "boolean",
+    "char",
+    "void"
+}
 
-def is_asterisk_class( c ):
-    return len( c.split('.') ) > 1 and c[-1] == '*'
 
-def is_short_class( c ):
-    return len( c.split('.') ) == 1
-
-def complete_dict( dict ):
-    # complete single classes
-    all_classes = list( dict.keys() ) + [ elem for l in dict.values() for elem in l ]
-    total_complete_classes = [ elem for elem in all_classes if is_complete_class( elem ) and not is_asterisk_class(elem) ]
-
+def clean_brackets( dict ):
     new_dict = {}
+
+    sub = lambda x : re.sub("<.*>", "", x)
+
     for k, v in dict.items():
-        list_complete_classes = list( filter( is_complete_class, v ) ) + [k]
-        complete_classes_short = set( [ elem.split('.')[-1] for elem in list_complete_classes ] )
-        short_classes = set( filter( is_short_class, v ) )
-
-        missing_package = short_classes - complete_classes_short
-        # print( "in the same package (missing package):", missing_package )
-
-        package = k.rsplit('.', 1 )[0]
-        #list_complete_classes += [ package + "." + sc for sc in missing_package ]
-        # def find_package( short_class, package, asterisk_classes, total_complete_classes ):
-        asterisk_classes = [ elem for elem in list_complete_classes if elem[-1] == '*']
-
-        list_complete_classes += [ find_package( sc, package, asterisk_classes, total_complete_classes) for sc in missing_package ]
-        list_complete_classes = [elem for elem in list_complete_classes if not is_asterisk_class( elem )]
-
-        new_dict[k] = [elem for elem in list_complete_classes if elem != k ]
+        
+        new_value = {}
+        for kk, vv in v.items():
+            new_value[kk] = [ sub(elem) for elem in vv ]
+        
+        new_dict[sub(k)] = new_value
+    
+    return new_dict
 
 
-    # del new_dict[ "dtu.deps.normal.Primes implements Iterable<Integer>" ]
 
-    # complete single classes
-    all_classes = list( dict.keys() ) + [ elem for l in dict.values() for elem in l ]
-    total_complete_classes = [ elem for elem in all_classes if len( elem.split('.') ) > 1 and elem[-1] != '*' ]
+def complete_dict_short( dict ):
+    new_dict = {}
+
+    get_small = lambda x : re.sub("<.*>", "", x).split('.')[-1]
+
+    for k, v in dict.items():
+        new_dict[ get_small(k) ] = list({ get_small(elem) for elem in v if elem not in primitiva_java_types and get_small(elem) != '*' and get_small(elem) != get_small(k)})
+
+    return new_dict
+        
+def add_dependencies( dep_dict, full_dict ):
+    new_dict = {}
+
+    for k, v in full_dict.items():
+
+        if k not in dep_dict:
+            continue
+
+        deps = set( dep_dict[k] )
+        all_others = set( v["composition"] + v["realization"] + v["inheritance"] + v["aggregation"] )
+
+        new_dict[k] = v.copy()
+        new_dict[k]["dependency"] = list( deps - all_others )
 
     return new_dict
 
-def find_package( short_class, package, asterisk_classes, total_complete_classes ):
-    global lookup_table
 
-    if package + "." + short_class in total_complete_classes:
-        return package + "." + short_class
-    
-    for ac in asterisk_classes:
-        possible_class = ac[:-1] + short_class
-        if possible_class in total_complete_classes:
-            return possible_class
-    
-    if short_class in lookup_table:
-        return lookup_table[short_class]
-        
-    return "WILL BE IGNORED: " + short_class
-    # return ''
+
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 #                                                     "REAL" PROGRAM STARTS HERE
@@ -166,12 +160,17 @@ class StaticFunctionClasses( SyntaxFold ):
     
     def field_access(self, node, results):
         object = node.children_by_field_name('object')
+
+        #field = node.children_by_field_name('field')
+        #print( [a.text for a in field])
+
         return set([o.text for o in object])
 
     def variable_declarator( self, node, results):
         vars = node.children_by_field_name('name')
         self._variables += [ v.text for v in vars ]
         return set()
+    
 
 class ArgumentTypes( SyntaxFold ):
     def formal_parameter( self, node, results):
@@ -212,33 +211,50 @@ class ReturnTypes( SyntaxFold ):
         return set(res)
     
 
-dict = {}
 
-proj_path = "../course-02242-examples"
-for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
-    with open(file, "rb") as f:
+def get_dependencies():
 
-        tree = parser.parse(f.read())
+    FILE = "./../java.so" # the ./ is important
+    Language.build_library(FILE, ["tree-sitter-java"])
+    JAVA_LANGUAGE = Language(FILE, "java")
+    parser = Parser()
+    parser.set_language(JAVA_LANGUAGE)
 
-        print()
-
-        package_name = PackageName().visit( tree.root_node )
-        class_name = ClassName().visit( tree.root_node ) 
-
-        assert( len(package_name) == 1 )
-        assert( len(class_name) == 1 )
-
-        main_class = (package_name.pop() + b'.' + class_name.pop() ).decode()
-
-        direct_imports = DirectImports().visit( tree.root_node )
-        object_types = ObjectTypes().visit( tree.root_node )
-        static_function_class = StaticFunctionClasses().visit( tree.root_node )
-        argument_types = ArgumentTypes().visit( tree.root_node )
-        return_types = ReturnTypes().visit( tree.root_node )
-
-        dict[ main_class] = list(direct_imports) + list(object_types) + list( static_function_class ) + list( argument_types ) + list( return_types )
-        dict[ main_class] = [ elem.decode() for elem in dict[main_class]]
+    pp = pprint.PrettyPrinter(indent=4)
 
 
-new_dict = complete_dict( dict )
-pp.pprint(new_dict)
+    dict = {}
+
+    proj_path = "../course-02242-examples"
+    for file in glob.iglob(proj_path+"/**/*.java", recursive=True):
+        with open(file, "rb") as f:
+
+            tree = parser.parse(f.read())
+
+            print()
+
+            package_name = PackageName().visit( tree.root_node )
+            class_name = ClassName().visit( tree.root_node ) 
+
+            assert( len(package_name) == 1 )
+            assert( len(class_name) == 1 )
+
+            main_class = (package_name.pop() + b'.' + class_name.pop() ).decode()
+
+            direct_imports = DirectImports().visit( tree.root_node )
+            object_types = ObjectTypes().visit( tree.root_node )
+            static_function_class = StaticFunctionClasses().visit( tree.root_node )
+            argument_types = ArgumentTypes().visit( tree.root_node )
+            return_types = ReturnTypes().visit( tree.root_node )
+
+            dict[ main_class] = list(direct_imports) + list(object_types) + list( static_function_class ) + list( argument_types ) + list( return_types )
+            dict[ main_class] = [ elem.decode() for elem in dict[main_class]]
+
+
+    new_dict = complete_dict_short( dict )
+    # pp.pprint(new_dict)
+    return new_dict
+
+
+
+# get_dependencies()
