@@ -1,8 +1,11 @@
+import re
 import sys
 from tree_sitter import Language, Parser
 import json
 import pprint
 import glob
+import graphviz
+from graphviz import nohtml
 
 
 FILE = "./../java.so"  # the ./ is important
@@ -64,6 +67,13 @@ def getfields(child):
                 field_type = fieldValue.child_by_field_name("type").text.decode()
                 if field_type not in primitiva_java_types:
                     fields.append(field_type)
+                    if field_type not in dict.keys():
+                        dict[field_type] = {
+                            "composition": [],
+                            "realization": [],
+                            "inheritance": [],
+                            "aggregation": [],
+                        }
     return fields
 
 
@@ -74,6 +84,13 @@ def getSuperclasses(child):
         for superclass in superclasses.children:
             if superclass.type == "type_identifier":
                 extends_class.append(superclass.text.decode())
+                if extends_class.text.decode() not in dict.keys():
+                    dict[extends_class.text.decode()] = {
+                        "composition": [],
+                        "realization": [],
+                        "inheritance": [],
+                        "aggregation": [],
+                    }
     return extends_class
 
 
@@ -84,6 +101,13 @@ def getInterfaces(child):
         for interface in interfaces.children:
             if interface.type == "type_list":
                 implements_interfaces.append(interface.text.decode())
+                if interface.text.decode() not in dict.keys():
+                    dict[interface.text.decode()] = {
+                        "composition": [],
+                        "realization": [],
+                        "inheritance": [],
+                        "aggregation": [],
+                    }
     return implements_interfaces
 
 
@@ -96,3 +120,21 @@ for file in glob.iglob(proj_path + "/**/*.java", recursive=True):
 
 
 print(json.dumps(dict, indent=4))
+
+
+s = graphviz.Digraph("structs", node_attr={"shape": "record"})
+
+
+for key, value in dict.items():
+    s.node(key, r"{" + re.sub("<.*>", "", key) + r"|}")
+    for val in value["composition"]:
+        s.edge(key, val, arrowhead="diamond")
+    for val in value["realization"]:
+        s.edge(key, val, arrowhead="normalo", style="dashed")
+    for val in value["inheritance"]:
+        s.edge(key, val, arrowhead="normalo")
+    for val in value["aggregation"]:
+        s.edge(key, val, arrowhead="diamondo")
+
+
+s.render("assignment-2/classs-graph/class-diagram.gv").replace("\\", "/")
