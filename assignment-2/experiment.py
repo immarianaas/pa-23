@@ -135,6 +135,7 @@ print(json.dumps(final_dict, indent=4))
 
 s = graphviz.Digraph("structs", node_attr={"shape": "record"})
 
+
 dict = final_dict
 for key, value in dict.items():
     s.node(key, re.sub("<.*>", "", key))
@@ -149,5 +150,17 @@ for key, value in dict.items():
     for val in value["dependency"]:
         s.edge(key, val, arrowhead="vee", style="dashed")
 
+s.node("a", "", color="white")
+s.node("b", "", color="white")
+s.node("c", "", color="white")
+s.node("d", "", color="white")
+s.node("e", "", color="white")
+s.node("f", "", color="white")
+
+s.edge("a", "b", arrowhead="diamond", label="composition")
+s.edge("b", "c", arrowhead="normalo", style="dashed", label="realization")
+s.edge("c", "d", arrowhead="normalo", label="inheritance")
+s.edge("d", "e", arrowhead="diamondo", label="aggregation")
+s.edge("e", "f", arrowhead="vee", style="dashed", label="dependency")
 
 s.render("assignment-2/classs-graph/class-diagram.gv").replace("\\", "/")
