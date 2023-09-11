@@ -173,6 +173,8 @@ class StaticFunctionClasses( SyntaxFold ):
     
 
 class ArgumentTypes( SyntaxFold ):
+    _generics = set()
+
     def formal_parameter( self, node, results):
         res = []
         for c in node.children_by_field_name('type'):
@@ -180,7 +182,13 @@ class ArgumentTypes( SyntaxFold ):
                 res += [ elem.text for elem in c.children_by_field_name('element') ]
             else:
                 res += [ c.text ]
+
+        res = [ elem for elem in res if elem not in self._generics ]
         return set(res)
+    
+    def type_parameter( self, node, results ):
+        self._generics.add( node.text )
+        return set()
     
 class ReturnTypes( SyntaxFold ):
     def method_declaration( self, node, results ):

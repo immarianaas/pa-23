@@ -118,6 +118,9 @@ for file in glob.iglob(proj_path + "/**/*.java", recursive=True):
     with open(file, "rb") as f:
         tree = parser.parse(f.read())
 
+        # if "tricky" in file:
+        #     print( tree.root_node.sexp() )
+
         walk_tree(tree.root_node)
 
 
