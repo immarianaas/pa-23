@@ -21,7 +21,7 @@ def createDictEntry(className: str):
         ]
     ):
         dict[className] = {
-            "relationships": {
+            "relations": {
                 "Dependency": [],
                 "Association": [],
                 "Aggregation": [],
@@ -49,19 +49,19 @@ def GetFields(data, classname):
         dict[classname]["fields"].append({"name": f["name"], "access": f["access"]})
         if f["type"]["kind"] == "class":
             createDictEntry(f["type"]["name"])
-            dict[classname]["relationships"]["Aggregation"].append(f["type"]["name"])
+            dict[classname]["relations"]["Aggregation"].append(f["type"]["name"])
 
 
 def GetInterfaces(data: json, classname: str):
     interfaces = data["interfaces"]
     for i in interfaces:
         i_name = i["name"]
-        dict[classname]["relationships"]["Realization"].append(i_name)
+        dict[classname]["relations"]["Realization"].append(i_name)
         createDictEntry(i_name)
         for arg in i["args"]:
             if arg["type"]["kind"] == "class":
                 createDictEntry(i_name)
-                dict[i_name]["relationships"]["Dependency"].append(arg["type"]["name"])
+                dict[i_name]["relations"]["Dependency"].append(arg["type"]["name"])
 
 
 def JsonDirectoryToDict(json_directory: str):
