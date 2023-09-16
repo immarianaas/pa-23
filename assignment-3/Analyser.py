@@ -7,7 +7,19 @@ dict = {}
 
 
 def createDictEntry(className: str):
-    if className not in dict.keys():
+    if (className not in dict.keys()) & (
+        className
+        not in [
+            "byte",
+            "short",
+            "int",
+            "long",
+            "float",
+            "double",
+            "boolean",
+            "char",
+        ]
+    ):
         dict[className] = {
             "relationships": {
                 "Dependency": [],
@@ -28,9 +40,16 @@ def JsonToDictEntries(data: json):
     createDictEntry(classname)
 
     GetInterfaces(data, classname)
+    GetFields(data, classname)
+
+
+def GetFields(data, classname):
     fields = data["fields"]
     for f in fields:
-        dict[classname]["fields"].append(f["name"])
+        dict[classname]["fields"].append({"name": f["name"], "access": f["access"]})
+        if f["type"]["kind"] == "class":
+            createDictEntry(f["type"]["name"])
+            dict[classname]["relationships"]["Aggregation"].append(f["type"]["name"])
 
 
 def GetInterfaces(data: json, classname: str):
