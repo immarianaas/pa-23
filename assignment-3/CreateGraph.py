@@ -10,7 +10,7 @@ def CreateGraph(dict):
     for key, value in dict.items():
         s.node(
             key,
-            r"{ " + key + " | " + value["fields"] + " | " + value["methods"] + "}",
+            r"{ " + key + " | " + value["fields"] + "\l | " + value["methods"] + "\l}",
         )
         # for val in value["composition"]:
         #    s.edge(key, val, arrowhead="diamond")
