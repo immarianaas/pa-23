@@ -45,10 +45,7 @@ def JsonToDictEntries(data: json):
     GetFields(data, classname)
 
     GetMethods(data, classname)
-
-    # for a in data["methods"]:
-    #     getMethodInfo(a, classname)
-
+    GetInnerClasses( data, classname )
 
 def GetFields(data, classname):
     fields = data["fields"]
@@ -59,7 +56,6 @@ def GetFields(data, classname):
         if "kind" in f["type"] and f["type"]["kind"] == "class":
             createDictEntry(f["type"]["name"])
             dict[classname]["relations"]["Aggregation"].append(f["type"]["name"])
-
 
 def GetInterfaces(data: json, classname: str):
     interfaces = data["interfaces"]
@@ -72,14 +68,10 @@ def GetInterfaces(data: json, classname: str):
                 createDictEntry(i_name)
                 dict[i_name]["relations"]["Dependency"].append(arg["type"]["name"])
 
-# not called
 def GetMethods(data: json, classname: str):
     methods = data["methods"]
     for i in methods:
         dict[classname]["functions"].append( getMethodInfo(i, classname) )
-
-        # m_name = i["name"]
-        # dict[classname]["functions"]
 
 def getType( obj: json ):
     assert( "type" in obj )
@@ -89,7 +81,7 @@ def getType( obj: json ):
     if "base" in obj["type"]:
         return obj["type"]["base"] 
     
-    if "name" in obj["type"]:
+    if "name" in obj["type"] and obj["type"]["kind"] != "typevar":
         return obj["type"]["name"]
 
     # not a good way to do this:
@@ -97,6 +89,7 @@ def getType( obj: json ):
         return obj["type"]["type"]["name"] + "[]"
 
     return None
+
 def getMethodInfo(method: json, classname: str):
     info = {}
 
@@ -128,12 +121,22 @@ def getMethodInfo(method: json, classname: str):
     # print( info )
     return info
 
+def GetInnerClasses(data: json, classname: str):
+    for inner_class in data["innerclasses"]:
+        inner_class_name = inner_class["class"]
+        if inner_class["outer"] == classname:
+            dict[classname]["relations"]["Composition"].append( inner_class_name )
+            createDictEntry(inner_class_name)
+
 def JsonDirectoryToDict(json_directory: str):
     for file in glob.iglob(json_directory + "/**/*.json", recursive=True):
         print( "reading file:", file)
         # just to debug
         # if "primes" not in file:
         #     continue
+        if "tricky.json" not in file or "primesPrimes" in file:
+            continue
+
         f = open( file)
         data: json = json.load(f)
         f.close()
