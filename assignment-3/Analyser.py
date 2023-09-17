@@ -2,6 +2,7 @@ import os
 from CreateGraph import CreateGraph
 import json
 import glob
+import subprocess
 
 dict = {}
 
@@ -128,20 +129,17 @@ def GetInnerClasses(data: json, classname: str):
             dict[classname]["relations"]["Composition"].append( inner_class_name )
             createDictEntry(inner_class_name)
 
-def JsonDirectoryToDict(json_directory: str):
-    for file in glob.iglob(json_directory + "/**/*.json", recursive=True):
-        print( "reading file:", file)
-        # just to debug
-        # if "primes" not in file:
-        #     continue
-        if "tricky.json" not in file or "primesPrimes" in file:
-            continue
+def ProjDirectoryToDict(proj_directory: str):
+    for file in glob.iglob(proj_directory + "/**/*.class", recursive=True):
 
-        f = open( file)
+        new_filename = file.split('.')[0] + ".json"
+        ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
+
+        f = open( new_filename )
         data: json = json.load(f)
         f.close()
         JsonToDictEntries(data)
 
 
-JsonDirectoryToDict(os.path.join("assignment-3","Json bytecode"))
+ProjDirectoryToDict(os.path.join("assignment-3","classes"))
 print(json.dumps(dict, indent=4))
