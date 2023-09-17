@@ -97,10 +97,12 @@ def getMethodInfo(method: json, classname: str):
     info["name"] = method["name"]
     info["access"] = method["access"]
 
-    info["returns"] = getType( method["returns"] )
-
     arguments = method["params"]
     info["arguments"] = [ getType( elem ) for elem in method["params"] if getType( elem ) is not None]
+    
+    info["returns"] = getType( method["returns"] )
+
+    
 
     
     returns_obj_name = info["returns"]
@@ -131,9 +133,8 @@ def GetInnerClasses(data: json, classname: str):
 
 def ProjDirectoryToDict(proj_directory: str):
     for file in glob.iglob(proj_directory + "/**/*.class", recursive=True):
-
-        new_filename = file.split('.')[0] + ".json"
-        ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
+        new_filename = "." + file.split('.')[1] + ".json"
+        # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
 
         f = open( new_filename )
         data: json = json.load(f)
@@ -141,5 +142,6 @@ def ProjDirectoryToDict(proj_directory: str):
         JsonToDictEntries(data)
 
 
-ProjDirectoryToDict(os.path.join("assignment-3","classes"))
+ProjDirectoryToDict(os.path.join("./","classes"))
 print(json.dumps(dict, indent=4))
+CreateGraph(dict)
