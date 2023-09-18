@@ -7,12 +7,17 @@ def interpret(obj):
    pass
     
 def interpretBytecode(byteArray, stack = [], memory = {}):
-    byteObj = byteArray.pop()
+    byteObj = byteArray.pop(0)
+    #print(stack)
+    #print(byteObj, byteArray)
     match byteObj["opr"]:
         case "return":
             if byteObj["type"] is None:
                 return None
+            return stack.pop()
 
+        case "push":
+            stack.append( byteObj["value"]["value"] )
         case "load":
             pass
         case "new":
@@ -27,8 +32,8 @@ def interpretBytecode(byteArray, stack = [], memory = {}):
             match byteObj["operant"]:
                 case "add":
                     pass
-    if(byteArray.lengh > 0):
-        interpretBytecode(byteArray, stack, memory)
+    if(len(byteArray) > 0):
+        return interpretBytecode(byteArray, stack, memory)
     else :
         return "something"
 
@@ -60,3 +65,4 @@ def interpretProjDir(proj_directory: str):
 
 
 testNoop()
+testZero()
