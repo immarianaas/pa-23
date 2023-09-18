@@ -3,12 +3,14 @@ import json
 import glob
 import subprocess
 
+
 def interpret(obj):
    pass
     
 def interpretBytecode(byteArray, stack = [], memory = []):
     byteObj = byteArray.pop(0)
-    # print(stack)
+    # print(byteObj)
+    #print(stack)
     #print(byteObj, byteArray)
     match byteObj["opr"]:
         case "return":
@@ -39,18 +41,14 @@ def interpretBytecode(byteArray, stack = [], memory = []):
     else :
         return "something"
 
-def testNoop():
-    print(interpretBytecode( [{ "offset": 0, "opr": "return", "type": None }]))
 
-def testZero():
+def testAdd():
     print(interpretBytecode( [
-          {
-            "offset": 0,
-            "opr": "push",
-            "value": { "type": "integer", "value": 0 }
-          },
-          { "offset": 1, "opr": "return", "type": "int" }
-        ]
+          { "offset": 0, "opr": "load", "type": "int", "index": 0 },
+          { "offset": 1, "opr": "load", "type": "int", "index": 1 },
+          { "offset": 2, "opr": "binary", "type": "int", "operant": "add" },
+          { "offset": 3, "opr": "return", "type": "int" }
+        ],memory= [10, 11]
         ))
 
 def testAdd():
@@ -74,6 +72,4 @@ def interpretProjDir(proj_directory: str):
         interpret(data)
 
 
-testNoop()
-testZero()
 testAdd()
