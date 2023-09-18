@@ -2,7 +2,8 @@ import os
 from tree_sitter import Language, Parser
 
 LANGUAGE_FILE = "./languages.so" # the ./ is important
-PATH_TO_TREE_SITTER_JAVA = "tree-sitter-java"
+#PATH_TO_TREE_SITTER_JAVA = "tree-sitter-java"
+PATH_TO_TREE_SITTER_JAVA = "./../tree-sitter-java"
 Language.build_library(LANGUAGE_FILE, [PATH_TO_TREE_SITTER_JAVA])
 
 # Initialize the Tree-sitter parser with the Java grammar
@@ -63,7 +64,9 @@ def print_ast(node, depth=0):
         print_ast(child, depth + 1)
 
 # Directory containing your Java files
-java_files_directory = 'pa-23/course-02242-examples/src/dependencies/java/dtu/deps/'
+# java_files_directory = 'pa-23/course-02242-examples/src/dependencies/java/dtu/deps/'
+
+java_files_directory = "../example-dependency-graphs/src/main/java/dtu/compute/simple/"
 
 # Initialize a set to store class dependencies
 all_dependencies = set()

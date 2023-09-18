@@ -17,7 +17,7 @@ primitive_types = { "int", "byte", "short", "long", "float", "double", "boolean"
 
 #path = "./course-02242-examples/src/dependencies/java/dtu/deps/tricky/"
 path = "./course-02242-examples/src/dependencies/java/dtu/deps/simple/"
-proj_path = "./course-02242-examples/src"
+proj_path = "./../course-02242-examples/src"
 # { principal class : [ immediate dependencies ] }
 dict = {}
 
@@ -117,6 +117,7 @@ def find_package( short_class, package, asterisk_classes, total_complete_classes
     return ''
 
 def complete_dict():
+    print( dict )
     # complete single classes
     all_classes = list( dict.keys() ) + [ elem for l in dict.values() for elem in l ]
     total_complete_classes = [ elem for elem in all_classes if is_complete_class( elem ) and not is_asterisk_class(elem) ]

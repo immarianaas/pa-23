@@ -16,12 +16,16 @@ def interpretBytecode(byteArray, stack = [], memory = []):
         case "return":
             if byteObj["type"] is None:
                 return None
+            assert( len(stack) > 0)
             return stack.pop()
 
         case "push":
             stack.append( byteObj["value"]["value"] )
+
         case "load":
+            assert( len(memory) > byteObj["index"] )
             stack.append(memory[byteObj["index"]])
+
         case "new":
             pass
         case "dup":
@@ -42,23 +46,6 @@ def interpretBytecode(byteArray, stack = [], memory = []):
         return "something"
 
 
-def testAdd():
-    print(interpretBytecode( [
-          { "offset": 0, "opr": "load", "type": "int", "index": 0 },
-          { "offset": 1, "opr": "load", "type": "int", "index": 1 },
-          { "offset": 2, "opr": "binary", "type": "int", "operant": "add" },
-          { "offset": 3, "opr": "return", "type": "int" }
-        ],memory= [10, 11]
-        ))
-
-def testAdd():
-    print(interpretBytecode( [
-          { "offset": 0, "opr": "load", "type": "int", "index": 0 },
-          { "offset": 1, "opr": "load", "type": "int", "index": 1 },
-          { "offset": 2, "opr": "binary", "type": "int", "operant": "add" },
-          { "offset": 3, "opr": "return", "type": "int" }
-        ],memory= [10, 11]
-        ))
 
 
 def interpretProjDir(proj_directory: str):
@@ -71,5 +58,3 @@ def interpretProjDir(proj_directory: str):
         f.close()
         interpret(data)
 
-
-testAdd()
