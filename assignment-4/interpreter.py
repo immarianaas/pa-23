@@ -23,7 +23,10 @@ def interpretBytecode(byteArray, stack = 0, memory = 0):
             match byteObj["operant"]:
                 case "add":
                     pass
-    interpretBytecode(byteArray, stack, memory)
+    if(byteArray.lengh > 0):
+        interpretBytecode(byteArray, stack, memory)
+    else :
+        return "something"
 
 
 
