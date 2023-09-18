@@ -6,9 +6,13 @@ import subprocess
 def interpret(obj):
    pass
     
-def interpretBytecode(byteArray, stack = 0, memory = 0):
+def interpretBytecode(byteArray, stack = [], memory = {}):
     byteObj = byteArray.pop()
     match byteObj["opr"]:
+        case "return":
+            if byteObj["type"] is None:
+                return None
+
         case "load":
             pass
         case "new":
@@ -28,6 +32,19 @@ def interpretBytecode(byteArray, stack = 0, memory = 0):
     else :
         return "something"
 
+def testNoop():
+    print(interpretBytecode( [{ "offset": 0, "opr": "return", "type": None }]))
+
+def testZero():
+    print(interpretBytecode( [
+          {
+            "offset": 0,
+            "opr": "push",
+            "value": { "type": "integer", "value": 0 }
+          },
+          { "offset": 1, "opr": "return", "type": "int" }
+        ]
+        ))
 
 
 def interpretProjDir(proj_directory: str):
@@ -42,3 +59,4 @@ def interpretProjDir(proj_directory: str):
 
 
 
+testNoop()
