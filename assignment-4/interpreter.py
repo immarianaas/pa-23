@@ -8,6 +8,7 @@ def interpret(obj):
     
 def interpretBytecode(byteArray, stack = [], memory = {}):
     byteObj = byteArray.pop(0)
+    # print(byteObj)
     #print(stack)
     #print(byteObj, byteArray)
     match byteObj["opr"]:
@@ -50,6 +51,17 @@ def testZero():
           { "offset": 1, "opr": "return", "type": "int" }
         ]
         ))
+    
+def testHundredAndTwo():
+    print(interpretBytecode( [
+          {
+            "offset": 0,
+            "opr": "push",
+            "value": { "type": "integer", "value": 102 }
+          },
+          { "offset": 2, "opr": "return", "type": "int" }
+        ]
+        ))
 
 
 def interpretProjDir(proj_directory: str):
@@ -66,3 +78,4 @@ def interpretProjDir(proj_directory: str):
 
 testNoop()
 testZero()
+testHundredAndTwo()
