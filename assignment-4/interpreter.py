@@ -7,7 +7,7 @@ import subprocess
 def interpret(obj):
    pass
     
-def interpretBytecode(byteArray, stack = [], memory = {}):
+def interpretBytecode(byteArray, stack = [], memory = []):
     byteObj = byteArray.pop(0)
     # print(byteObj)
     #print(stack)
@@ -21,7 +21,7 @@ def interpretBytecode(byteArray, stack = [], memory = {}):
         case "push":
             stack.append( byteObj["value"]["value"] )
         case "load":
-            pass
+            stack.append(memory[byteObj["index"]])
         case "new":
             pass
         case "dup":
@@ -33,12 +33,32 @@ def interpretBytecode(byteArray, stack = [], memory = {}):
         case "binary":
             match byteObj["operant"]:
                 case "add":
-                    pass
+                    a = stack.pop()
+                    b = stack.pop()
+                    stack.append(a+b)
     if(len(byteArray) > 0):
         return interpretBytecode(byteArray, stack, memory)
     else :
         return "something"
 
+
+def testAdd():
+    print(interpretBytecode( [
+          { "offset": 0, "opr": "load", "type": "int", "index": 0 },
+          { "offset": 1, "opr": "load", "type": "int", "index": 1 },
+          { "offset": 2, "opr": "binary", "type": "int", "operant": "add" },
+          { "offset": 3, "opr": "return", "type": "int" }
+        ],memory= [10, 11]
+        ))
+
+def testAdd():
+    print(interpretBytecode( [
+          { "offset": 0, "opr": "load", "type": "int", "index": 0 },
+          { "offset": 1, "opr": "load", "type": "int", "index": 1 },
+          { "offset": 2, "opr": "binary", "type": "int", "operant": "add" },
+          { "offset": 3, "opr": "return", "type": "int" }
+        ],memory= [10, 11]
+        ))
 
 
 def interpretProjDir(proj_directory: str):
@@ -52,3 +72,4 @@ def interpretProjDir(proj_directory: str):
         interpret(data)
 
 
+testAdd()
