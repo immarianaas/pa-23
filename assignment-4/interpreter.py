@@ -4,10 +4,12 @@ import glob
 import subprocess
 
 def interpret(obj):
+   pass
+    
+def interpretBytecoe(byteObj):
     stack = []
     memory = []
-    opr = ""
-    match opr:
+    match byteObj["opr"]:
         case "load":
             pass
         case "new":
@@ -18,8 +20,10 @@ def interpret(obj):
             pass
         case "invoke":
             pass
-    
-
+        case "binary":
+            match byteObj["operant"]:
+                case "add":
+                    pass
 
 
 
