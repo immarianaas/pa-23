@@ -6,9 +6,8 @@ import subprocess
 def interpret(obj):
    pass
     
-def interpretBytecoe(byteObj):
-    stack = []
-    memory = []
+def interpretBytecode(byteArray, stack = 0, memory = 0):
+    byteObj = byteArray.pop()
     match byteObj["opr"]:
         case "load":
             pass
@@ -24,7 +23,7 @@ def interpretBytecoe(byteObj):
             match byteObj["operant"]:
                 case "add":
                     pass
-
+    interpretBytecode(byteArray, stack, memory)
 
 
 
