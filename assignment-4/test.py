@@ -45,13 +45,25 @@ def testAdd(a, b):
           { "offset": 3, "opr": "return", "type": "int" }
         ],memory= [a, b]
         ))
+    
+def testMin(a, b):
+    print(interpreter.interpretBytecode([
+          { "offset": 0, "opr": "load", "type": "int", "index": 0 },
+          { "offset": 1, "opr": "load", "type": "int", "index": 1 },
+          { "offset": 2, "opr": "if", "condition": "gt", "target": 5 },
+          { "offset": 5, "opr": "load", "type": "int", "index": 0 },
+          { "offset": 6, "opr": "return", "type": "int" },
+          { "offset": 7, "opr": "load", "type": "int", "index": 1 },
+          { "offset": 8, "opr": "return", "type": "int" }
+        ], memory=[a, b]))
 
 testNoop()
 testZero()
 testHundredAndTwo()
-
 testAdd(40, 5)
 
 testHundredAndTwo()
 
 testIdentity(5)
+
+testMin(3,4)

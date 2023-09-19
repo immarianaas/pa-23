@@ -40,6 +40,11 @@ def interpretBytecode(byteArray, stack = [], memory = []):
                     a = stack.pop()
                     b = stack.pop()
                     stack.append(a+b)
+        case "if":
+            b = False
+            match byteObj["condition"]:
+                case "gt":
+                    pass
     if(len(byteArray) > 0):
         return interpretBytecode(byteArray, stack, memory)
     else :
