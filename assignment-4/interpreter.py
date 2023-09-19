@@ -59,6 +59,8 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = []):
             pass
         case "goto":
             pass
+        case _:
+            print(byteObj["opr"] + " not implemented")
     if(len(byteArray) > index):
         return interpretBytecode(byteArray, index+1, stack, memory)
     else :
