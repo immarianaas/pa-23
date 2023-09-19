@@ -7,8 +7,8 @@ import subprocess
 def interpret(obj):
    pass
     
-def interpretBytecode(byteArray, stack = [], memory = []):
-    byteObj = byteArray.pop(0)
+def interpretBytecode(byteArray, index = 0, stack = [], memory = []):
+    byteObj = byteArray[index]
     # print(byteObj)
     #print(stack)
     #print(byteObj, byteArray)
@@ -39,7 +39,11 @@ def interpretBytecode(byteArray, stack = [], memory = []):
             b = False
             match byteObj["condition"]:
                 case "gt":
-                    pass
+                    a = stack.pop()
+                    b = stack.pop()
+                    if b > a:
+                        return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+
                 
         case "new":
             pass
@@ -55,8 +59,8 @@ def interpretBytecode(byteArray, stack = [], memory = []):
             pass
         case "goto":
             pass
-    if(len(byteArray) > 0):
-        return interpretBytecode(byteArray, stack, memory)
+    if(len(byteArray) > index):
+        return interpretBytecode(byteArray, index+1, stack, memory)
     else :
         return "something"
 
