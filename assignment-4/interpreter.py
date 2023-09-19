@@ -26,6 +26,21 @@ def interpretBytecode(byteArray, stack = [], memory = []):
             assert( len(memory) > byteObj["index"] )
             stack.append(memory[byteObj["index"]])
 
+        case "binary":
+            a = stack.pop()
+            b = stack.pop()
+            match byteObj["operant"]:
+                case "add":
+                    stack.append(a+b)
+                case "mul":
+                    stack.append(a*b)
+
+        case "if":
+            b = False
+            match byteObj["condition"]:
+                case "gt":
+                    pass
+                
         case "new":
             pass
         case "dup":
@@ -34,17 +49,12 @@ def interpretBytecode(byteArray, stack = [], memory = []):
             pass
         case "invoke":
             pass
-        case "binary":
-            match byteObj["operant"]:
-                case "add":
-                    a = stack.pop()
-                    b = stack.pop()
-                    stack.append(a+b)
-        case "if":
-            b = False
-            match byteObj["condition"]:
-                case "gt":
-                    pass
+        case "incr":
+            pass 
+        case "ifz":
+            pass
+        case "goto":
+            pass
     if(len(byteArray) > 0):
         return interpretBytecode(byteArray, stack, memory)
     else :
