@@ -46,19 +46,19 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = []):
 
                 
         case "new":
-            pass
+            print(byteObj["opr"] + " not implemented")
         case "dup":
-            pass 
+            print(byteObj["opr"] + " not implemented") 
         case "put":
-            pass
+            print(byteObj["opr"] + " not implemented")
         case "invoke":
-            pass
+            print(byteObj["opr"] + " not implemented")
         case "incr":
-            pass 
+            print(byteObj["opr"] + " not implemented") 
         case "ifz":
-            pass
+            print(byteObj["opr"] + " not implemented")
         case "goto":
-            pass
+            print(byteObj["opr"] + " not implemented")
         case _:
             print(byteObj["opr"] + " not implemented")
     if(len(byteArray) > index):
