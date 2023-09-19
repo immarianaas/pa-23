@@ -7,9 +7,8 @@ import subprocess
 def interpret(obj):
    pass
     
-def interpretBytecode(byteArray, index = 0, stack = [], memory = []):
+def interpretBytecode(byteArray, index = 0, stack = [], memory = {}):
     byteObj = byteArray[index]
-    print(str(index) + ": " +byteObj["opr"])
     match byteObj["opr"]:
         case "return":
             if byteObj["type"] is None:
@@ -21,8 +20,6 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = []):
             stack.append( byteObj["value"]["value"] )
 
         case "load":
-            print(byteObj)
-            assert( len(memory) > byteObj["index"] )
             stack.append(memory[byteObj["index"]])
 
         case "binary":
@@ -42,7 +39,8 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = []):
                     b = stack.pop()
                     if b > a:
                         return interpretBytecode(byteArray, byteObj["target"], stack, memory)
-
+        case "store":
+            memory[byteObj["index"]] = stack.pop()
         case "new":
             print(byteObj["opr"] + " not implemented")
             return

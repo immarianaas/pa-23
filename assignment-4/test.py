@@ -36,7 +36,7 @@ def testIdentity(a):
         [
           { "offset": 0, "opr": "load", "type": "int", "index": 0 },
           { "offset": 1, "opr": "return", "type": "int" }
-        ], memory=[a]
+        ], memory={0:a}
     ) 
     assert(res == a)
 
@@ -47,7 +47,7 @@ def testAdd(a, b):
           { "offset": 1, "opr": "load", "type": "int", "index": 1 },
           { "offset": 2, "opr": "binary", "type": "int", "operant": "add" },
           { "offset": 3, "opr": "return", "type": "int" }
-        ],memory= [a, b]
+        ],memory={0: a, 1: b}
         )
     assert(res == a+b)
     
@@ -60,7 +60,7 @@ def testMin(a, b):
           { "offset": 6, "opr": "return", "type": "int" },
           { "offset": 7, "opr": "load", "type": "int", "index": 1 },
           { "offset": 8, "opr": "return", "type": "int" }
-        ], memory=[a, b])
+        ], memory={0: a, 1: b})
     assert(res == min([a,b]))
     
 def testFactorial(n):
@@ -77,7 +77,7 @@ def testFactorial(n):
           { "offset": 13, "opr": "goto", "target": 2 },
           { "offset": 16, "opr": "load", "type": "int", "index": 1 },
           { "offset": 17, "opr": "return", "type": "int" }
-        ], memory=[5])
+        ], memory={0:n})
     assert(res == math.factorial(n))
 
 testNoop()
