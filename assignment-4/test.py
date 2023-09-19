@@ -77,7 +77,7 @@ def testFactorial(n):
           { "offset": 13, "opr": "goto", "target": 2 },
           { "offset": 16, "opr": "load", "type": "int", "index": 1 },
           { "offset": 17, "opr": "return", "type": "int" }
-        ], memory=5)
+        ], memory=[5])
     assert(res == math.factorial(n))
 
 testNoop()
