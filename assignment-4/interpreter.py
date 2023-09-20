@@ -5,19 +5,23 @@ import subprocess
 
 
 def interpret(obj):
-   pass
-    
-def interpretBytecode(byteArray, index = 0, stack = [], memory = {}):
+    pass
+
+
+COUNTER = 15
+
+
+def interpretBytecode(byteArray, index=0, stack=[], memory={}):
     byteObj = byteArray[index]
     match byteObj["opr"]:
         case "return":
             if byteObj["type"] is None:
                 return None
-            assert( len(stack) > 0)
+            assert (len(stack) > 0)
             return stack.pop()
 
         case "push":
-            stack.append( byteObj["value"]["value"] )
+            stack.append(byteObj["value"]["value"])
 
         case "load":
             stack.append(memory[byteObj["index"]])
@@ -32,13 +36,32 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = {}):
                     stack.append(a*b)
 
         case "if":
-            b = False
+            assert (len(stack) >= 2)
+            a = stack.pop()
+            b = stack.pop()
+            jump = False
+
             match byteObj["condition"]:
                 case "gt":
-                    a = stack.pop()
-                    b = stack.pop()
-                    if b > a:
-                        return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+                    jump = b > a
+                case "le":
+                    jump = b <= a
+
+            if jump:
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+
+        case "ifz":
+            assert (len(stack) >= 1)
+            a = stack.pop()
+            jump = False
+
+            match byteObj["condition"]:
+                case "le":
+                    jump = a is None or a <= 0
+
+            if jump:
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+
         case "store":
             memory[byteObj["index"]] = stack.pop()
         case "new":
@@ -46,7 +69,7 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = {}):
             return
         case "dup":
             print(byteObj["opr"] + " not implemented")
-            return 
+            return
         case "put":
             print(byteObj["opr"] + " not implemented")
             return
@@ -54,23 +77,18 @@ def interpretBytecode(byteArray, index = 0, stack = [], memory = {}):
             print(byteObj["opr"] + " not implemented")
             return
         case "incr":
-            print(byteObj["opr"] + " not implemented")
-            return 
-        case "ifz":
-            print(byteObj["opr"] + " not implemented")
-            return
+            memory[byteObj["index"]] += byteObj["amount"]
+            stack.append(memory[byteObj["index"]])
         case "goto":
-            print(byteObj["opr"] + " not implemented")
-            return
+            return interpretBytecode(byteArray, byteObj["target"], stack, memory)
         case _:
             print(byteObj["opr"] + " not implemented")
             return
-    if(len(byteArray) > index):
+
+    if (len(byteArray) > index):
         return interpretBytecode(byteArray, index+1, stack, memory)
-    else :
+    else:
         return "something"
-
-
 
 
 def interpretProjDir(proj_directory: str):
@@ -78,8 +96,7 @@ def interpretProjDir(proj_directory: str):
         new_filename = "." + file.split('.')[1] + ".json"
         # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
 
-        f = open( new_filename )
+        f = open(new_filename)
         data: json = json.load(f)
         f.close()
         interpret(data)
-
