@@ -89,6 +89,39 @@ def testFactorial(n):
     assert (res == math.factorial(n))
 
 
+'''
+def testFib(n):
+    def f(n): return 1 if n <= 2 else f(n-1) + f(n-2)
+    res = interpreter.interpretBytecode([
+        {"offset": 0, "opr": "load", "type": "int", "index": 0},
+        {"offset": 1,   "opr": "push", "value":
+         {"type": "integer", "value": 2}},
+        {"offset": 2, "opr": "if", "condition": "ge", "target": 5},
+        {"offset": 5, "opr": "push", "value":
+         {"type": "integer",    "value": 1}},
+        {"offset": 6, "opr": "return", "type": "int"},
+        {"offset": 7, "opr": "load", "type": "int", "index": 0},
+        {"offset": 8, "opr": "push", "value":
+         {"type": "integer",    "value": 1}},
+        {"offset": 9, "opr": "binary", "type": "int", "operant": "sub"},
+        {"offset": 10, "opr": "invoke", "access": "static", "method":
+         {"is_interface": False, "ref":
+          {"kind": "class", "name": "dtu/compute/exec/Calls"},
+          "name": "fib",    "args": ["int"],    "returns": "int"}},
+        {"offset": 13, "opr": "load", "type": "int", "index": 0},
+        {"offset": 14, "opr": "push", "value":
+         {"type": "integer",    "value": 2}},
+        {"offset": 15, "opr": "binary", "type": "int", "operant": "sub"},
+        {"offset": 16, "opr": "invoke", "access": "static", "method":
+         {"is_interface": False,    "ref":
+          {"kind": "class",        "name": "dtu/compute/exec/Calls"},    "name": "fib",    "args": ["int"],    "returns": "int"}},
+        {"offset": 19, "opr": "binary", "type": "int", "operant": "mul"},
+        {"offset": 20, "opr": "return", "type": "int"}
+    ], memory={0: n})
+    print(res)
+    assert (res == f(n))
+'''
+
 testNoop()
 testZero()
 testHundredAndTwo()
@@ -96,3 +129,12 @@ testIdentity(5)
 testAdd(40, 5)
 testMin(3, 4)
 testFactorial(5)
+
+# testFib(5)
+
+# ugly but just for testing!!!
+calls_obj = interpreter.interpretProjDir(
+    os.path.join(".", "assignment-3", "classes"))
+
+a = interpreter.interpret(calls_obj, "fib", memory={0: 5})
+print(a)

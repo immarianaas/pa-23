@@ -4,14 +4,16 @@ import glob
 import subprocess
 
 
-def interpret(obj):
-    pass
+def interpret(obj, function_name, memory):
+
+    method = [m for m in obj["methods"] if m["name"] == function_name]
+
+    assert (len(method) == 1)
+
+    return interpretBytecode(method[0]["code"]["bytecode"], memory=memory, full_data=obj)
 
 
-COUNTER = 15
-
-
-def interpretBytecode(byteArray, index=0, stack=[], memory={}):
+def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
     byteObj = byteArray[index]
     match byteObj["opr"]:
         case "return":
@@ -34,6 +36,9 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
                     stack.append(a+b)
                 case "mul":
                     stack.append(a*b)
+                case "sub":
+                    print("a", a, " b", b)
+                    stack.append(a-b)
 
         case "if":
             assert (len(stack) >= 2)
@@ -44,11 +49,13 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             match byteObj["condition"]:
                 case "gt":
                     jump = b > a
+                case "ge":
+                    jump = b >= a
                 case "le":
                     jump = b <= a
 
             if jump:
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory, full_data)
 
         case "ifz":
             assert (len(stack) >= 1)
@@ -60,7 +67,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
                     jump = a is None or a <= 0
 
             if jump:
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory, full_data)
 
         case "store":
             memory[byteObj["index"]] = stack.pop()
@@ -74,19 +81,30 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             print(byteObj["opr"] + " not implemented")
             return
         case "invoke":
-            print(byteObj["opr"] + " not implemented")
-            return
+            to_invoke = byteObj["method"]
+
+            print(stack)
+
+            num_args = len(to_invoke["args"])
+            args = stack[-num_args:]
+            stack = stack[:-num_args]
+
+            a = dict(enumerate(args))
+            print(a)
+            res = interpret(full_data, to_invoke["name"], dict(enumerate(args)))
+            stack.append(res)
+
         case "incr":
             memory[byteObj["index"]] += byteObj["amount"]
             stack.append(memory[byteObj["index"]])
         case "goto":
-            return interpretBytecode(byteArray, byteObj["target"], stack, memory)
+            return interpretBytecode(byteArray, byteObj["target"], stack, memory, full_data)
         case _:
             print(byteObj["opr"] + " not implemented")
             return
 
     if (len(byteArray) > index):
-        return interpretBytecode(byteArray, index+1, stack, memory)
+        return interpretBytecode(byteArray, index+1, stack, memory, full_data)
     else:
         return "something"
 
@@ -96,7 +114,12 @@ def interpretProjDir(proj_directory: str):
         new_filename = "." + file.split('.')[1] + ".json"
         # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
 
+        if "Calls.json" not in new_filename:
+            continue
+
         f = open(new_filename)
         data: json = json.load(f)
         f.close()
-        interpret(data)
+        return data
+
+
