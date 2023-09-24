@@ -50,6 +50,12 @@ def testFib(n):
     assert (res == f(n))
 
 
+def testHelloWorld():
+    res = interpreter.interpretMethod(
+        "dtu/compute/exec/Calls", "helloWorld", [])
+    print(res)
+
+
 def testArrayFirst(n):
     res = interpreter.interpretMethod("dtu/compute/exec/Array", "first", [n])
     assert (res == n[0])
@@ -61,6 +67,12 @@ def testArrayAccess(i, n):
     assert (res == n[i])
 
 
+def testNewArray():
+    res = interpreter.interpretMethod(
+        "dtu/compute/exec/Array", "newArray", [])
+    assert (res == 1)
+
+
 testNoop()
 testZero()
 testHundredAndTwo()
@@ -70,6 +82,8 @@ testMin(3, 4)
 testFactorial(5)
 
 # testFib(5)
+# testHelloWorld()
 
 testArrayFirst([5, 7])
 testArrayAccess(1, [5, 7, 8])
+testNewArray()

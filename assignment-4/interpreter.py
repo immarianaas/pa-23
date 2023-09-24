@@ -32,7 +32,7 @@ def interpretMethod(class_name, method_name, arguments: list):
 
     print("METHOD NAME not found.")
 
-def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
+def interpretBytecode(byteArray, index=0, stack=[], memory={}):
     byteObj = byteArray[index]
     # print(byteObj, '\n')
     match byteObj["opr"]:
@@ -108,9 +108,6 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
         case "new":
             print(byteObj["opr"] + " not implemented")
             return
-        case "dup":
-            print(byteObj["opr"] + " not implemented")
-            return
         case "put":
             print(byteObj["opr"] + " not implemented")
             return
@@ -141,6 +138,27 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
             array = stack.pop()
             stack.append(array[index_array])
 
+        case "array_store":
+            print(stack)
+            elem = stack.pop()
+            index_array = stack.pop()
+            array = stack.pop()
+            array.append(elem)
+            stack.append(array)
+
+        case "get":
+            print(byteObj["opr"] + " not implemented")
+            return
+        
+        case "newarray":
+            # stack.append([[], byteObj["dim"]]) # list 2 elements: (array, size)
+            stack.append([]) # list 2 elements: (array, size)
+        
+        case "dup":
+            if byteObj["words"] != 1:
+                print(byteObj["opr"] + " not implemented (for words > 1)")
+            # stack.append( stack[-1] )
+
         case _:
             print(byteObj["opr"] + " not implemented")
             return
@@ -156,7 +174,7 @@ def interpretProjDir(proj_directory: str):
     print(proj_directory)
     for file in glob.iglob(proj_directory + "/**/*.class", recursive=True):
         new_filename = "." + file.split('.')[1] + ".json"
-        print(new_filename)
+        # print(new_filename)
         # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
 
         # if "Calls.json" not in new_filename:
