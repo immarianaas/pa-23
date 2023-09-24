@@ -42,26 +42,40 @@ def testFactorial(n):
         "dtu/compute/exec/Simple", "factorial", [n])
     assert (res == math.factorial(n))
 
+####################################################################
+
 
 def testFib(n):
     res = interpreter.interpretMethod("dtu/compute/exec/Calls", "fib", [n])
     def f(n): return 1 if n <= 2 else f(n-1) + f(n-2)
-    print(res)
     assert (res == f(n))
 
 
 def testHelloWorld():
     res = interpreter.interpretMethod(
         "dtu/compute/exec/Calls", "helloWorld", [])
-    print(res)
+
+    assert (False)
+
+####################################################################
 
 
-def testArrayFirst(n):
+def testFirst(n):
     res = interpreter.interpretMethod("dtu/compute/exec/Array", "first", [n])
     assert (res == n[0])
 
 
-def testArrayAccess(i, n):
+def testFirstSafe(n):
+    try:
+        res = interpreter.interpretMethod(
+            "dtu/compute/exec/Array", "firstSafe", [n])
+        assert (len(n) > 0 and res == n[0])
+
+    except RuntimeError:
+        assert (len(n) == 0)
+
+
+def testAccess(i, n):
     res = interpreter.interpretMethod(
         "dtu/compute/exec/Array", "access", [i, n])
     assert (res == n[i])
@@ -72,6 +86,52 @@ def testNewArray():
         "dtu/compute/exec/Array", "newArray", [])
     assert (res == 1)
 
+
+def testNewArrayOutOfBounds():
+    try:
+        res = interpreter.interpretMethod(
+            "dtu/compute/exec/Array", "newArrayOutOfBounds", [])
+        assert (False)
+
+    except RuntimeError:
+        pass
+
+
+def testAccessSafe(i, array):
+    try:
+        res = interpreter.interpretMethod(
+            "dtu/compute/exec/Array", "accessSafe", [i, array])
+        assert (i >= 0 and i < len(array))
+        assert (res == array[i])
+
+    except RuntimeError:
+        assert (i < 0 or i >= len(array))
+
+
+def testBubbleSort(arr):
+    temp = arr.copy()
+    interpreter.interpretMethod(
+        "dtu/compute/exec/Array", "bubbleSort", [arr])
+
+    assert (arr == sorted(temp))
+
+
+def testAWierdOneOutOfBounds():
+    try:
+        res = interpreter.interpretMethod(
+            "dtu/compute/exec/Array", "aWierdOneOutOfBounds", [])
+        assert (False)
+
+    except RuntimeError:
+        pass
+
+
+def testAWierdOneWithinBounds():
+    res = interpreter.interpretMethod(
+        "dtu/compute/exec/Array", "aWierdOneWithinBounds", [])
+    assert (res == 1)
+
+####################################################################
 
 testNoop()
 testZero()
@@ -84,6 +144,14 @@ testFactorial(5)
 # testFib(5)
 # testHelloWorld()
 
-testArrayFirst([5, 7])
-testArrayAccess(1, [5, 7, 8])
+testFirst([5, 7])
+testAccess(1, [5, 7, 8])
 testNewArray()
+# testBubbleSort( [4, 3, 2, 7] )
+testAWierdOneWithinBounds()
+testFirstSafe([])
+# testAccessSafe(5, [2,3])
+testNewArrayOutOfBounds()
+testAWierdOneOutOfBounds()
+
+print("Finished running")
