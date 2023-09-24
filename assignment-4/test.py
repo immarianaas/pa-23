@@ -131,6 +131,15 @@ def testArrayFirst(n):
         ], memory={0:n})
     assert (res == n[0])
 
+def testArrayAccess(i, n):
+    res = interpreter.interpretBytecode([
+        {"offset": 0,"opr": "load","type": "ref","index": 1}, 
+        {"offset": 1,"opr": "load","type": "int","index": 0}, 
+        {"offset": 2,"opr": "array_load","type": "int"}, 
+        {"offset": 3,"opr": "return","type": "int"}
+        ], memory={0:i, 1:n})
+    assert (res == 5)
+
 
 testNoop()
 testZero()
@@ -142,6 +151,7 @@ testFactorial(5)
 
 # testFib(5)
 testArrayFirst([5,7])
+testArrayAccess(0,[5,7])
 # ugly but just for testing!!!
 # calls_obj = interpreter.interpretProjDir(os.path.join("..", "assignment-3", "classes"))
 
