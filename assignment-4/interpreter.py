@@ -2,16 +2,35 @@ import os
 import json
 import glob
 import subprocess
+from collections import defaultdict
+
+classToMethods = defaultdict(list)
 
 
-def interpret(obj, function_name, memory):
+def saveClassMethods(obj):
+    global classToMethods
 
-    method = [m for m in obj["methods"] if m["name"] == function_name]
+    for m in obj["methods"]:
+        if "code" not in m or m["code"] is None:
+            continue
+        classToMethods[obj["name"]].append({m["name"]: m["code"]["bytecode"]})
 
-    assert (len(method) == 1)
 
-    return interpretBytecode(method[0]["code"]["bytecode"], memory=memory, full_data=obj)
+def interpretMethod(class_name, method_name, arguments: list):
+    if class_name not in classToMethods:
+        print("CLASS NAME not found.")
+        return
 
+    # if method_name not in [ key for elem in classToMethods[class_name] for key in elem.keys() ]:
+    #     print( "METHOD NAME not found.")
+    #     return
+
+    for m in classToMethods[class_name]:
+        if list(m.keys())[0] == method_name:
+            # print( list(m.values())[0] )
+            return interpretBytecode(list(m.values())[0], memory=dict(enumerate(arguments)))
+
+    print("METHOD NAME not found.")
 
 def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
     byteObj = byteArray[index]
@@ -68,7 +87,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
                     jump = b <= a
 
             if jump:
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory, full_data)
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
 
         case "ifz":
             assert (len(stack) >= 1)
@@ -82,7 +101,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
             # print(byteObj)
             if jump:
                 # print(byteObj)
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory, full_data)
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
 
         case "store":
             memory[byteObj["index"]] = stack.pop()
@@ -105,8 +124,9 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
             stack = stack[:-num_args]
 
             a = dict(enumerate(args))
-            # print(a)
-            res = interpret(full_data, to_invoke["name"], dict(enumerate(args)))
+            print(a)
+            res = interpretMethod(
+                to_invoke["ref"]["name"], to_invoke["name"], dict(enumerate(args)))
             stack.append(res)
 
         case "incr":
@@ -115,7 +135,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
         case "goto":
             # print(byteArray)
             # print( byteObj["target"], '\n')
-            return interpretBytecode(byteArray, byteObj["target"], stack, memory, full_data)
+            return interpretBytecode(byteArray, byteObj["target"], stack, memory)
         case "array_load":
             index_array = stack.pop()
             array = stack.pop()
@@ -127,7 +147,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
 
     # print(byteArray)
     if (len(byteArray) > index):
-        return interpretBytecode(byteArray, index+1, stack, memory, full_data)
+        return interpretBytecode(byteArray, index+1, stack, memory)
     else:
         return "something"
 
@@ -135,16 +155,18 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, full_data=None):
 def interpretProjDir(proj_directory: str):
     print(proj_directory)
     for file in glob.iglob(proj_directory + "/**/*.class", recursive=True):
-        new_filename = ".." + file.split('.')[2] + ".json"
-        # print(new_filename)
+        new_filename = "." + file.split('.')[1] + ".json"
+        print(new_filename)
         # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
-        
+
         # if "Calls.json" not in new_filename:
         #     continue
 
         f = open(new_filename)
         data: json = json.load(f)
+        saveClassMethods(data)
+        #print(classToMethods)
         f.close()
-        return data
+        #return data
 
-
+interpretProjDir(os.path.join(".", "assignment-3", "classes"))
