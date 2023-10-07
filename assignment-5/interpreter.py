@@ -1,3 +1,4 @@
+from enum import Enum
 import os
 import json
 import glob
@@ -6,6 +7,10 @@ from collections import defaultdict
 import math
 
 classToMethods = defaultdict(list)
+
+Exception = Enum('Exception',['ArithmeticException'])
+
+
 
 
 def max(range: list):
@@ -149,7 +154,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
                     for i in a_ranges:
                         if (i[0] <= 0 <= i[1]):
                             exceptions.append(
-                                (index, "ArithmeticException - division by 0"))
+                                (index, Exception.ArithmeticException))
 
                             if i[0] < 0:
                                 stack[-1].append((i[0], -1))
@@ -235,7 +240,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
                     to_invoke["ref"]["name"], to_invoke["name"], exceptions=exceptions)
                 stack.append(res[0])
             else:
-                print("invoked a <init> ... ignored.")
+                #print("invoked a <init> ... ignored.")
                 pass  # nothing for now..?
 
         case "incr":
@@ -287,7 +292,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
         case "throw":
             is_assert = False
 
-            print(stack)
+            # print(stack)
             # raise RuntimeError("Throwing an exception (incomplete)")
 
         case _:
@@ -302,7 +307,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
 
 
 def interpretProjDir(proj_directory: str):
-    print(proj_directory)
+    # print(proj_directory)
     for new_filename in glob.iglob(proj_directory + "/**/*.json", recursive=True):
         f = open(new_filename)
         data: json = json.load(f)
@@ -310,42 +315,4 @@ def interpretProjDir(proj_directory: str):
         f.close()
 
 
-interpretProjDir(os.path.join(".",
-                 "course-02242-examples", "decompiled"))
 
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows1")
-print(res)
-
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows2")
-print(res)
-
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows3")
-print(res)
-
-# this is the first that uses assert.....
-# assert is not really implemented yet, though..
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows4")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows5")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice1")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice2")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice3")
-print(res)

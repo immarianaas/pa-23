@@ -1,95 +1,37 @@
+import os
+import interpreter
 
-import staticInterpreter
-print(staticInterpreter.interpretBytecode([
-          {
-            "offset": 0,
-            "opr": "push",
-            "value": {
-              "type": "integer",
-              "value": 4
-            }
-          },
-          {
-            "offset": 1,
-            "opr": "push",
-            "value": {
-              "type": "integer",
-              "value": 0
-            }
-          },
-          {
-            "offset": 2,
-            "opr": "binary",
-            "type": "int",
-            "operant": "div"
-          },
-          {
-            "offset": 3,
-            "opr": "return",
-            "type": "int"
-          }
-        ]))
 
-print(staticInterpreter.interpretBytecode([
-          {
-            "offset": 0,
-            "opr": "push",
-            "value": {
-              "type": "integer",
-              "value": 3
-            }
-          },
-          {
-            "offset": 1,
-            "opr": "store",
-            "type": "int",
-            "index": 1
-          },
-          {
-            "offset": 2,
-            "opr": "load",
-            "type": "int",
-            "index": 1
-          },
-          {
-            "offset": 3,
-            "opr": "load",
-            "type": "int",
-            "index": 1
-          },
-          {
-            "offset": 4,
-            "opr": "binary",
-            "type": "int",
-            "operant": "sub"
-          },
-          {
-            "offset": 5,
-            "opr": "store",
-            "type": "int",
-            "index": 1
-          },
-          {
-            "offset": 6,
-            "opr": "load",
-            "type": "int",
-            "index": 0
-          },
-          {
-            "offset": 7,
-            "opr": "load",
-            "type": "int",
-            "index": 1
-          },
-          {
-            "offset": 8,
-            "opr": "binary",
-            "type": "int",
-            "operant": "div"
-          },
-          {
-            "offset": 9,
-            "opr": "return",
-            "type": "int"
-          }
-        ]))
+interpreter.interpretProjDir(os.path.join(".",
+                 "course-02242-examples", "decompiled"))
+
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows1")
+assert(interpreter.Exception.ArithmeticException in [e for (_,e) in sum(res,[]) ])
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows2")
+assert(interpreter.Exception.ArithmeticException in [e for (_,e) in sum(res,[]) ])
+
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows3")
+assert(interpreter.Exception.ArithmeticException in [e for (_,e) in sum(res,[]) ])
+
+# this is the first that uses assert.....
+# assert is not really implemented yet, though..
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows4")
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows5")
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice1")
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice2")
+
+res = interpreter.interpretMethod(
+    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice3")
