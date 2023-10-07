@@ -8,14 +8,25 @@ import math
 classToMethods = defaultdict(list)
 
 
-def max(range: list):
+def max_in_range(range: list):
+    print(range)
     max_bounds = [elem[1] for elem in range]
     return max(max_bounds)
 
 
-def min(range: list):
+def min_in_range(range: list):
     min_bounds = [elem[0] for elem in range]
-    return max(min_bounds)
+    return min(min_bounds)
+
+
+def get_below_value(range: list, value: float):
+    res = [elem for elem in range if elem[1] < value]
+
+    # if they are equal, or if the next interval is not included at all
+    if len(res) == len(range) or range[len(res)][0] >= value:
+        return res
+
+    return res + [(range[len(res)][0], value-1)]
 
 
 def invert(range: list):
@@ -28,18 +39,23 @@ def sum(range_a: list, range_b: list):
     return res
 
 
+def div(range_a: list, range_b: list):
+    res = [(a[0] / b[0], a[1] / b[1]) for a in range_a for b in range_b]
+    return res
+
+
 def is_incl(value: float, range: list):
     for t in range:
-        if min(t) <= 0 <= max(t):
+        if min_in_range(t) <= 0 <= max_in_range(t):
             return True
     return False
 
 
 def is_exact(value: float, range: list):
     for t in range:
-        if min(t) != max(t):
+        if min_in_range(t) != max_in_range(t):
             return False
-        if min(t) != value:
+        if min_in_range(t) != value:
             return False
     return True
 
@@ -102,13 +118,12 @@ def interpretMethod(class_name, method_name, exceptions=[]) -> tuple:
                 print("ARGUMENT TYPE NOT SUPPORTED")
                 assert False
 
-    # print( list(m.values())[0] )
     ret = interpretBytecode(list(bytecode), memory=dict(
         enumerate(arguments)), exceptions=exceptions)
-    return (ret, exceptions)
+    return (ret, set(exceptions))
 
 
-def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is_assert=False):
+def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is_assert=False, is_to_be_assert=False):
     byteObj = byteArray[index]
     match byteObj["opr"]:
         case "return":
@@ -120,11 +135,17 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
             # stack = [
             #   (type, [ (a1, b1), (a2, b2), ... ])
             # ]
+            if is_assert:
+                stack.append(-1)
+
             stack.append([
                          (byteObj["value"]["value"], byteObj["value"]["value"])
                          ])
 
         case "load":
+            if is_assert:
+                stack.append(byteObj["index"])
+
             stack.append(memory[byteObj["index"]])
 
         case "binary":
@@ -149,15 +170,15 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
                     for i in a_ranges:
                         if (i[0] <= 0 <= i[1]):
                             exceptions.append(
-                                (index, "ArithmeticException - division by 0"))
+                                "ArithmeticException - division by 0")
 
                             if i[0] < 0:
-                                stack[-1].append((i[0], -1))
+                                stack[-1] += div(a_ranges, [(i[0], -1)])
                             if i[1] > 0:
-                                stack[-1].append((1, i[1]))
+                                stack[-1] += div(a_ranges, [(1, i[1])])
 
                         else:
-                            stack[-1].append(i)
+                            stack[-1] += div(a_ranges, [i])
                 case _:
                     print("operant", byteObj["operant"], "not implemented")
                     return
@@ -165,7 +186,13 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
         case "if":
             assert (len(stack) >= 2)
             a = stack.pop()
+            if is_assert:
+                stack.pop()
+
+            print( is_assert )
             b = stack.pop()
+            if is_assert:
+                stack.pop()
             jump = False
 
             match byteObj["condition"]:
@@ -182,37 +209,77 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
                     return
 
             if jump:
-                return exceptions + interpretBytecode(byteArray, byteObj["target"], stack, memory, exceptions)
+                # return exceptions + interpretBytecode(byteArray, byteObj["target"], stack, memory, exceptions)
+                return interpretBytecode(byteArray, byteObj["target"], stack, memory, exceptions, is_assert=is_assert, is_to_be_assert=is_to_be_assert)
 
         case "ifz":
             assert (len(stack) >= 1)
             value = stack.pop()
             jump = False
-            not_jump_too = True
+            not_jump = True
+
+            if is_assert:
+                mem_index = stack.pop()
 
             match byteObj["condition"]:
-                # case "le":
-                #    jump = ranges == [] or ranges is None or min(ranges) <= 0
+                case "le":
+                    if isinstance(value, float) or isinstance(value, int):
+                        jump = value == [] or value is None or value <= 0
+                        not_jump = value != [] and value is not None and value > 0
+                    else:
+                        jump = value == [] or value is None or max_in_range(
+                            value) <= 0
+                        not_jump = value != [] and value is not None and max_in_range(
+                            value) > 0
+                case "gt":
+                    if not is_assert:
+                        if isinstance(value, float) or isinstance(value, int):
+                            jump = value == [] or value is None or value > 0
+                            not_jump = value != [] and value is not None and value <= 0
+                        else:
+                            jump = value == [] or value is None or min_in_range(
+                                value) > 0
+                            not_jump = value != [] and value is not None and min_in_range(
+                                value) <= 0
+                    else:
+                        print("here", mem_index)
+                        memory[mem_index] = get_below_value(value, 0)
+                        print("saved", memory[mem_index])
+
+
                 case "ne":
                     # just for reference, might be useful above
                     # jump = ranges != [] and ranges is not None and not is_incl(0, ranges)
                     # not_jump_too = ranges == [] or ranges is None and is_incl(0, ranges)
+                    if is_to_be_assert:
+                        is_assert = True
+                    is_to_be_assert = False
 
+                    print(is_to_be_assert, is_assert)
                     jump = value is not None and value != bool(0)
+
                 case _:
                     print("condition", byteObj["condition"], "not implemented")
                     return
             # print("jump:", jump)
             # print(byteObj)
+            res1 = []
+            res2 = []
             if jump:
                 # print(byteObj)
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory, exceptions)
+                res1 = interpretBytecode(
+                    byteArray, byteObj["target"], stack, memory, exceptions, is_assert=is_assert, is_to_be_assert=is_to_be_assert)
 
-                # if not not_jump_too:
-                #     return ret1
+            if not_jump:
+                res2 = interpretBytecode(
+                    byteArray, index+1, stack, memory, exceptions, is_assert=is_assert, is_to_be_assert=is_to_be_assert)
 
-                # ret2 = interpretBytecode(byteArray, index+1, stack, memory, exceptions)
-                # return ( ret1[0]+ret2[0], ret1[1]+ret2[1] )
+            return [res1, res2]
+            # if not not_jump_too:
+            #     return ret1
+
+            # ret2 = interpretBytecode(byteArray, index+1, stack, memory, exceptions)
+            # return ( ret1[0]+ret2[0], ret1[1]+ret2[1] )
 
         case "store":
             memory[byteObj["index"]] = stack.pop()
@@ -246,7 +313,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
         case "goto":
             # print(byteArray)
             # print( byteObj["target"], '\n')
-            return interpretBytecode(byteArray, byteObj["target"], stack, memory, exceptions)
+            return interpretBytecode(byteArray, byteObj["target"], stack, memory, exceptions, is_assert=is_assert, is_to_be_assert=is_to_be_assert)
         case "array_load":
             index_array = stack.pop()
             array = stack.pop()
@@ -265,8 +332,9 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
             stack.append(array)
 
         case "get":
+            print(byteObj["field"]["name"])
             if byteObj["field"]["name"] == "$assertionsDisabled":
-                is_assert = True
+                is_to_be_assert = True
 
             value = getVarValue(
                 byteObj["field"]["class"], byteObj["field"]["name"])
@@ -287,7 +355,6 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
         case "throw":
             is_assert = False
 
-            print(stack)
             # raise RuntimeError("Throwing an exception (incomplete)")
 
         case _:
@@ -296,7 +363,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
 
     # print(byteArray)
     if (len(byteArray) > index):
-        return interpretBytecode(byteArray, index+1, stack, memory, exceptions)
+        return interpretBytecode(byteArray, index+1, stack, memory, exceptions, is_assert=is_assert, is_to_be_assert=is_to_be_assert)
     else:
         return "something"
 
@@ -312,40 +379,3 @@ def interpretProjDir(proj_directory: str):
 
 interpretProjDir(os.path.join(".",
                  "course-02242-examples", "decompiled"))
-
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows1")
-print(res)
-
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows2")
-print(res)
-
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows3")
-print(res)
-
-# this is the first that uses assert.....
-# assert is not really implemented yet, though..
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows4")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows5")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice1")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice2")
-print(res)
-
-res = interpretMethod(
-    "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice3")
-print(res)
