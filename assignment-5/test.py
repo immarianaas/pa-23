@@ -5,155 +5,122 @@ import glob
 import interpreter
 
 
-def testNoop():
-    res = interpreter.interpretMethod("dtu/compute/exec/Simple", "noop", [])
-    assert (res == None)
-
-
-def testZero():
-    res = interpreter.interpretMethod("dtu/compute/exec/Simple", "zero", [])
-    assert (res == 0)
-
-
-def testHundredAndTwo():
+def test_alwaysThrows1():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Simple", "hundredAndTwo", [])
-    assert (res == 102)
+        "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows1")
+    assert (res[1] == {'ArithmeticException - division by 0'})
 
 
-def testIdentity(a):
+def test_alwaysThrows2():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Simple", "identity", [a])
-    assert (res == a)
+        "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows2", exceptions=[])
+    assert (res[1] == {'ArithmeticException - division by 0'})
 
 
-def testAdd(a, b):
-    res = interpreter.interpretMethod("dtu/compute/exec/Simple", "add", [a, b])
-    assert (res == a+b)
-
-
-def testMin(a, b):
-    res = interpreter.interpretMethod("dtu/compute/exec/Simple", "min", [a, b])
-    assert (res == min([a, b]))
-
-
-def testFactorial(n):
+def test_alwaysThrows3():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Simple", "factorial", [n])
-    assert (res == math.factorial(n))
-
-####################################################################
+        "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows3", exceptions=[])
+    assert (res[1] == {'ArithmeticException - division by 0'})
 
 
-def testFib(n):
-    res = interpreter.interpretMethod("dtu/compute/exec/Calls", "fib", [n])
-    def f(n): return 1 if n <= 2 else f(n-1) + f(n-2)
-    assert (res == f(n))
-
-
-def testHelloWorld():
+def test_alwaysThrows4():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Calls", "helloWorld", [])
-
-    assert (False)
-
-####################################################################
+        "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows4", exceptions=[])
+    assert (res[1] == {'ArithmeticException - division by 0'})
 
 
-def testFirst(n):
-    res = interpreter.interpretMethod("dtu/compute/exec/Array", "first", [n])
-    assert (res == n[0])
-
-
-def testFirstSafe(n):
-    try:
-        res = interpreter.interpretMethod(
-            "dtu/compute/exec/Array", "firstSafe", [n])
-        assert (len(n) > 0 and res == n[0])
-
-    except RuntimeError:
-        assert (len(n) == 0)
-
-
-def testAccess(i, n):
+def test_alwaysThrows5():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Array", "access", [i, n])
-    assert (res == n[i])
+        "eu/bogoe/dtu/exceptional/Arithmetics", "alwaysThrows5", exceptions=[])
+    assert (res[1] == {'ArithmeticException - division by 0'})
 
 
-def testNewArray():
+def test_itDependsOnLattice1():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Array", "newArray", [])
-    assert (res == 1)
+        "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice1", exceptions=[])
+    assert (res[1] == set())
 
 
-def testNewArrayOutOfBounds():
-    try:
-        res = interpreter.interpretMethod(
-            "dtu/compute/exec/Array", "newArrayOutOfBounds", [])
-        assert (False)
-
-    except RuntimeError:
-        pass
-
-
-def testAccessSafe(i, array):
-    try:
-        res = interpreter.interpretMethod(
-            "dtu/compute/exec/Array", "accessSafe", [i, array])
-        assert (i >= 0 and i < len(array))
-        assert (res == array[i])
-
-    except RuntimeError:
-        assert (i < 0 or i >= len(array))
-
-
-def testBubbleSort(arr):
-    temp = arr.copy()
-    interpreter.interpretMethod(
-        "dtu/compute/exec/Array", "bubbleSort", [arr])
-
-    assert (arr == sorted(temp))
-
-
-def testAWierdOneOutOfBounds():
-    try:
-        res = interpreter.interpretMethod(
-            "dtu/compute/exec/Array", "aWierdOneOutOfBounds", [])
-        assert (False)
-
-    except RuntimeError:
-        pass
-
-
-def testAWierdOneWithinBounds():
+def test_itDependsOnLattice2():
     res = interpreter.interpretMethod(
-        "dtu/compute/exec/Array", "aWierdOneWithinBounds", [])
-    assert (res == 1)
+        "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice2", exceptions=[])
+    assert (res[1] == set())
 
-####################################################################
 
-testNoop()
-testZero()
-testHundredAndTwo()
-testIdentity(5)
-testAdd(40, 5)
-testMin(3, 4)
+def test_itDependsOnLattice3():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice3", exceptions=[])
+    assert (res[1] == {'ArithmeticException - division by 0'})  # unsure
 
-# stopped working with new code version:
-# testFactorial(5)
 
-# testFib(5)
-# testHelloWorld()
+def test_itDependsOnLattice4():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "itDependsOnLattice4", exceptions=[])
+    assert (res[1] == {'ArithmeticException - division by 0'})
 
-testFirst([5, 7])
-testAccess(1, [5, 7, 8])
-testNewArray()
-# testBubbleSort( [4, 3, 2, 7] )
-testAWierdOneWithinBounds()
-testFirstSafe([])
-# testAccessSafe(5, [2,3])
-testNewArrayOutOfBounds()
-testAWierdOneOutOfBounds()
+def test_neverThrows1():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "neverThrows1", exceptions=[])
+    assert (res[1] == set())
 
-print("Finished running")
+def test_neverThrows2():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "neverThrows2", exceptions=[])
+    assert (res[1] == set())
+
+def test_neverThrows3():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "neverThrows3", exceptions=[])
+    assert (res[1] == set())
+
+def test_neverThrows4():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "neverThrows4", exceptions=[])
+    assert (res[1] == set())
+
+def test_neverThrows5():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "neverThrows5", exceptions=[])
+    assert (res[1] == set())
+
+
+def test_speedVsPrecision():
+    res = interpreter.interpretMethod(
+        "eu/bogoe/dtu/exceptional/Arithmetics", "speedVsPrecision", exceptions=[])
+    assert (res[1] == set())
+
+
+
+
+
+test_alwaysThrows1()
+test_alwaysThrows2()
+test_alwaysThrows3()
+test_alwaysThrows4()
+test_alwaysThrows5()
+
+test_itDependsOnLattice1()
+test_itDependsOnLattice2()
+test_itDependsOnLattice3()  # TODO: i don't know.. should it throw?
+test_itDependsOnLattice4()
+
+test_neverThrows1()
+
+print("\n..neverThrows2.." )
+test_neverThrows2()
+print()
+
+print("\n..neverThrows3.." )
+test_neverThrows3()
+print()
+
+print("\n..neverThrows4.." )
+test_neverThrows4()
+print()
+
+print("\n..neverThrows5.." )
+test_neverThrows5()
+print()
+
+# test_speedVsPrecision()
+# recursion depth problem in our code
