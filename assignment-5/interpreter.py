@@ -183,7 +183,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
                 case "lt":
                     jump = b < a
                 case _:
-                    print("condition", byteObj["condition"], "not implemented")
+                    print("if condition", byteObj["condition"], "not implemented")
                     return
 
             if jump:
@@ -196,8 +196,11 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
             not_jump_too = True
 
             match byteObj["condition"]:
-                # case "le":
-                #    jump = ranges == [] or ranges is None or min(ranges) <= 0
+                case "le":
+                    for (a,b) in value:
+                        if a<0: 
+                            jump = True 
+                            
                 case "ne":
                     # just for reference, might be useful above
                     # jump = ranges != [] and ranges is not None and not is_incl(0, ranges)
@@ -205,7 +208,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
 
                     jump = value is not None and value != bool(0)
                 case _:
-                    print("condition", byteObj["condition"], "not implemented")
+                    print("ifz condition", byteObj["condition"], "not implemented")
                     return
             # print("jump:", jump)
             # print(byteObj)
@@ -288,6 +291,11 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}, exceptions=[], is
 
         case "arraylength":
             stack.append(len(stack[-1]))
+        
+        case "negate":
+            value = stack.pop()
+            negated = [(-1*b, -1*a) for (a,b) in value]
+            stack.append(negated)
 
         case "throw":
             is_assert = False
