@@ -224,4 +224,4 @@ def interpretProjDir(proj_directory: str):
         # return data
 
 
-interpretProjDir(os.path.join(".", "assignment-3", "classes"))
+interpretProjDir(os.path.join(".", "course-02242-examples"))
