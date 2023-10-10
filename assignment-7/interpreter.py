@@ -1,227 +1,265 @@
+from dataclasses import dataclass
 import os
 import json
 import glob
 import subprocess
 from collections import defaultdict
+import z3
+from z3 import Solver, ExprRef
 
-classToMethods = defaultdict(list)
+###########################################################
+#                     INITIAL SETUP                       #
+###########################################################
+
+# { class_name1:
+#   {
+#       method1: json data1,
+#       method2 : json_data2
+#   },
+#   class_name2: {},
+#   ...
+# }
+methods_data = defaultdict(dict)
 
 
-def saveClassMethods(obj):
-    global classToMethods
+def saveMethodsData(obj):
+    global methods_data
 
+    class_name = obj["name"]
     for m in obj["methods"]:
-        if "code" not in m or m["code"] is None:
-            continue
-        classToMethods[obj["name"]].append({m["name"]: m["code"]["bytecode"]})
-
-    for field in obj["fields"]:
-        classToMethods[obj["name"]].append({field["name"]: field["value"]})
+        methods_data[class_name][m["name"]] = m
 
 
-def getVarValue(class_name, var_name):
-    if class_name not in classToMethods:
-        print(f"CLASS NAME {class_name} not found.")
-        return
-
-    for elem in classToMethods[class_name]:
-        if list(elem.keys())[0] == var_name:
-            return elem[var_name]
-
-    print(f"VARIABLE NAME {var_name} not found.")
-
-
-def interpretMethod(class_name, method_name, arguments: list):
-    if class_name not in classToMethods:
-        print(f"CLASS NAME {class_name} not found.")
-        return
-
-    for m in classToMethods[class_name]:
-        if list(m.keys())[0] == method_name:
-            # print( list(m.values())[0] )
-            return interpretBytecode(
-                list(m.values())[0], memory=dict(enumerate(arguments))
-            )
-
-    print(f"METHOD NAME {method_name} not found.")
-
-
-def interpretBytecode(byteArray, index=0, stack=[], memory={}):
-    byteObj = byteArray[index]
-    # print(byteObj, '\n')
-    match byteObj["opr"]:
-        case "return":
-            # print("return")
-            if byteObj["type"] is None:
-                return None
-            assert len(stack) > 0
-            return stack.pop()
-
-        case "push":
-            # print("push")
-            stack.append(byteObj["value"]["value"])
-            # print(stack)
-
-        case "load":
-            # print(byteObj)
-            # stack.append(memory[byteObj["index"]])
-            match byteObj["type"]:
-                case "ref" | "int":
-                    stack.append(memory[byteObj["index"]])
-                    # stack.append([])
-                    # print(stack)
-                # case "int":
-                #    stack.append(memory[byteObj["index"]])
-            # print(memory)
-
-        case "binary":
-            a = stack.pop()
-            b = stack.pop()
-            match byteObj["operant"]:
-                case "add":
-                    stack.append(a + b)
-                case "mul":
-                    stack.append(a * b)
-                case "sub":
-                    stack.append(a - b)
-                case _:
-                    print("operant", byteObj["condition"], "not implemented")
-                    return
-
-        case "if":
-            assert len(stack) >= 2
-            a = stack.pop()
-            b = stack.pop()
-            jump = False
-
-            match byteObj["condition"]:
-                case "gt":
-                    jump = b > a
-                case "ge":
-                    jump = b >= a
-                case "le":
-                    jump = b <= a
-                case "lt":
-                    jump = b < a
-                case _:
-                    print("condition", byteObj["condition"], "not implemented")
-                    return
-
-            if jump:
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
-
-        case "ifz":
-            assert len(stack) >= 1
-            elem = stack.pop()
-            jump = False
-
-            match byteObj["condition"]:
-                case "le":
-                    jump = elem is None or elem <= 0
-                case "ne":
-                    jump = elem is not None and elem != 0
-                case _:
-                    print("condition", byteObj["condition"], "not implemented")
-                    return
-            # print("jump:", jump)
-            # print(byteObj)
-            if jump:
-                # print(byteObj)
-                return interpretBytecode(byteArray, byteObj["target"], stack, memory)
-
-        case "store":
-            memory[byteObj["index"]] = stack.pop()
-        case "new":
-            pass
-            # print(byteObj["opr"] + " not implemented")
-            # return
-        case "put":
-            print(byteObj["opr"] + " not implemented")
-            return
-        case "invoke":
-            to_invoke = byteObj["method"]
-
-            # print(stack)
-
-            num_args = len(to_invoke["args"])
-            args = stack[-num_args:]
-            stack = stack[:-num_args]
-
-            res = interpretMethod(
-                to_invoke["ref"]["name"], to_invoke["name"], dict(enumerate(args))
-            )
-            stack.append(res)
-
-        case "incr":
-            memory[byteObj["index"]] += byteObj["amount"]
-            stack.append(memory[byteObj["index"]])
-        case "goto":
-            # print(byteArray)
-            # print( byteObj["target"], '\n')
-            return interpretBytecode(byteArray, byteObj["target"], stack, memory)
-        case "array_load":
-            index_array = stack.pop()
-            array = stack.pop()
-
-            if index_array > len(array):
-                raise RuntimeError("Out of bounds.")
-
-            stack.append(array[index_array])
-
-        case "array_store":
-            # print(stack)
-            elem = stack.pop()
-            index_array = stack.pop()
-            array = stack.pop()
-            array.append(elem)
-            stack.append(array)
-
-        case "get":
-            value = getVarValue(byteObj["field"]["class"], byteObj["field"]["name"])
-            stack.append(value)
-
-        case "newarray":
-            # stack.append([[], byteObj["dim"]]) # list 2 elements: (array, size)
-            stack.append([])  # list 2 elements: (array, size)
-
-        case "dup":
-            if byteObj["words"] != 1:
-                print(byteObj["opr"] + " not implemented (for words > 1)")
-            # stack.append( stack[-1] )
-
-        case "arraylength":
-            stack.append(len(stack[-1]))
-
-        case "throw":
-            raise RuntimeError("Throwing an exception (incomplete)")
-
-        case _:
-            print(byteObj["opr"] + " not implemented")
-            return
-
-    # print(byteArray)
-    if len(byteArray) > index:
-        return interpretBytecode(byteArray, index + 1, stack, memory)
-    else:
-        return "something"
-
-
-def interpretProjDir(proj_directory: str):
+def setupProjDir(proj_directory: str):
     print(proj_directory)
-    for file in glob.iglob(proj_directory + "/**/*.class", recursive=True):
-        new_filename = "." + file.split(".")[1] + ".json"
-        # print(new_filename)
-        # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
-
-        # if "Calls.json" not in new_filename:
-        #     continue
-
+    for new_filename in glob.iglob(proj_directory + "/**/*.json", recursive=True):
         f = open(new_filename)
         data: json = json.load(f)
-        saveClassMethods(data)
-        # print(classToMethods)
+        saveMethodsData(data)
         f.close()
-        # return data
 
 
-interpretProjDir(os.path.join(".", "course-02242-examples"))
+setupProjDir(os.path.join(".", "course-02242-examples"))
+
+###########################################################
+#                 INTERPRETER + ANALYSIS                  #
+###########################################################
+
+
+@dataclass
+class ConcolicValue:
+    concrete: int | bool
+    symbolic: z3.ExprRef
+
+    def __repr__(self):
+        return f"{self.concrete} {self.symbolic}"
+
+    @classmethod
+    def from_const(self, c):
+        if isinstance(c, bool):
+            return ConcolicValue(c, z3.BoolVal(c))
+
+        if isinstance(c, int):
+            return ConcolicValue(c, z3.IntVal(c))
+
+        raise Exception(f"Unknown const {c}")
+
+    def binary(self, copr, other):
+        DICT = {
+            "sub": "__sub__",
+            "add": "__add__"
+        }
+
+        if copr == "div":
+            return ConcolicValue(
+                self.concrete // other.concrete,
+                z3.simplify(self.symbolic / other.symbolic)
+            )
+
+        if copr not in DICT:
+            raise Exception(f"Unknown binary operation: {copr}")
+
+        opr = DICT[copr]
+        # explanation below!
+        return ConcolicValue(
+            getattr(self.concrete, opr)(other.concrete),
+            z3.simplify(getattr(self.symbolic, opr)(other.symbolic))
+        )
+
+    def compare(self, copr, other):
+        DICT = {
+            "ne": "__ne__",
+            "gt": "__gt__",
+            "ge": "__ge__"
+        }
+        if copr not in DICT:
+            raise Exception(f"Unknown comparison: {copr}")
+
+        opr = DICT[copr]
+        # for the "ne" case:
+        # getattr(self.concrete, opr) -- will bascially be transformed into:
+        #   `self.concrete.__ne__`
+        # and then we are passing an argument: other.concrete
+
+        # basically we are doing:
+        # ConcolicValue( self.concrete.__ne__(other.concrete ) )
+        return ConcolicValue(
+            getattr(self.concrete, opr)(other.concrete),
+            z3.simplify(getattr(self.symbolic, opr)(other.symbolic))
+        )
+
+
+@dataclass
+class State:
+    locals: dict[int, ConcolicValue]
+    stack: list[ConcolicValue]
+
+    def push(self, value):
+        self.stack.append(value)
+
+    def pop(self):
+        return self.stack.pop()
+
+    def load(self, index):
+        return self.push(self.locals[index])
+
+    def store(self, index):
+        self.locals[index] = self.pop()
+
+
+@dataclass
+class Bytecode:
+    dictionary: dict
+
+    def __getattr__(self, name):
+        return self.dictionary[name]
+
+    def __repr__(self) -> str:
+        return f"{self.opr} " + " | ".join(
+            f"{k}: {v}" for k, v in self.dictionary.items() if k != "opr" and k != "value"
+        )
+
+
+def concolic(target, k=1000):
+    solver = z3.Solver()
+
+    params = [z3.Int(f"p{i}") for i, p in enumerate(target["params"])]
+
+    while solver.check() == z3.sat:
+        model = solver.model()
+        input = [model.eval(p, model_completion=True).as_long()
+                 for p in params]
+
+        state = State({k: ConcolicValue(i, p) for k, (i, p) in enumerate(zip(input, params))},
+                      []
+                      )
+
+        bytecode = [Bytecode(b) for b in target["code"]["bytecode"]]
+        pc = 0
+        path = []
+
+        for _ in range(k):
+            bc = bytecode[pc]
+            pc += 1
+            # print(state)
+            # print(bc)
+            # print(path)
+            # print("-----")
+
+            if bc.opr == "get" and bc.field["name"] == "$assertionsDisabled":
+                state.push(ConcolicValue.from_const(False))
+
+            elif bc.opr == "ifz":
+                v = state.pop()
+                z = ConcolicValue.from_const(0)
+                r = ConcolicValue.compare(z, bc.condition, v)
+
+                if r.concrete:
+                    pc = bc.target
+                    path += [r.symbolic]
+                else:
+                    path += [z3.simplify(z3.Not(r.symbolic))]
+
+            elif bc.opr == "if":
+                v2 = state.pop()
+                v1 = state.pop()
+                r = ConcolicValue.compare(v1, bc.condition, v2)
+                state.push(r)
+                if r.concrete:
+                    pc = bc.target
+                    path += [r.symbolic]
+                else:
+                    path += [z3.simplify(z3.Not(r.symbolic))]
+
+            elif bc.opr == "new" and bc.dictionary["class"] == "java/lang/AssertionError":
+                result = "AssertionError"
+                break
+
+            elif bc.opr == "load":
+                state.load(bc.index)
+
+            elif bc.opr == "store":
+                state.store(bc.index)
+
+            elif bc.opr == "push":
+                state.push(ConcolicValue.from_const(bc.value["value"]))
+
+            elif bc.opr == "binary":
+                v2 = state.pop()
+                v1 = state.pop()
+
+                if bc.operant == "div":
+                    if v2.concrete == 0:
+                        result = "Divide by 0"
+                        path += [v2.symbolic == 0]
+                        break
+                    else:
+                        path += [z3.simplify(z3.Not(v2.symbolic == 0))]
+
+                r = v1.binary(bc.operant, v2)
+                state.push(r)
+
+            elif bc.opr == "incr":
+                state.load(bc.index)
+                v = state.pop()
+                state.push(
+                    v.binary("add", ConcolicValue.from_const(bc.amount)))
+                state.store(bc.index)
+
+            elif bc.opr == "goto":
+                pc = bc.target
+
+            elif bc.opr == "return":
+                if bc.type is None:
+                    result = "return"
+                else:
+                    result = f"returned {state.pop()}"
+                break
+            else:
+                raise Exception(f"Unsupported bytecode: {bc}")
+        else:
+            result = "out of iterations"
+
+        path_constraint = z3.simplify(z3.And(*path))
+        print(input, "-->", result, "|", path_constraint)
+        solver.add(z3.Not(path_constraint))
+
+
+###########################################################
+#                    RUN THE ANALYSIS                     #
+###########################################################
+
+def analyseMethod(class_name, method_name):
+    if class_name not in methods_data:
+        print(f"CLASS NAME {class_name} not found.")
+        return
+
+    if method_name not in saveMethodsData[class_name]:
+        print(f"METHOD NAME {method_name} not found.")
+        return
+
+    return concolic(methods_data[method_name])
+
+
+analyseMethod("eu/bogoe/dtu/exceptional/Arithmetics",
+              "itDependsOnLattice3", None)
