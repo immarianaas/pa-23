@@ -1,13 +1,33 @@
 package dk.dtu.pa.geometry;
 
-public class Square {
-    private double length;
+public class Square extends Shapes {
+    public final int side = 4;
 
-    public Square( double length ) {
-        this.length = length;
+    public Square(Type type, double side) {
+        this.type = type;
+        this.area = computeArea (side, side);
+        this.perimeter = computePerimeter(side);
     }
 
-    public double perimeter() {
-        return length * 4;
+    @Override
+    public int getNumberOfSides() {
+        return this.side;
     }
+
+    public double computeArea(double side, double high) {
+        return side * side;
+    }
+
+    public double computePerimeter(double side) {
+        return side * 4;
+    }
+
+    public double getArea(){
+        return this.area;
+    }
+
+    public double getPerimeter() {
+        return this.perimeter;
+    }
+
 }
