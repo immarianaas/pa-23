@@ -14,7 +14,8 @@ Language.build_library(LANGUAGE_FILE, [PATH_TO_TREE_SITTER_JAVA])
 parser = Parser()
 parser.set_language(Language(LANGUAGE_FILE, "java"))
 
-PROJ_PATH = "../../course-02242-examples" # JAVA PROJECT TO ANALYSE
+# PROJ_PATH = "../../course-02242-examples" # JAVA PROJECT TO ANALYSE
+PROJ_PATH = "../pa-app" # JAVA PROJECT TO ANALYSE
 
 def main():
     for file in glob.iglob(PROJ_PATH + "/**/*.java", recursive=True):
@@ -26,11 +27,15 @@ def main():
             class_name = ClassName().visit(tree.root_node)
 
             assert len(package_name) == 1
-            assert len(class_name) == 1
+            # assert len(class_name) == 1
 
             print( package_name )
             print( class_name )
 
+            help = FunctionFunctions( "helloWorld").visit(tree.root_node)
+            print(help)
+
+            exit(0)
 
 
 if __name__ == "__main__":
