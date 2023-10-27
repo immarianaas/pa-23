@@ -1,1 +1,15 @@
-.vscode/settings.json
+tree-sitter-java/
+
+java.so
+
+assignment-3/classes/
+
+
+
+
+### .class files ###
+*.class
+.vscode
+.idea
+target
+__pycache__

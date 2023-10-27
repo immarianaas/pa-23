@@ -1,30 +1,27 @@
 package dk.dtu.pa;
 
-import dk.dtu.pa.geometry.*;
-import dk.dtu.pa.Teacher.*;
-import dk.dtu.pa.Persons.*;
-
-import dk.dtu.pa.utils.EntryPoint;
-
 import java.util.ArrayList;
 
+import dk.dtu.pa.geometry.*;
+import dk.dtu.pa.persons.*;
+import dk.dtu.pa.teacher.*;
+
 /**
- * Main function as entry point
+ * Hello world!
  *
  */
 public class App {
-    @EntryPoint
     public static void main(String[] args) {
 
         // Triangle obj - INTERFACE - ABSTRACT - ENUM
-        var tr = new Triangle(Type.TRIANGLE, 2, 4);
+        Triangle tr = new Triangle(Type.TRIANGLE, 2, 4);
         System.out.println("Area: " + tr.getArea());
         System.out.println("Perimeter: " + tr.getPerimeter());
         System.out.println("Number of sides: " + tr.getNumberOfSides());
         System.out.println(tr.getInfo());
         System.out.println("\r\n");
 
-        //Square obj
+        // Square obj
         Square sq = new Square(Type.SQUARE, 4);
         System.out.println("Area: " + sq.getArea());
         System.out.println("Perimeter: " + sq.getPerimeter());
@@ -33,21 +30,17 @@ public class App {
         sq.resize(10, 10);
         System.out.println("\r\n");
 
-
         // Teacher obj - Assistant obj - INTERFACE AND INNER ABSTRACT
-        var assistant = new Assistant();
-        Teacher.Subject teacher = new Teacher.Subject(2) {
-            public String favouriteSubject() { return "History"; }
-        };
-        System.out.println("Subject code: " + teacher.getSubjectCode());
-        teacher.favouriteSubject();
-        assistant.ClassMethod();
+        Teacher assistant = new Assistant();
+
+        System.out.println("Subject code: " + String.valueOf(assistant.one_plus_one()));
+        assistant.favouriteSubject();
+        assistant.classMethod();
         System.out.println("\r\n");
 
-
         // Person obj - CONCATENATE METHODS - IF CONDITIONS
-        var person1 = new Person("Alice", 20, new Address());
-        var person2 = new Person("Bob", 15, new Address());
+        Person person1 = new Person("Alice", 20, new Address());
+        Person person2 = new Person("Bob", 15, new Address());
 
         if (person1.isOlderThan(person2)) {
             System.out.println(person1.getName() + " is older than " + person2.getName());
@@ -56,10 +49,11 @@ public class App {
         }
 
         // Persons obj
-        var person3 = new Person("Alice", 20, new Address());
-        var contacts = person3.setContact();
-        var address = person3.getAddress().function1("Via Nordvej", person2).function2("2300 ").function3("Kobenhavn").getValue();
+        Person person3 = new Person("Alice", 20, new Address());
+        ArrayList<String> contacts = person3.setContact();
+        String address = person3.getAddress().function1("Via Nordvej", person2).function2("2300 ")
+                .function3("Kobenhavn")
+                .getValue();
         System.out.println("Address is: " + address);
     }
-
 }

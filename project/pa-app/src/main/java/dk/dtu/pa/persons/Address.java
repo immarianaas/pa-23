@@ -1,13 +1,12 @@
-package dk.dtu.pa.Persons;
+package dk.dtu.pa.persons;
 
 public class Address {
 
     private String value;
 
-
     public Address function1(String str, Person person) {
-        var personName = person.getName();
-        var personOld = new Person("Alex", 30, new Address());
+        String personName = person.getName();
+        Person personOld = new Person("Alex", 30, new Address());
         if (person.isOlderThan(personOld)) {
             value = "Sir. " + str;
         } else {
