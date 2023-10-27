@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import dk.dtu.pa.geometry.*;
 import dk.dtu.pa.persons.*;
 import dk.dtu.pa.teacher.*;
+import dk.dtu.pa.utils.EntryPoint;
 
 /**
  * Hello world!
@@ -56,4 +57,10 @@ public class App {
                 .getValue();
         System.out.println("Address is: " + address);
     }
+
+    @EntryPoint
+    public void helloWorld() {
+        System.out.println("Helloooo");
+    }
+
 }
