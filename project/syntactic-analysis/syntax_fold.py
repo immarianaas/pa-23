@@ -1,5 +1,6 @@
 from collections import defaultdict
-
+from printing_utils import *
+from types_repr import *
 
 class SyntaxFold:
     def visit(self, node):
@@ -20,27 +21,27 @@ class PackageName(SyntaxFold):
     
 # get the main class name of the file
 class ClassName(SyntaxFold):
-    def __init__(self):
+    def __init__(self, package_name):
         self.data = defaultdict(list)
+        self.class_repr = None
+        self.package_name = package_name
 
     def class_declaration(self, node, results):
         # print( dir(node) )
         if node.parent.type != "program":
             return set()
 
-        names = node.children_by_field_name("name")
-        self.data["class"] += [name.text for name in names]
-        return {name.text for name in names}
+        self.class_repr = ClassRepr( node.child_by_field_name("name").text.decode(), self.package_name, "c" )
+        # self.data["class"] += [name.text for name in names]
+        return set() # {name.text for name in names}
 
     def interface_declaration(self, node, results):
-        names = node.children_by_field_name("name")
-        self.data["interface"] += [name.text for name in names]
-        return {name.text for name in names}
+        self.class_repr = ClassRepr( node.child_by_field_name("name").text.decode(), self.package_name, "i" )
+        return set()
     
     def enum_declaration(self, node, results):
-        names = node.children_by_field_name("name")
-        self.data["enum"] += [name.text for name in names]
-        return {name.text for name in names}
+        self.class_repr = ClassRepr( node.child_by_field_name("name").text.decode(), self.package_name, "e" )
+        return set()
 
     def class_body(self, node, results):
         return set()
@@ -63,8 +64,10 @@ class FunctionCode(SyntaxFold):
 
 
 class FunctionFunctions(SyntaxFold):
-    def __init__( self, function_name):
-        self.funct_name = function_name
+    def __init__( self, class_repr):
+        self.class_repr = class_repr
+
+
         self.data = defaultdict(list)
         
 
@@ -84,54 +87,34 @@ class FunctionFunctions(SyntaxFold):
 
         return_type = self.visit(node.child_by_field_name("type")).pop()
 
-        function_block = FunctionBlock()
+        this_method_repr = MethodRepr( 
+                method_name=function_name.text.decode(), 
+                parameters=parameters, # list of string...
+                return_type= return_type # string too...
+                # function calls missing!
+            )
+        
+        function_block = FunctionBlock( this_method_repr )
         function_block.visit(node) 
         
-        self.data[function_name.text.decode()] += [ 
-            {
-                "annotations": annotations,
-                "parameters": parameters,
-                "function_calls": function_block.data,
-                "return": return_type
-            }
-        ]
+        self.class_repr.add_method(
+            this_method_repr
+        )
+
+
+        # self.data[function_name.text.decode()] += [ 
+        #     MethodRepr(  )
+        #     ,
+        #     {
+        #         "annotations": annotations,
+        #         "parameters": parameters,
+        #         "function_calls": function_block.data,
+        #         "return": return_type
+        #     }
+        # ]
 
 
         return set()
-
-        """
-        print()
-
-
-        func = node.child_by_field_name("name")
-
-        annotations = self.visit( node.child )
-        print( func.parent )
-        print("annotations", annotations)
-        print("function", func.text)
-
-        
-        print()
-
-
-        return set()
-        #functions = node.children_by_field_name("name")
-
-
-        #functions = node.children_by_field_name("name")
-        
-        #func = [ func for func in functions if func.text == self.funct_name ]
-        #assert len(func) == 1
-
-        #return self.visit(func)
-    
-    
-    def modifiers(self, node, results):
-        return { self.visit( child ) for child in node.children }
-    
-    def identifiers(self, node, results):
-        return { node.text }
-        """
 
     def marker_annotation(self, node, results):
         annotations = node.children_by_field_name("name")
@@ -182,9 +165,11 @@ class FunctionFunctions(SyntaxFold):
 
 
 class FunctionBlock(SyntaxFold):
-    def __init__(self):
+    def __init__(self, outter_function):
         self.data = defaultdict(list)
         self.variables = {}
+
+        self.outter_function : MethodRepr = outter_function
 
     # def block( self, node, results):
     #     print("um here")
@@ -211,14 +196,14 @@ class FunctionBlock(SyntaxFold):
             return  { "unknown(methodinv)" }
 
 
-        invoking = "this"
+        owner = "this"
 
         # object that is calling this object
         variable = node.child_by_field_name("object")
         if variable is not None:
-            invoking = variable.text.decode()
-            if invoking != "this":
-                invoking = TemporaryType( var_name=invoking )
+            owner = variable.text.decode()
+            if owner != "this":
+                owner = TemporaryType( var_name=owner )
 
 
         names = { self.visit(elem).pop() for elem in node.children_by_field_name("name") if self.visit(elem) != set()}
@@ -230,13 +215,20 @@ class FunctionBlock(SyntaxFold):
 
         if any(repeated_args):
             return names
+        
 
+        self.outter_function.add_invocation(
+            InvocationRepr( name, args, owner ) # missing args and invoking
+        )
+
+        """
         self.data[ name ] += [
             {
                 "parameters" : args,
-                "invoking": invoking
+                "invoking": owner
             }
         ]
+        """
 
         return names
     
@@ -250,11 +242,18 @@ class FunctionBlock(SyntaxFold):
             specifics = set()
         print(generic_type, var_name, specifics)
 
+        self.outter_function.add_variable(
+            VariableRepr( var_name= var_name, generic=generic_type, specific=None if len(specifics) == 0 else specifics )
+        )
+
+        """
         self.variables[var_name] = {
             "generic" : generic_type,
             "specific": None if len(specifics) == 0 else specifics
             
         }
+        """
+
         return set()
     
     def object_creation_expression(self, node, results):
@@ -297,27 +296,3 @@ class FunctionBlock(SyntaxFold):
         
         # return { "unknown, var: " + node.text.decode() }
         return { TemporaryType(var_name=node.text.decode()) }
-
-
-class TemporaryType:
-    def __init__(self, var_name = None, method_name = None):
-        self.variable_name = var_name
-        self.method_name = method_name
-
-    def __str__(self):
-        return f"TEMP_TYPE({self.variable_name if self.variable_name is not None else '-'}, {self.method_name if self.method_name is not None else '-'})"
-
-    def __repr__(self) -> str:
-        return f"TEMP_TYPE({self.variable_name}, {self.method_name})"
-    
-    def __eq__(self, __value: object) -> bool:
-        return str(self) == str(__value)
-    
-    def __hash__(self):
-        return hash(str(self))
-    
-
-    def __format__(self,fmt):                # fmt='03' from below.
-        return f'{str(self):{fmt}}' 
-    
-
