@@ -208,4 +208,4 @@ getAllNodes(dir)
 res = InterpretFunction(dir=dir, file="classes\dk\dtu\pa\App")
 print(edges)
 
-createGraph(nodes=nodes, edges=edges, dir="project/")
+# createGraph(nodes=nodes, edges=edges, dir="project/")
