@@ -18,32 +18,36 @@ def saveClassMethods(obj):
     for field in obj["fields"]:
         classToMethods[obj["name"]].append({field["name"]: field["value"]})
 
-def getVarValue( class_name, var_name ):
+
+def getVarValue(class_name, var_name):
     if class_name not in classToMethods:
         print(f"CLASS NAME {class_name} not found.")
         return
-    
+
     for elem in classToMethods[class_name]:
         if list(elem.keys())[0] == var_name:
             return elem[var_name]
 
     print(f"VARIABLE NAME {var_name} not found.")
 
-    
 
 def interpretMethod(class_name, method_name, arguments: list):
+    print(method_name)
     if class_name not in classToMethods:
         print(f"CLASS NAME {class_name} not found.")
         return
-    
+
     for m in classToMethods[class_name]:
         if list(m.keys())[0] == method_name:
             # print( list(m.values())[0] )
-            return interpretBytecode(list(m.values())[0], memory=dict(enumerate(arguments)))
+            return interpretBytecode(
+                list(m.values())[0], memory=dict(enumerate(arguments))
+            )
 
     print(f"METHOD NAME {method_name} not found.")
 
-def interpretBytecode(byteArray, index=0, stack=[], memory={}):
+
+def interpretBytecode(byteArray, index=0, stack=[], memory={}, functionName=""):
     byteObj = byteArray[index]
     # print(byteObj, '\n')
     match byteObj["opr"]:
@@ -51,7 +55,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             # print("return")
             if byteObj["type"] is None:
                 return None
-            assert (len(stack) > 0)
+            assert len(stack) > 0
             return stack.pop()
 
         case "push":
@@ -63,7 +67,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             # print(byteObj)
             # stack.append(memory[byteObj["index"]])
             match byteObj["type"]:
-                case "ref" | "int" :
+                case "ref" | "int":
                     stack.append(memory[byteObj["index"]])
                     # stack.append([])
                     # print(stack)
@@ -76,17 +80,17 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             b = stack.pop()
             match byteObj["operant"]:
                 case "add":
-                    stack.append(a+b)
+                    stack.append(a + b)
                 case "mul":
-                    stack.append(a*b)
+                    stack.append(a * b)
                 case "sub":
-                    stack.append(a-b)
+                    stack.append(a - b)
                 case _:
                     print("operant", byteObj["condition"], "not implemented")
                     return
 
         case "if":
-            assert (len(stack) >= 2)
+            assert len(stack) >= 2
             a = stack.pop()
             b = stack.pop()
             jump = False
@@ -108,7 +112,7 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
                 return interpretBytecode(byteArray, byteObj["target"], stack, memory)
 
         case "ifz":
-            assert (len(stack) >= 1)
+            assert len(stack) >= 1
             elem = stack.pop()
             jump = False
 
@@ -145,7 +149,8 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             stack = stack[:-num_args]
 
             res = interpretMethod(
-                to_invoke["ref"]["name"], to_invoke["name"], dict(enumerate(args)))
+                to_invoke["ref"]["name"], to_invoke["name"], dict(enumerate(args))
+            )
             stack.append(res)
 
         case "incr":
@@ -173,50 +178,44 @@ def interpretBytecode(byteArray, index=0, stack=[], memory={}):
             stack.append(array)
 
         case "get":
-            value = getVarValue( byteObj["field"]["class"], byteObj["field"]["name"] )
-            stack.append( value )
-        
+            value = getVarValue(byteObj["field"]["class"], byteObj["field"]["name"])
+            stack.append(value)
+
         case "newarray":
             # stack.append([[], byteObj["dim"]]) # list 2 elements: (array, size)
-            stack.append([]) # list 2 elements: (array, size)
-        
+            stack.append([])  # list 2 elements: (array, size)
+
         case "dup":
             if byteObj["words"] != 1:
                 print(byteObj["opr"] + " not implemented (for words > 1)")
             # stack.append( stack[-1] )
 
         case "arraylength":
-            stack.append( len(stack[-1]) )
+            stack.append(len(stack[-1]))
 
         case "throw":
             raise RuntimeError("Throwing an exception (incomplete)")
-        
+
         case _:
             print(byteObj["opr"] + " not implemented")
             return
 
     # print(byteArray)
-    if (len(byteArray) > index):
-        return interpretBytecode(byteArray, index+1, stack, memory)
+    if len(byteArray) > index:
+        return interpretBytecode(byteArray, index + 1, stack, memory)
     else:
         return "something"
 
 
 def interpretProjDir(proj_directory: str):
-    print(proj_directory)
+    print("hello")
     for file in glob.iglob(proj_directory + "/**/*.class", recursive=True):
-        new_filename = "." + file.split('.')[1] + ".json"
-        # print(new_filename)
-        # ret = subprocess.run(["jvm2json", "-s", file, "-t", new_filename ])
-
-        # if "Calls.json" not in new_filename:
-        #     continue
+        new_filename = "." + file.split(".")[1] + ".json"
 
         f = open(new_filename)
         data: json = json.load(f)
         saveClassMethods(data)
-        #print(classToMethods)
         f.close()
-        #return data
+
 
 interpretProjDir(os.path.join(".", "assignment-3", "classes"))
