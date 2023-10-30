@@ -1,4 +1,11 @@
-from printing_utils import * 
+
+def helper_print_arguments( parameter_set: set ):
+    if parameter_set == set():
+        return "()"
+
+    temp_parameter_set = [ str(elem) for elem in parameter_set ]
+    return f"( { '.'.join( temp_parameter_set )} )"
+    
 
 class TemporaryType:
     def __init__(self, var_name = None, method_name = None):
@@ -27,6 +34,9 @@ class VariableRepr():
         self.generic = generic
         self.specific = specific
 
+    def get_most_specific_type(self):
+        return self.specific if self.specific is not None else self.generic
+
     def __str__(self):
         return f"VariableRepr({self.name}, {self.generic}, {self.specific})"
 
@@ -48,7 +58,7 @@ class InvocationRepr():
     def __init__(self, method_name, parameters, owner):
         self.method_name = method_name
         self.parameters : list[str | TemporaryType ] = parameters
-        self.owner : list[str | TemporaryType ] = owner
+        self.owner : list[str | TemporaryType | ClassRepr ] = owner
     
     def pretty_name(self):
         return f"{self.method_name}{helper_print_arguments(self.parameters)}"
@@ -115,10 +125,21 @@ class ClassRepr():
         self.is_ours = is_ours
         self.class_type = class_type
 
-        self.methods = []
+        self.methods = list[MethodRepr] = []
+        self.variables : list[VariableRepr] = set()
 
     def add_method(self, method: MethodRepr ):
         self.methods.append( method )
+
+    def add_variable(self, var: VariableRepr ):
+        self.variables.add( var )
+
+    def find_variable(self, var_name: str) -> VariableRepr:
+        found = { var for var in self.variables if var.name == var_name }
+        return found.pop() if len(found) > 0 else None
+    
+    def find_method(self, method_name, parameters) -> MethodRepr:
+        pass
 
     def pretty_name(self):
         return f"({self.class_type}) {self.package}.{self.class_name}"

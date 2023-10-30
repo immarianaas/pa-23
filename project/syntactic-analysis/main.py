@@ -21,6 +21,9 @@ PROJ_PATH = "../pa-app" # JAVA PROJECT TO ANALYSE
 DATA = []
 
 def main():
+    global DATA
+    DATA += get_java_types()
+
     for file in glob.iglob(PROJ_PATH + "/**/*.java", recursive=True):
         if "EntryPoint.java" in file:
             continue
@@ -50,6 +53,7 @@ def main():
 
             # DATA[ get_overal_class_name(class_name.data, package_name) ] = aaa.data
             #DATA[ class_repr ] = aaa.data
+            
             DATA.append( aaa.class_repr )
 
             # break
@@ -62,6 +66,14 @@ def main():
 if __name__ == "__main__":
     main()
 
-    print_data( DATA )
+    #print_data( DATA )
+
+    print(DATA)
 
     complete( DATA )
+
+    print("-----------------------------------------------------------")
+
+    print_data( DATA )
+
+    #print(DATA)
