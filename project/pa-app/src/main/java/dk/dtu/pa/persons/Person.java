@@ -1,6 +1,6 @@
 package dk.dtu.pa.persons;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
 public class Person {
     private String name;
@@ -9,13 +9,13 @@ public class Person {
     private long id;
 
     private Address address;
-    private ArrayList<String> contact;
+//    private ArrayList<String> contact;
 
     public Person(String name, int age, Address address) {
         this.name = name;
         this.age = age;
         this.address = address;
-        this.contact = new ArrayList<String>();
+//        this.contact = new ArrayList<String>();
     }
 
     public boolean isOlderThan(Person otherPerson) {
@@ -30,12 +30,12 @@ public class Person {
         return address;
     }
 
-    public ArrayList<String> setContact() {
-        ArrayList<String> listInfo = new ArrayList<String>();
-        listInfo.add("Name");
-        listInfo.add("Address");
-        this.contact = listInfo;
-        return listInfo;
-    }
+//    public ArrayList<String> setContact() {
+//        ArrayList<String> listInfo = new ArrayList<String>();
+//        listInfo.add("Name");
+//        listInfo.add("Address");
+//        this.contact = listInfo;
+//        return listInfo;
+//    }
 
 }
