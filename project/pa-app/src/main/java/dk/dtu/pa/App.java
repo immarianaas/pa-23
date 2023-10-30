@@ -1,6 +1,6 @@
 package dk.dtu.pa;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
 import dk.dtu.pa.geometry.*;
 import dk.dtu.pa.persons.*;
@@ -51,7 +51,7 @@ public class App {
 
         // Persons obj
         Person person3 = new Person("Alice", 20, new Address());
-        ArrayList<String> contacts = person3.setContact();
+        // ArrayList<String> contacts = person3.setContact();
         String address = person3.getAddress().function1("Via Nordvej", person2).function2("2300 ")
                 .function3("Kobenhavn")
                 .getValue();
