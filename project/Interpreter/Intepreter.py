@@ -6,7 +6,6 @@ from createGraph import createGraph
 
 
 edges = set()
-nodes = set()
 
 
 def getAllNodes(dir):
@@ -17,6 +16,9 @@ def getAllNodes(dir):
         methods = obj["methods"]
         for m in methods:
             nodes.add(obj["name"] + "/" + m["name"])
+
+
+nodes = set()
 
 
 def InterpretFunction(
@@ -203,9 +205,9 @@ def interpretBytecode(
         return "Error - index out of range"
 
 
-dir = "project\pa-app\decompiled"
+dir = "project/pa-app/decompiled"
 getAllNodes(dir)
-res = InterpretFunction(dir=dir, file="classes\dk\dtu\pa\App")
+res = InterpretFunction(dir=dir, file="classes/dk/dtu/pa/App")
 print(edges)
 
 # createGraph(nodes=nodes, edges=edges, dir="project/")
