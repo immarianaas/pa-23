@@ -1,10 +1,8 @@
-stack = ["a","b","c","d","e","f"]
-byteObj={"words": 2}
+def fib(n) :
+    if (n < 2) :
+        return 1
+    else :
+        return fib(n - 1) + fib(n - 2)
+    
+print(fib(5))
 
-vals = stack[-byteObj["words"]:]
-stack = stack[: len(stack) - byteObj["words"]]
-for v in vals:
-    stack.append(v)
-    stack.append(v)
-
-print(stack)
