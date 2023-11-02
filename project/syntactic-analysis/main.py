@@ -25,8 +25,9 @@ def main():
     DATA += get_java_types()
 
     for file in glob.iglob(PROJ_PATH + "/**/*.java", recursive=True):
-        if "EntryPoint.java" in file:
+        if "EntryPoint.java" in file or "AppTest.java" in file:
             continue
+
 
         with open(file, "rb") as f:
             tree = parser.parse(f.read())
@@ -68,11 +69,14 @@ if __name__ == "__main__":
 
     #print_data( DATA )
 
-    print(DATA)
+    #print(DATA)
+
+    print("----------------------------------------------------------------------------------------------------------------------")
+
 
     complete( DATA )
 
-    print("-----------------------------------------------------------")
+    print("----------------------------------------------------------------------------------------------------------------------")
 
     print_data( DATA )
 

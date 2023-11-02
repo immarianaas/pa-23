@@ -46,7 +46,7 @@ class ClassName(SyntaxFold):
     def class_body(self, node, results):
         return set()
 
-
+'''
 class FunctionCode(SyntaxFold):
     def __init__( self, function_name):
         self.funct_name = function_name
@@ -61,6 +61,7 @@ class FunctionCode(SyntaxFold):
         assert len(func) == 1
 
         return self.visit(func)
+'''
 
 
 class FunctionFunctions(SyntaxFold):
@@ -183,7 +184,7 @@ class FunctionBlock(SyntaxFold):
 
             variable = node.child_by_field_name("object")
             if variable is not None:
-                variable = variable.text.decode()
+                variable = node.text.decode()            
 
             return  { TemporaryType(var_name=variable, method_name=func_name ) }
             
@@ -202,9 +203,13 @@ class FunctionBlock(SyntaxFold):
         variable = node.child_by_field_name("object")
         if variable is not None:
             owner = variable.text.decode()
-            if owner != "this":
-                owner = TemporaryType( var_name=owner )
 
+            if owner != "this" and variable.type == "method_invocation":
+                owner = self.visit(variable).pop()
+            elif owner != "this":
+                owner = TemporaryType( var_name=owner )
+            
+        
 
         names = { self.visit(elem).pop() for elem in node.children_by_field_name("name") if self.visit(elem) != set()}
         assert len(names) == 1
@@ -216,10 +221,8 @@ class FunctionBlock(SyntaxFold):
         if any(repeated_args):
             return names
         
-
-        self.outter_function.add_invocation(
-            InvocationRepr( name, args, owner ) # missing args and invoking
-        )
+        inv = InvocationRepr( name, args, owner )
+        self.outter_function.add_invocation(inv)
 
         """
         self.data[ name ] += [
@@ -230,7 +233,7 @@ class FunctionBlock(SyntaxFold):
         ]
         """
 
-        return names
+        return { inv }
     
     def local_variable_declaration(self, node, results):
         generic_type = node.child_by_field_name("type").text.decode()
