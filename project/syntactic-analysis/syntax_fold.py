@@ -46,7 +46,7 @@ class ClassName(SyntaxFold):
     def class_body(self, node, results):
         return set()
 
-
+'''
 class FunctionCode(SyntaxFold):
     def __init__( self, function_name):
         self.funct_name = function_name
@@ -61,6 +61,7 @@ class FunctionCode(SyntaxFold):
         assert len(func) == 1
 
         return self.visit(func)
+'''
 
 
 class FunctionFunctions(SyntaxFold):
@@ -89,10 +90,12 @@ class FunctionFunctions(SyntaxFold):
 
         this_method_repr = MethodRepr( 
                 method_name=function_name.text.decode(), 
-                parameters=parameters, # list of string...
-                return_type= return_type # string too...
+                parameters=parameters, # list of VariableRepr
+                return_type= return_type, # list of strings
+                variables=parameters
                 # function calls missing!
             )
+        
         
         function_block = FunctionBlock( this_method_repr )
         function_block.visit(node) 
@@ -123,8 +126,11 @@ class FunctionFunctions(SyntaxFold):
     
     def formal_parameter(self, node, results):
         param_type = node.children_by_field_name("type")
-        assert len(param_type) == 1
-        return { param_type[0].text.decode() }
+        param_name = node.children_by_field_name("name")
+        assert len(param_type) == 1 and len(param_name) == 1
+
+        #return { param_type[0].text.decode() }
+        return { VariableRepr(var_name=param_name[0].text.decode(), specific=param_type[0].text.decode()) }
     
     def type_identifier(self, node, results):
         if node.parent.type != "method_declaration":
@@ -183,7 +189,7 @@ class FunctionBlock(SyntaxFold):
 
             variable = node.child_by_field_name("object")
             if variable is not None:
-                variable = variable.text.decode()
+                variable = node.text.decode()            
 
             return  { TemporaryType(var_name=variable, method_name=func_name ) }
             
@@ -193,7 +199,9 @@ class FunctionBlock(SyntaxFold):
         if node.parent.type == "variable_declarator":
             # int a = bbb.fun()
             # this will be "bbb"
+            print("-->>> unknown(methodinv)", node.text.decode())
             return  { "unknown(methodinv)" }
+            #return  { TemporaryType(var_name=node.text.decode()) }
 
 
         owner = "this"
@@ -202,9 +210,13 @@ class FunctionBlock(SyntaxFold):
         variable = node.child_by_field_name("object")
         if variable is not None:
             owner = variable.text.decode()
-            if owner != "this":
-                owner = TemporaryType( var_name=owner )
 
+            if owner != "this" and variable.type == "method_invocation":
+                owner = self.visit(variable).pop()
+            elif owner != "this":
+                owner = TemporaryType( var_name=owner )
+            
+        
 
         names = { self.visit(elem).pop() for elem in node.children_by_field_name("name") if self.visit(elem) != set()}
         assert len(names) == 1
@@ -216,10 +228,8 @@ class FunctionBlock(SyntaxFold):
         if any(repeated_args):
             return names
         
-
-        self.outter_function.add_invocation(
-            InvocationRepr( name, args, owner ) # missing args and invoking
-        )
+        inv = InvocationRepr( name, args, owner )
+        self.outter_function.add_invocation(inv)
 
         """
         self.data[ name ] += [
@@ -230,7 +240,7 @@ class FunctionBlock(SyntaxFold):
         ]
         """
 
-        return names
+        return { inv }
     
     def local_variable_declaration(self, node, results):
         generic_type = node.child_by_field_name("type").text.decode()
