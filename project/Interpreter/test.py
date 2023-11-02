@@ -1,5 +1,3 @@
-
-
 from Interpreter import InterpretFunction
 
 
@@ -12,7 +10,7 @@ assert (
         file=file,
         function="noop",
         stack=[],
-        memory={},
+        stackFrame={},
     )["value"]
     == None
 )
@@ -22,7 +20,7 @@ assert (
         file=file,
         function="zero",
         stack=[],
-        memory={},
+        stackFrame={},
     )["value"]
     == 0
 )
@@ -32,13 +30,13 @@ assert (
         file=file,
         function="hundredAndTwo",
         stack=[],
-        memory={},
+        stackFrame={},
     )["value"]
     == 102
 )
 assert (
     InterpretFunction(
-        memory={0: {"type": "integer", "value": 20}},
+        stackFrame={0: {"type": "integer", "value": 20}},
         dir=dir,
         file=file,
         function="identity",
@@ -48,7 +46,7 @@ assert (
 )
 assert (
     InterpretFunction(
-        memory={
+        stackFrame={
             0: {"type": "integer", "value": 10},
             1: {"type": "integer", "value": 5},
         },
@@ -62,7 +60,7 @@ assert (
 
 assert (
     InterpretFunction(
-        memory={
+        stackFrame={
             0: {"type": "integer", "value": 10},
             1: {"type": "integer", "value": 5},
         },
@@ -70,15 +68,15 @@ assert (
         file=file,
         function="min",
         stack=[],
+        printDebug=True,
     )["value"]
     == 5
 )
 
 
-
 assert (
     InterpretFunction(
-        memory={
+        stackFrame={
             0: {"type": "integer", "value": 10},
             1: {"type": "integer", "value": 5},
         },
@@ -92,7 +90,7 @@ assert (
 
 assert (
     InterpretFunction(
-        memory={
+        stackFrame={
             0: {"type": "integer", "value": 4},
         },
         dir=dir,
@@ -106,14 +104,16 @@ assert (
 file = "dtu\compute\exec\Calls"
 
 
-assert(   InterpretFunction(
+assert (
+    InterpretFunction(
         dir=dir,
         file=file,
         function="fib",
         stack=[],
-        memory={0: {'type': 'integer', 'value': 5}},
-    )["value"] == 8
- ) 
+        stackFrame={0: {"type": "integer", "value": 5}},
+    )["value"]
+    == 8
+)
 
 """
 assert(   InterpretFunction(
@@ -130,47 +130,94 @@ assert(   InterpretFunction(
 
 file = "dtu\compute\exec\Array"
 
-assert(   InterpretFunction(
+assert (
+    InterpretFunction(
         dir=dir,
         file=file,
         function="newArray",
         stack=[],
-        memory={},
-           printDebug=True
-    )["value"] == 1
- ) 
-assert(   InterpretFunction(
+        stackFrame={},
+        printDebug=True,
+    )["value"]
+    == 1
+)
+assert (
+    InterpretFunction(
         dir=dir,
         file=file,
         function="first",
         stack=[],
-        memory={4198: {'value': {'content': {0: {'type': 'integer', 'value': 1}, 1: {'type': 'integer', 'value': 2}, 2: {'type': 'integer', 'value': 3}}, 'len': {'type': 'integer', 'value': 3}}, 'type': 'integer array'}, 0: {'value': 4198, 'type': 'ref'}},
-    )["value"] == 1
- ) 
-assert(   InterpretFunction(
+        stackFrame={
+            4198: {
+                "value": {
+                    "content": {
+                        0: {"type": "integer", "value": 1},
+                        1: {"type": "integer", "value": 2},
+                        2: {"type": "integer", "value": 3},
+                    },
+                    "len": {"type": "integer", "value": 3},
+                },
+                "type": "integer array",
+            },
+            0: {"value": 4198, "type": "ref"},
+        },
+    )["value"]
+    == 1
+)
+assert (
+    InterpretFunction(
         dir=dir,
         file=file,
         function="firstSafe",
         stack=[],
-        memory={4198: {'value': {'content': {0: {'type': 'integer', 'value': 1}, 1: {'type': 'integer', 'value': 2}, 2: {'type': 'integer', 'value': 3}}, 'len': {'type': 'integer', 'value': 3}}, 'type': 'integer array'}, 0: {'value': 4198, 'type': 'ref'}},
-     
-    )["value"] == 1
- ) 
-assert(   InterpretFunction(
+        stackFrame={
+            4198: {
+                "value": {
+                    "content": {
+                        0: {"type": "integer", "value": 1},
+                        1: {"type": "integer", "value": 2},
+                        2: {"type": "integer", "value": 3},
+                    },
+                    "len": {"type": "integer", "value": 3},
+                },
+                "type": "integer array",
+            },
+            0: {"value": 4198, "type": "ref"},
+        },
+    )["value"]
+    == 1
+)
+assert (
+    InterpretFunction(
         dir=dir,
         file=file,
         function="bubbleSort",
         stack=[],
-        memory={4198: {'value': {'content': {0: {'type': 'integer', 'value': 1}, 1: {'type': 'integer', 'value': 2}, 2: {'type': 'integer', 'value': 3}}, 'len': {'type': 'integer', 'value': 3}}, 'type': 'integer array'}, 0: {'value': 4198, 'type': 'ref'}},
-    
-        )["value"] == None
- ) 
+        stackFrame={
+            4198: {
+                "value": {
+                    "content": {
+                        0: {"type": "integer", "value": 1},
+                        1: {"type": "integer", "value": 2},
+                        2: {"type": "integer", "value": 3},
+                    },
+                    "len": {"type": "integer", "value": 3},
+                },
+                "type": "integer array",
+            },
+            0: {"value": 4198, "type": "ref"},
+        },
+    )["value"]
+    == None
+)
 
-assert(   InterpretFunction(
+assert (
+    InterpretFunction(
         dir=dir,
         file=file,
         function="aWierdOneWithinBounds",
         stack=[],
-        memory={},
-    )["value"] == 1
- ) 
+        stackFrame={},
+    )["value"]
+    == 1
+)

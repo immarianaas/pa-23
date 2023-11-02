@@ -8,11 +8,27 @@ import numpy
 
 
 intTypes = ["int", "integer"]
-primitiveTypes = ["byte", "short", "int", "integer", "long", "float", "double", "boolean" ,"char"]
+primitiveTypes = [
+    "byte",
+    "short",
+    "int",
+    "integer",
+    "long",
+    "float",
+    "double",
+    "boolean",
+    "char",
+]
 
 
 def InterpretFunction(
-    dir: str, file: str, function: str = "main", clas: str = None, stack=[], memory={}, printDebug =False
+    dir: str,
+    file: str,
+    function: str = "main",
+    clas: str = None,
+    stack=[],
+    stackFrame={},
+    printDebug=False,
 ) -> (any, set):
     try:
         f = open(dir + "/" + file + ".json", "r")
@@ -24,29 +40,32 @@ def InterpretFunction(
     methods = obj["methods"]
     fun = [f for f in methods if f["name"] == function][0]
     byteArray = fun["code"]["bytecode"]
-    if printDebug: print("\n------------ Interpreting ", fun["name"], " -----------------")
+    if printDebug:
+        print("\n------------ Interpreting ", fun["name"], " -----------------")
     return interpretBytecode(
         byteArray=byteArray,
         function=obj["name"] + "/" + fun["name"],
         dir=dir,
-        memory=memory,
+        memory=stackFrame,
         stack=stack,
-        printDebug = printDebug
+        printDebug=printDebug,
     )
 
-def error(): 
+
+def error():
     print("There was an Error")
     return
+
 
 def newIndexRef(memory):
     keys = list(memory.keys())
     keys.sort()
-    if len(keys)>0:
-        return keys[0]-1
+    if len(keys) > 0:
+        return keys[0] - 1
     return -1
 
-def getStaticField(dir, field):
 
+def getStaticField(dir, field):
     try:
         f = open(dir + "/" + field["class"] + ".json", "r")
         f.close
@@ -56,18 +75,26 @@ def getStaticField(dir, field):
         return val
     except:
         print(dir + "/" + field["class"] + ".json" + " not found")
-        return #{"value": random.randrange(9999), "type": "ref"}
-    
+        return  # {"value": random.randrange(9999), "type": "ref"}
+
     obj = json.load(f)
     fields = obj["fields"]
     field = [f for f in fields if f["name"] == field["name"]][0]
     return field
-    
+
+
 def interpretBytecode(
-    byteArray: [], function: str, dir, stack: [], memory: dict, index: int = 0, printDebug = False,
+    byteArray: [],
+    function: str,
+    dir,
+    stack: [],
+    memory: dict,
+    index: int = 0,
+    printDebug=False,
 ):
     byteObj = byteArray[index]
-    if printDebug: print("\n    -- ", stack, "\n    -- ", memory, "\n\n", index ,":" ,byteObj  )
+    if printDebug:
+        print("\n    -- ", stack, "\n    -- ", memory, "\n\n", index, ":", byteObj)
     index = index + 1
     match byteObj["opr"]:
         case "arraylength":
@@ -82,7 +109,7 @@ def interpretBytecode(
             v = stack.pop()
             i = stack.pop()
             ref = stack.pop()
-            memory[ref["value"]]["value"]["content"][i["value"]]= v
+            memory[ref["value"]]["value"]["content"][i["value"]] = v
         case "binary":
             v2 = stack.pop()
             v1 = stack.pop()
@@ -106,7 +133,10 @@ def interpretBytecode(
                     )
                 case "rem":
                     stack.append(
-                        {"value": math.remainder(v1["value"] , v2["value"]), "type": v1["type"]}
+                        {
+                            "value": math.remainder(v1["value"], v2["value"]),
+                            "type": v1["type"],
+                        }
                     )
                 case _:
                     error()
@@ -117,8 +147,8 @@ def interpretBytecode(
                 stack.append(v)
                 stack.append(v)
         case "get":
-            if(byteObj["static"] == True):
-                value = getStaticField(dir=dir,field = byteObj["field"] )
+            if byteObj["static"] == True:
+                value = getStaticField(dir=dir, field=byteObj["field"])
                 stack.append(value)
             else:
                 print("get not implemented")
@@ -183,10 +213,10 @@ def interpretBytecode(
                             index = byteObj["target"]
                     case _:
                         error()
-            
+
         case "incr":
             v = memory[byteObj["index"]]["value"]
-            memory[byteObj["index"]]["value"]  = v+byteObj["amount"]
+            memory[byteObj["index"]]["value"] = v + byteObj["amount"]
         case "invoke":
             method = byteObj["method"]
             num_args = len(method["args"])
@@ -198,8 +228,8 @@ def interpretBytecode(
                     file=method["ref"]["name"],
                     function=method["name"],
                     stack=[],
-                    memory=mem,
-                    printDebug=printDebug
+                    stackFrame=mem,
+                    printDebug=printDebug,
                 )
                 stack.append(res)
             else:
@@ -209,31 +239,32 @@ def interpretBytecode(
             stack.append(copy.deepcopy(memory[byteObj["index"]]))
 
         case "newarray":
-            ref = newRef()
+            ref = malloc()
             i = stack.pop()["value"]
             array = {index: {"type": None, "value": None} for index in range(i)}
-            memory[ref] = {"value":{ "content": array, "len": {'type': 'integer', 'value': i}}, "type": "integer array"}
+            memory[ref] = {
+                "value": {"content": array, "len": {"type": "integer", "value": i}},
+                "type": "integer array",
+            }
             stack.append({"value": ref, "type": "ref"})
         case "push":
             stack.append(byteObj["value"])
         case "return":
-            if byteObj["type"] == None :
-                return {'type': None, 'value': None}
+            if byteObj["type"] == None:
+                return {"type": None, "value": None}
             else:
                 res = stack.pop()
                 # assert res["type"] == byteObj["type"]
                 return res
         case "store":
             memory[byteObj["index"]] = stack.pop()
-            
+
         case "throw":
             raise RuntimeError("Throwing an exception (incomplete)")
         case _:
             print(byteObj["opr"] + " not implemented in" + function)
             print(byteObj)
             return
-
-    
 
     if len(byteArray) > index:
         return interpretBytecode(
@@ -243,13 +274,50 @@ def interpretBytecode(
             index=index,
             stack=stack,
             memory=memory,
-            printDebug = printDebug
+            printDebug=printDebug,
         )
     else:
         return "Error - index out of range"
 
-def newRef():
+
+def malloc():
     return random.randrange(1000, 9999)
+
+
+class Object:
+    def __init__(self):
+        self.members = {}
+        self.ref_count = 1
+
+
+class Heap:
+    def __init__(self):
+        self.map = {}
+        self.next = 0
+
+    def malloc(self, size):
+        ptr = self.next
+        self.map[ptr] = Object()
+        self.next += 1
+        return ptr
+
+    def get(self, ptr):
+        return self.map[ptr]
+
+    def inc_count(self, ptr):
+        self.map[ptr].ref_count += 1
+
+    def dec_count(self, ptr):
+        self.map[ptr].ref_count -= 1
+        #  check count and release memory
+
+
+heap = Heap()
+
+
+def min_kode():
+    global heap
+    ref = heap.malloc(10)
 
 
 """ 
@@ -275,3 +343,10 @@ def newRef():
         case "store":
             memory[byteObj["index"]] = {"type": byteObj["type"], "value": stack.pop()}
               """
+
+
+"""
+
+heap (lidt som en stackframe)
+
+"""
