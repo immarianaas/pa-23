@@ -4,18 +4,18 @@ package dk.dtu.pa.geometry;
 abstract class Shapes implements ResizeShapes {
 
     protected Type type;
-    protected double area;
-    protected double perimeter;
+    protected int area;
+    protected int perimeter;
 
     @Override
-    public void resize(double base, double high) {
+    public void resize(int base, int high) {
         this.area = base * high;
         this.perimeter = base * 4;
     }
 
     public abstract int getNumberOfSides();
-    public abstract double computeArea(double base, double high);
-    public abstract double computePerimeter(double base);
+    public abstract int computeArea(int base, int high);
+    public abstract int computePerimeter(int base);
 
     public String getInfo(){
 

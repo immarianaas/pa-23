@@ -3,7 +3,7 @@ package dk.dtu.pa.geometry;
 public class Square extends Shapes {
     public final int side = 4;
 
-    public Square(Type type, double side) {
+    public Square(Type type, int side) {
         this.type = type;
         this.area = computeArea (side, side);
         this.perimeter = computePerimeter(side);
@@ -14,19 +14,19 @@ public class Square extends Shapes {
         return this.side;
     }
 
-    public double computeArea(double side, double high) {
+    public int computeArea(int side, int high) {
         return side * side;
     }
 
-    public double computePerimeter(double side) {
+    public int computePerimeter(int side) {
         return side * 4;
     }
 
-    public double getArea(){
+    public int getArea(){
         return this.area;
     }
 
-    public double getPerimeter() {
+    public int getPerimeter() {
         return this.perimeter;
     }
 
