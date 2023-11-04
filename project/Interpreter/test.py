@@ -1,3 +1,4 @@
+from Util import Operand, PrimitiveTypes, StackFrame
 from Interpreter import InterpretFunction
 
 
@@ -9,9 +10,7 @@ assert (
         dir=dir,
         file=file,
         function="noop",
-        stack=[],
-        stackFrame={},
-    )["value"]
+    ).get_value()
     == None
 )
 assert (
@@ -19,9 +18,7 @@ assert (
         dir=dir,
         file=file,
         function="zero",
-        stack=[],
-        stackFrame={},
-    )["value"]
+    ).get_value()
     == 0
 )
 assert (
@@ -29,104 +26,94 @@ assert (
         dir=dir,
         file=file,
         function="hundredAndTwo",
-        stack=[],
-        stackFrame={},
-    )["value"]
+    ).get_value()
     == 102
 )
+
+stackframe = StackFrame()
+stackframe.set(0, operand=Operand({"type": "int", "value": 20}))
+
 assert (
     InterpretFunction(
-        stackFrame={0: {"type": "integer", "value": 20}},
+        stackFrame=stackframe,
         dir=dir,
         file=file,
         function="identity",
-        stack=[],
-    )["value"]
+    ).get_value()
     == 20
 )
+
+
+stackframe.set(1, operand=Operand({"type": "int", "value": 10}))
+
+
 assert (
     InterpretFunction(
-        stackFrame={
-            0: {"type": "integer", "value": 10},
-            1: {"type": "integer", "value": 5},
-        },
+        stackFrame=stackframe,
         dir=dir,
         file=file,
         function="add",
-        stack=[],
-    )["value"]
-    == 15
+    ).get_value()
+    == 30
 )
+
 
 assert (
     InterpretFunction(
-        stackFrame={
-            0: {"type": "integer", "value": 10},
-            1: {"type": "integer", "value": 5},
-        },
+        stackFrame=stackframe,
         dir=dir,
         file=file,
         function="min",
-        stack=[],
-        printDebug=True,
-    )["value"]
-    == 5
+    ).get_value()
+    == 10
 )
 
 
 assert (
     InterpretFunction(
-        stackFrame={
-            0: {"type": "integer", "value": 10},
-            1: {"type": "integer", "value": 5},
-        },
-        dir=dir,
-        file=file,
-        function="div",
-        stack=[],
-    )["value"]
+        stackFrame=stackframe, dir=dir, file=file, function="div"
+    ).get_value()
     == 2
 )
 
+stackframe2 = StackFrame()
+stackframe2.set(0, operand=Operand({"type": "int", "value": 4}))
+
+
 assert (
     InterpretFunction(
-        stackFrame={
-            0: {"type": "integer", "value": 4},
-        },
+        stackFrame=stackframe2,
         dir=dir,
         file=file,
         function="factorial",
-        stack=[],
-    )["value"]
+    ).get_value()
     == 24
 )
 
+
 file = "dtu\compute\exec\Calls"
 
-
+stackframe_fib = StackFrame()
+stackframe_fib.set(0, operand=Operand({"type": "int", "value": 5}))
 assert (
     InterpretFunction(
         dir=dir,
         file=file,
         function="fib",
-        stack=[],
-        stackFrame={0: {"type": "integer", "value": 5}},
-    )["value"]
+        stackFrame=stackframe_fib,
+    ).get_value()
     == 8
 )
 
-"""
-assert(   InterpretFunction(
-        dir=dir,
-        file=file,
-        function="helloWorld",
-        stack=[],
-        memory={},
-        printDebug=True
-    )["value"] == None
- ) 
- """
 
+assert (
+    InterpretFunction(
+        dir=dir, file=file, function="helloWorld", printDebug=True
+    ).get_value()
+    == None
+)
+
+"""
 
 file = "dtu\compute\exec\Array"
 
@@ -135,10 +122,10 @@ assert (
         dir=dir,
         file=file,
         function="newArray",
-        stack=[],
+        operandStack=[],
         stackFrame={},
         printDebug=True,
-    )["value"]
+    ).get_value()
     == 1
 )
 assert (
@@ -146,7 +133,7 @@ assert (
         dir=dir,
         file=file,
         function="first",
-        stack=[],
+        operandStack=[],
         stackFrame={
             4198: {
                 "value": {
@@ -161,7 +148,7 @@ assert (
             },
             0: {"value": 4198, "type": "ref"},
         },
-    )["value"]
+    ).get_value()
     == 1
 )
 assert (
@@ -169,7 +156,7 @@ assert (
         dir=dir,
         file=file,
         function="firstSafe",
-        stack=[],
+        operandStack=[],
         stackFrame={
             4198: {
                 "value": {
@@ -184,7 +171,7 @@ assert (
             },
             0: {"value": 4198, "type": "ref"},
         },
-    )["value"]
+    ).get_value()
     == 1
 )
 assert (
@@ -192,7 +179,7 @@ assert (
         dir=dir,
         file=file,
         function="bubbleSort",
-        stack=[],
+        operandStack=[],
         stackFrame={
             4198: {
                 "value": {
@@ -207,7 +194,7 @@ assert (
             },
             0: {"value": 4198, "type": "ref"},
         },
-    )["value"]
+    ).get_value()
     == None
 )
 
@@ -216,8 +203,9 @@ assert (
         dir=dir,
         file=file,
         function="aWierdOneWithinBounds",
-        stack=[],
+        operandStack=[],
         stackFrame={},
-    )["value"]
+    ).get_value()
     == 1
 )
+ """

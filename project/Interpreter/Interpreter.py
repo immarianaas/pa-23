@@ -1,4 +1,5 @@
 import copy
+from enum import Enum
 import json
 import math
 import os
@@ -6,347 +7,203 @@ from pathlib import Path
 import random
 import numpy
 
-
-intTypes = ["int", "integer"]
-primitiveTypes = [
-    "byte",
-    "short",
-    "int",
-    "integer",
-    "long",
-    "float",
-    "double",
-    "boolean",
-    "char",
-]
+from Util import (
+    Heap,
+    Operand,
+    OperandStack,
+    PrimitiveTypes,
+    PrintError,
+    StackFrame,
+    isPrimitiveType,
+    printStackTrace,
+)
 
 
 def InterpretFunction(
     dir: str,
     file: str,
     function: str = "main",
-    clas: str = None,
-    stack=[],
-    stackFrame={},
+    operandStack=OperandStack(),
+    stackFrame=StackFrame(),
     printDebug=False,
-) -> (any, set):
-    try:
-        f = open(dir + "/" + file + ".json", "r")
-        f.close
-    except:
-        print(dir + "/" + file + ".json" + " not found")
-        return None
-    obj = json.load(f)
-    methods = obj["methods"]
-    fun = [f for f in methods if f["name"] == function][0]
-    byteArray = fun["code"]["bytecode"]
-    if printDebug:
-        print("\n------------ Interpreting ", fun["name"], " -----------------")
+):
+    f = open(dir + "/" + file + ".json", "r")
+    f.close
+    json_object = json.load(f)
+    method_list = json_object["methods"]
+    method = [f for f in method_list if f["name"] == function][0]
+    byte_array = method["code"]["bytecode"]
+
     return interpretBytecode(
-        byteArray=byteArray,
-        function=obj["name"] + "/" + fun["name"],
+        byte_array=byte_array,
         dir=dir,
-        memory=stackFrame,
-        stack=stack,
+        operandStack=operandStack,
+        stackFrame=stackFrame,
         printDebug=printDebug,
     )
 
 
-def error():
-    print("There was an Error")
-    return
-
-
-def newIndexRef(memory):
-    keys = list(memory.keys())
-    keys.sort()
-    if len(keys) > 0:
-        return keys[0] - 1
-    return -1
-
-
-def getStaticField(dir, field):
+def get_static(dir, field):
     try:
         f = open(dir + "/" + field["class"] + ".json", "r")
         f.close
-        obj = json.load(f)
-        fields = obj["fields"]
-        val = [f for f in fields if f["name"] == field["name"]][0]
-        return val
-    except:
-        print(dir + "/" + field["class"] + ".json" + " not found")
-        return  # {"value": random.randrange(9999), "type": "ref"}
+        json_object = json.load(f)
+        field_list = json_object["fields"]
+        field2 = [f for f in field_list if f["name"] == field["name"]][0]
+        o = Operand()
+        if isPrimitiveType(field["type"]):
+            o.set_type(field["type"])
+            o.set_value(field2["value"])
+            return o
 
-    obj = json.load(f)
-    fields = obj["fields"]
-    field = [f for f in fields if f["name"] == field["name"]][0]
-    return field
+    except:
+        pass
 
 
 def interpretBytecode(
-    byteArray: [],
-    function: str,
+    byte_array,
     dir,
-    stack: [],
-    memory: dict,
+    operandStack: OperandStack,
+    stackFrame: StackFrame,
+    printDebug: bool,
     index: int = 0,
-    printDebug=False,
 ):
-    byteObj = byteArray[index]
-    if printDebug:
-        print("\n    -- ", stack, "\n    -- ", memory, "\n\n", index, ":", byteObj)
-    index = index + 1
-    match byteObj["opr"]:
-        case "arraylength":
-            ref = stack.pop()
-            stack.append(memory[ref["value"]]["value"]["len"])
-        case "array_load":
-            i = stack.pop()["value"]
-            ref = stack.pop()
-            a = memory[ref["value"]]["value"]["content"]
-            stack.append(a[i])
-        case "array_store":
-            v = stack.pop()
-            i = stack.pop()
-            ref = stack.pop()
-            memory[ref["value"]]["value"]["content"][i["value"]] = v
-        case "binary":
-            v2 = stack.pop()
-            v1 = stack.pop()
-            assert v1["type"] == v2["type"]
-            match byteObj["operant"]:
-                case "add":
-                    stack.append(
-                        {"value": v1["value"] + v2["value"], "type": v1["type"]}
-                    )
-                case "sub":
-                    stack.append(
-                        {"value": v1["value"] - v2["value"], "type": v1["type"]}
-                    )
-                case "div":
-                    stack.append(
-                        {"value": v1["value"] / v2["value"], "type": v1["type"]}
-                    )
-                case "mul":
-                    stack.append(
-                        {"value": v1["value"] * v2["value"], "type": v1["type"]}
-                    )
-                case "rem":
-                    stack.append(
-                        {
-                            "value": math.remainder(v1["value"], v2["value"]),
-                            "type": v1["type"],
-                        }
-                    )
-                case _:
-                    error()
-        case "dup":
-            vals = stack[-byteObj["words"] :]
-            stack = stack[: len(stack) - byteObj["words"]]
-            for v in vals:
-                stack.append(v)
-                stack.append(v)
-        case "get":
-            if byteObj["static"] == True:
-                value = getStaticField(dir=dir, field=byteObj["field"])
-                stack.append(value)
-            else:
-                print("get not implemented")
-        case "goto":
-            index = byteObj["target"]
-        case "if":
-            v2 = stack.pop()
-            v1 = stack.pop()
-            assert v1["type"] in intTypes and v2["type"] in intTypes
-            match byteObj["condition"]:
-                case "eq":
-                    if v1["value"] == v2["value"]:
-                        index = byteObj["target"]
-                case "ne":
-                    if v1["value"] != v2["value"]:
-                        index = byteObj["target"]
-                case "gt":
-                    if v1["value"] > v2["value"]:
-                        index = byteObj["target"]
-                case "ge":
-                    if v1["value"] >= v2["value"]:
-                        index = byteObj["target"]
-                case "lt":
-                    if v1["value"] < v2["value"]:
-                        index = byteObj["target"]
-                case "le":
-                    if v1["value"] <= v2["value"]:
-                        index = byteObj["target"]
-                case _:
-                    error()
-        case "ifz":
-            v = stack.pop()
-            if v["type"] in intTypes:
-                match byteObj["condition"]:
-                    case "eq":
-                        if v["value"] == 0:
-                            index = byteObj["target"]
-                    case "ne":
-                        if v["value"] != 0:
-                            index = byteObj["target"]
-                    case "gt":
-                        if v["value"] > 0:
-                            index = byteObj["target"]
-                    case "ge":
-                        if v["value"] >= 0:
-                            index = byteObj["target"]
-                    case "lt":
-                        if v["value"] < 0:
-                            index = byteObj["target"]
-                    case "le":
-                        if v["value"] <= 0:
-                            index = byteObj["target"]
-                    case _:
-                        error()
-            else:
-                match byteObj["condition"]:
-                    case "ne":
-                        if v["value"] != None:
-                            index = byteObj["target"]
-                    case "eq":
-                        if v["value"] == None:
-                            index = byteObj["target"]
-                    case _:
-                        error()
+    byte_object = byte_array[index]
 
+    if printDebug:
+        printStackTrace(operandStack, stackFrame, index, byte_object)
+
+    index = index + 1
+    match byte_object["opr"]:
+        case "binary":
+            v2 = operandStack.pop()
+            v1 = operandStack.pop()
+            # assert v1.get_type() == v2.get_type()
+            # assert v1.get_type() == PrimitiveTypes("int")
+            operand = Operand()
+            operand.set_type(PrimitiveTypes("int"))
+            match byte_object["operant"]:
+                case "add":
+                    operand.set_value(v1.get_value() + v2.get_value())
+                case "sub":
+                    operand.set_value(v1.get_value() - v2.get_value())
+                case "div":
+                    operand.set_value(v1.get_value() / v2.get_value())
+                case "mul":
+                    operand.set_value(v1.get_value() * v2.get_value())
+                case "rem":
+                    operand.set_value(math.remainder(v1.get_value() + v2.get_value()))
+                case _:
+                    RuntimeError("Binary operation not implemented")
+            operandStack.push(operand)
+        case "get":
+            if byte_object["static"]:
+                operandStack.push(get_static(dir=dir, field=byte_object["field"]))
+            else:
+                PrintError(byte_object)
+                return
+        case "goto":
+            index = byte_object["target"]
+        case "if":
+            v2 = operandStack.pop()
+            v1 = operandStack.pop()
+            # assert v1.get_type() == v2.get_type()
+            # assert v1.get_type() == PrimitiveTypes("int")
+            match byte_object["condition"]:
+                case "eq":
+                    if v1.get_value() == v2.get_value():
+                        index = byte_object["target"]
+                case "ne":
+                    if v1.get_value() != v2.get_value():
+                        index = byte_object["target"]
+                case "gt":
+                    if v1.get_value() > v2.get_value():
+                        index = byte_object["target"]
+                case "ge":
+                    if v1.get_value() >= v2.get_value():
+                        index = byte_object["target"]
+                case "lt":
+                    if v1.get_value() < v2.get_value():
+                        index = byte_object["target"]
+                case "le":
+                    if v1.get_value() <= v2.get_value():
+                        index = byte_object["target"]
+                case _:
+                    RuntimeError("if operation not implemented")
+        case "ifz":
+            v = operandStack.pop()
+            print(v.get_value())
+            zero = 0 if v.get_type() == PrimitiveTypes("int") else None
+            match byte_object["condition"]:
+                case "eq":
+                    if v.get_value() == zero:
+                        index = byte_object["target"]
+                case "ne":
+                    if v.get_value() != zero:
+                        index = byte_object["target"]
+                case "gt":
+                    if v.get_value() > zero:
+                        index = byte_object["target"]
+                case "ge":
+                    if v.get_value() >= zero:
+                        index = byte_object["target"]
+                case "lt":
+                    if v.get_value() < zero:
+                        index = byte_object["target"]
+                case "le":
+                    if v.get_value() <= zero:
+                        index = byte_object["target"]
+                case _:
+                    RuntimeError("if operation not implemented")
         case "incr":
-            v = memory[byteObj["index"]]["value"]
-            memory[byteObj["index"]]["value"] = v + byteObj["amount"]
+            amount = byte_object["amount"]
+            ptr = byte_object["index"]
+            o = stackFrame.get(ptr)
+            v = o.get_value()
+            o.set_value(v + amount)
+            stackFrame.set(ptr, o)
         case "invoke":
-            method = byteObj["method"]
-            num_args = len(method["args"])
-            mem = {i: v for i, v in enumerate(stack[-num_args:])}
-            stack = stack[: (len(stack) - num_args)]
-            if byteObj["access"] == "static" and not method["is_interface"]:
+            if byte_object["access"] == "static":
+                method = byte_object["method"]
+                sf = StackFrame()
+                for i in reversed(range(len(method["args"]))):
+                    sf.set(i, operandStack.pop())
+
                 res = InterpretFunction(
                     dir=dir,
                     file=method["ref"]["name"],
                     function=method["name"],
-                    stack=[],
-                    stackFrame=mem,
+                    stackFrame=sf,
                     printDebug=printDebug,
                 )
-                stack.append(res)
-            else:
-                print("Invoke not implementet for case", byteObj)
-
+                operandStack.push(res)
         case "load":
-            stack.append(copy.deepcopy(memory[byteObj["index"]]))
-
-        case "newarray":
-            ref = malloc()
-            i = stack.pop()["value"]
-            array = {index: {"type": None, "value": None} for index in range(i)}
-            memory[ref] = {
-                "value": {"content": array, "len": {"type": "integer", "value": i}},
-                "type": "integer array",
-            }
-            stack.append({"value": ref, "type": "ref"})
+            object = stackFrame.get(byte_object["index"])
+            # assert object.get_type() == PrimitiveTypes(byte_object["type"])
+            operandStack.push(copy.deepcopy(object))
         case "push":
-            stack.append(byteObj["value"])
+            value = byte_object["value"]
+            operand = Operand(value)
+            operandStack.push(operand)
         case "return":
-            if byteObj["type"] == None:
-                return {"type": None, "value": None}
+            if operandStack.is_empty():
+                return Operand()
             else:
-                res = stack.pop()
-                # assert res["type"] == byteObj["type"]
-                return res
+                return operandStack.pop()
         case "store":
-            memory[byteObj["index"]] = stack.pop()
-
-        case "throw":
-            raise RuntimeError("Throwing an exception (incomplete)")
+            operand = operandStack.pop()
+            stackFrame.set(byte_object["index"], operand)
         case _:
-            print(byteObj["opr"] + " not implemented in" + function)
-            print(byteObj)
+            PrintError(byte_object)
             return
 
-    if len(byteArray) > index:
-        return interpretBytecode(
-            byteArray,
-            dir=dir,
-            function=function,
-            index=index,
-            stack=stack,
-            memory=memory,
-            printDebug=printDebug,
-        )
-    else:
+    if len(byte_array) <= index:
         return "Error - index out of range"
-
-
-def malloc():
-    return random.randrange(1000, 9999)
-
-
-class Object:
-    def __init__(self):
-        self.members = {}
-        self.ref_count = 1
-
-
-class Heap:
-    def __init__(self):
-        self.map = {}
-        self.next = 0
-
-    def malloc(self, size):
-        ptr = self.next
-        self.map[ptr] = Object()
-        self.next += 1
-        return ptr
-
-    def get(self, ptr):
-        return self.map[ptr]
-
-    def inc_count(self, ptr):
-        self.map[ptr].ref_count += 1
-
-    def dec_count(self, ptr):
-        self.map[ptr].ref_count -= 1
-        #  check count and release memory
-
-
-heap = Heap()
-
-
-def min_kode():
-    global heap
-    ref = heap.malloc(10)
-
-
-""" 
-        case "get":
-            if byteObj["static"] == True:
-                stack.append(
-                    byteObj["field"]["type"]["name"] + byteObj["field"]["name"]
-                )
-            else:
-                print(byteObj["opr"] + "not implemented in" + function)
-                return
-
-        case "invoke":
-            print("invoke nok implemented")
-            print(byteObj)
-            print(stack)
-
-            return
-        case "load":
-            stack.append()
-        case "push":
-            stack.append(byteObj["value"])
-        case "store":
-            memory[byteObj["index"]] = {"type": byteObj["type"], "value": stack.pop()}
-              """
-
-
-"""
-
-heap (lidt som en stackframe)
-
-"""
+    return interpretBytecode(
+        byte_array=byte_array,
+        dir=dir,
+        operandStack=operandStack,
+        stackFrame=stackFrame,
+        index=index,
+        printDebug=printDebug,
+    )
