@@ -108,12 +108,13 @@ assert (
 
 assert (
     InterpretFunction(
-        dir=dir, file=file, function="helloWorld", printDebug=True
+        dir=dir,
+        file=file,
+        function="helloWorld",
     ).get_value()
     == None
 )
 
-"""
 
 file = "dtu\compute\exec\Array"
 
@@ -122,12 +123,21 @@ assert (
         dir=dir,
         file=file,
         function="newArray",
-        operandStack=[],
-        stackFrame={},
-        printDebug=True,
     ).get_value()
     == 1
 )
+
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="aWierdOneWithinBounds",
+    ).get_value()
+    == 1
+)
+
+"""
+
 assert (
     InterpretFunction(
         dir=dir,

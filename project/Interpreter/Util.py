@@ -29,18 +29,20 @@ def isPrimitiveType(str) -> bool:
 
 class Object:
     def __init__(self):
-        self.members = {}
+        self.content = None
         self.ref_count = 1
 
 
 class Heap:
     def __init__(self) -> None:
         self.map = {}
+        self.counter_map = {}
         self.next = 0
 
-    def malloc(self) -> int:
+    def malloc(self, object=None) -> int:
         ptr = self.next
-        self.map[ptr] = Object()
+        self.map[ptr] = object
+        self.counter_map[ptr] = 1
         self.next += 1
         return ptr
 
@@ -48,10 +50,10 @@ class Heap:
         return self.map[ptr]
 
     def inc_count(self, ptr: int) -> None:
-        self.map[ptr].ref_count += 1
+        self.counter_map[ptr] += 1
 
     def dec_count(self, ptr: int) -> None:
-        self.map[ptr].ref_count -= 1
+        self.counter_map[ptr] -= 1
         #  check count and release memory
 
 
@@ -141,3 +143,11 @@ def printStackTrace(operandStack, stackFrame, index, byte_object):
         ":",
         byte_object,
     )
+
+
+class Array:
+    def __init__(self, len, dim, type):
+        self.len = len
+        self.dim = dim
+        self.type = type
+        self.content = {index: {"type": None, "value": None} for index in range(len)}

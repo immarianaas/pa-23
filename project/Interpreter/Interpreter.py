@@ -8,6 +8,7 @@ import random
 import numpy
 
 from Util import (
+    Array,
     Heap,
     Operand,
     OperandStack,
@@ -88,6 +89,17 @@ def interpretBytecode(
 
     index = index + 1
     match byte_object["opr"]:
+        case "array_load":
+            i = operandStack.pop().get_value()
+            ref = operandStack.pop().get_value()
+            a = heap.get(ref)
+            operandStack.push(a.content[i])
+        case "array_store":
+            v = operandStack.pop()
+            i = operandStack.pop().get_value()
+            ref = operandStack.pop().get_value()
+            a = heap.get(ref)
+            a.content[i] = v
         case "binary":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
@@ -109,6 +121,12 @@ def interpretBytecode(
                 case _:
                     RuntimeError("Binary operation not implemented")
             operandStack.push(operand)
+        case "dup":
+            w = byte_object["words"]
+            operands = [operandStack.pop() for i in range(w)]
+            for i in range(w * 2):
+                for o in operands:
+                    operandStack.push(o)
         case "get":
             if byte_object["static"]:
                 operandStack.push(
@@ -208,6 +226,14 @@ def interpretBytecode(
             object = stackFrame.get(byte_object["index"])
             # assert object.get_type() == PrimitiveTypes(byte_object["type"])
             operandStack.push(copy.deepcopy(object))
+        case "newarray":
+            lenght = operandStack.pop().get_value()
+            a = Array(len=lenght, dim=byte_object["dim"], type=byte_object["type"])
+            ptr = heap.malloc(object=a)
+            o = Operand()
+            o.set_type("ref")
+            o.set_value(ptr)
+            operandStack.push(o)
         case "push":
             value = byte_object["value"]
             operand = Operand(value)
