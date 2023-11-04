@@ -23,6 +23,7 @@ def isPrimitiveType(str) -> bool:
         "double",
         "boolean",
         "char",
+        "string",
     ]
 
 
@@ -37,7 +38,7 @@ class Heap:
         self.map = {}
         self.next = 0
 
-    def malloc(self, size: int) -> int:
+    def malloc(self) -> int:
         ptr = self.next
         self.map[ptr] = Object()
         self.next += 1

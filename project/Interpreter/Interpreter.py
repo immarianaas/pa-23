@@ -22,6 +22,7 @@ from Util import (
 def InterpretFunction(
     dir: str,
     file: str,
+    heap: Heap = Heap(),
     function: str = "main",
     operandStack=OperandStack(),
     stackFrame=StackFrame(),
@@ -40,24 +41,35 @@ def InterpretFunction(
         operandStack=operandStack,
         stackFrame=stackFrame,
         printDebug=printDebug,
+        heap=heap,
     )
 
 
-def get_static(dir, field):
+def get_static(dir: str, field: {}, heap: Heap):
+    t = field.get("type")
+    o = Operand()
     try:
         f = open(dir + "/" + field["class"] + ".json", "r")
         f.close
         json_object = json.load(f)
         field_list = json_object["fields"]
-        field2 = [f for f in field_list if f["name"] == field["name"]][0]
-        o = Operand()
-        if isPrimitiveType(field["type"]):
-            o.set_type(field["type"])
-            o.set_value(field2["value"])
+        v = [f for f in field_list if f["name"] == field["name"]][0]["value"]
+        if isPrimitiveType(t):
+            o.set_type(t)
+            o.set_value(v)
             return o
-
+        RuntimeError("Ref not implemented ")
     except:
-        pass
+        if field["class"] == "java/lang/System":
+            if isPrimitiveType(t):
+                RuntimeError("Not implemented")
+            elif t.get("kind") == "class":
+                o.set_type("ref")
+                v = heap.malloc()
+                o.set_value(v)
+                # TODO add value to ref
+                return o
+            RuntimeError("Not Impelmented")
 
 
 def interpretBytecode(
@@ -66,6 +78,7 @@ def interpretBytecode(
     operandStack: OperandStack,
     stackFrame: StackFrame,
     printDebug: bool,
+    heap: Heap,
     index: int = 0,
 ):
     byte_object = byte_array[index]
@@ -98,7 +111,9 @@ def interpretBytecode(
             operandStack.push(operand)
         case "get":
             if byte_object["static"]:
-                operandStack.push(get_static(dir=dir, field=byte_object["field"]))
+                operandStack.push(
+                    get_static(dir=dir, field=byte_object["field"], heap=heap)
+                )
             else:
                 PrintError(byte_object)
                 return
@@ -132,7 +147,6 @@ def interpretBytecode(
                     RuntimeError("if operation not implemented")
         case "ifz":
             v = operandStack.pop()
-            print(v.get_value())
             zero = 0 if v.get_type() == PrimitiveTypes("int") else None
             match byte_object["condition"]:
                 case "eq":
@@ -163,8 +177,9 @@ def interpretBytecode(
             o.set_value(v + amount)
             stackFrame.set(ptr, o)
         case "invoke":
-            if byte_object["access"] == "static":
-                method = byte_object["method"]
+            access = byte_object["access"]
+            method = byte_object["method"]
+            if access == "static":
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
                     sf.set(i, operandStack.pop())
@@ -174,9 +189,21 @@ def interpretBytecode(
                     file=method["ref"]["name"],
                     function=method["name"],
                     stackFrame=sf,
+                    heap=heap,
                     printDebug=printDebug,
                 )
                 operandStack.push(res)
+            elif access == "virtual":
+                ref = operandStack.pop()
+                sf = StackFrame()
+                for i in reversed(range(len(method["args"]))):
+                    sf.set(i, operandStack.pop())
+                if method["ref"]["name"] == "java/io/PrintStream":
+                    operandStack.push(Operand())
+
+            else:
+                PrintError(byteObj=byte_object)
+                return
         case "load":
             object = stackFrame.get(byte_object["index"])
             # assert object.get_type() == PrimitiveTypes(byte_object["type"])
@@ -206,4 +233,5 @@ def interpretBytecode(
         stackFrame=stackFrame,
         index=index,
         printDebug=printDebug,
+        heap=heap,
     )
