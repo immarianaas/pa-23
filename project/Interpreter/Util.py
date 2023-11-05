@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 
 
 def PrimitiveTypes(str: str) -> str:
@@ -56,20 +57,14 @@ class Heap:
         self.counter_map[ptr] -= 1
         #  check count and release memory
 
-
-heap = Heap()
+    def __str__(self) -> str:
+        return (", ").join([str(ptr) + ": " + str(self.map[ptr]) for ptr in self.map])
 
 
 class Operand:
-    def __init__(self, object={}):
-        if "value" in object:
-            self.value = object["value"]
-        else:
-            self.value = None
-        if "value" in object:
-            self.type = PrimitiveTypes(object["type"])
-        else:
-            self.type = None
+    def __init__(self, value=None, type=None):
+        self.value = value
+        self.type = type
 
     def set_value(self, value: str | int) -> None:
         self.value = value
@@ -132,9 +127,11 @@ def PrintError(byteObj):
     print("##################################################################")
 
 
-def printStackTrace(operandStack, stackFrame, index, byte_object):
+def printStackTrace(heap, operandStack, stackFrame, index, byte_object):
     print(
         "#\n#    -- ",
+        heap,
+        "\n#    -- ",
         operandStack,
         "\n#    -- ",
         stackFrame,
@@ -151,3 +148,6 @@ class Array:
         self.dim = dim
         self.type = type
         self.content = {index: {"type": None, "value": None} for index in range(len)}
+
+    def __str__(self) -> str:
+        return "[" + ", ".join([str(i) for i in self.content]) + "]"

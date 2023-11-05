@@ -1,4 +1,4 @@
-from Util import Operand, PrimitiveTypes, StackFrame
+from Util import Heap, Operand, PrimitiveTypes, StackFrame
 from Interpreter import InterpretFunction
 
 
@@ -31,7 +31,7 @@ assert (
 )
 
 stackframe = StackFrame()
-stackframe.set(0, operand=Operand({"type": "int", "value": 20}))
+stackframe.set(0, operand=Operand(type="int", value=20))
 
 assert (
     InterpretFunction(
@@ -44,7 +44,7 @@ assert (
 )
 
 
-stackframe.set(1, operand=Operand({"type": "int", "value": 10}))
+stackframe.set(1, operand=Operand(type="int", value=10))
 
 
 assert (
@@ -77,7 +77,7 @@ assert (
 )
 
 stackframe2 = StackFrame()
-stackframe2.set(0, operand=Operand({"type": "int", "value": 4}))
+stackframe2.set(0, operand=Operand(type="int", value=4))
 
 
 assert (
@@ -94,7 +94,7 @@ assert (
 file = "dtu\compute\exec\Calls"
 
 stackframe_fib = StackFrame()
-stackframe_fib.set(0, operand=Operand({"type": "int", "value": 5}))
+stackframe_fib.set(0, operand=Operand(type="int", value=5))
 assert (
     InterpretFunction(
         dir=dir,
@@ -221,5 +221,8 @@ assert (
  """
 
 InterpretFunction(
-    dir="project\pa-app\decompiled\classes", file="dk\dtu\pa\App", printDebug=True
+    dir="project\pa-app\decompiled\classes",
+    file="dk\dtu\pa\App",
+    heap=Heap(),
+    printDebug=True,
 )
