@@ -15,13 +15,11 @@ abstract class Shapes implements ResizeShapes {
 
     public abstract int getNumberOfSides();
     public abstract int computeArea(int base, int high);
-    public abstract int computePerimeter(int base);
 
     public String getInfo(){
 
         String info = "";
-        info = info.concat("Area: " + String.valueOf(this.area) + ", Perimeter: " + String.valueOf(this.area) +
-        ", Number of sides: " + getNumberOfSides());
+        info = info.concat(String.valueOf(this.area)).concat(String.valueOf(this.perimeter));
         if (this.type == Type.TRIANGLE) {
             info = info.concat(", Shape type: TRIANGLE.");
         } else {

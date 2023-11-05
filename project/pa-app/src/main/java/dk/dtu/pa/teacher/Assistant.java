@@ -14,4 +14,12 @@ public class Assistant implements Teacher {
     public String favouriteSubject() {
         return "Maths";
     }
+
+    public boolean isAssistant() {
+        if (one_plus_one() == 2) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

@@ -6,7 +6,6 @@ public class Square extends Shapes {
     public Square(Type type, int side) {
         this.type = type;
         this.area = computeArea (side, side);
-        this.perimeter = computePerimeter(side);
     }
 
     @Override
@@ -18,8 +17,21 @@ public class Square extends Shapes {
         return side * side;
     }
 
-    public int computePerimeter(int side) {
-        return side * 4;
+
+    public boolean hasSide() {
+        if (10 < 20) {
+            return isSquare();
+        } else {
+            return isSquare();
+        }
+    }
+    
+    private boolean isSquare() {
+        if (1 < 2) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public int getArea(){
