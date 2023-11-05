@@ -219,3 +219,7 @@ assert (
     == 1
 )
  """
+
+InterpretFunction(
+    dir="project\pa-app\decompiled\classes", file="dk\dtu\pa\App", printDebug=True
+)

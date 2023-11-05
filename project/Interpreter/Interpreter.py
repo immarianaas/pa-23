@@ -261,6 +261,3 @@ def interpretBytecode(
         printDebug=printDebug,
         heap=heap,
     )
-
-
-InterpretFunction(dir="project\pa-app\decompiled\classes", file="dk\dtu\pa\App")
