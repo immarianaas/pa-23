@@ -1,0 +1,42 @@
+{
+  "name": "dk/dtu/pa/geometry/ResizeShapes",
+  "access": ["public", "interface", "abstract"],
+  "typeparams": [],
+  "super": {
+    "name": "java/lang/Object",
+    "inner": null,
+    "args": [],
+    "annotations": []
+  },
+  "interfaces": [],
+  "fields": [],
+  "methods": [
+    {
+      "name": "resize",
+      "access": ["public", "abstract"],
+      "typeparams": [],
+      "params": [
+        {
+          "visible": true,
+          "type": { "base": "double", "annotations": [] },
+          "annotations": []
+        },
+        {
+          "visible": true,
+          "type": { "base": "double", "annotations": [] },
+          "annotations": []
+        }
+      ],
+      "returns": { "type": null, "annotations": [] },
+      "code": null,
+      "annotations": [],
+      "exceptions": [],
+      "default": null
+    }
+  ],
+  "bootstrapmethods": [],
+  "enclosingmethod": null,
+  "innerclasses": [],
+  "annotations": [],
+  "version": [51, 0]
+}
