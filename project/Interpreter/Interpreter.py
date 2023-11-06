@@ -34,10 +34,11 @@ def InterpretFunction(
             "---------------- function: ",
             file + "/" + function + " ---------------------------",
         )
-    if file == "java/lang/Object" or "java/io/PrintStream":
+    if file == "java/lang/Object" or file == "java/io/PrintStream":
         return Operand()
     f = open(dir + "/" + file + ".json", "r")
     f.close
+
     json_object = json.load(f)
     method_list = json_object["methods"]
     method = [f for f in method_list if f["name"] == function][0]
@@ -126,8 +127,8 @@ def interpretBytecode(
         case "binary":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            # assert v1.get_type() == v2.get_type()
-            # assert v1.get_type() == PrimitiveTypes("int")
+            assert v1.get_type() == v2.get_type()
+            assert v1.get_type() == PrimitiveTypes("int")
             operand = Operand()
             operand.set_type(PrimitiveTypes("int"))
             match byte_object["operant"]:

@@ -12,4 +12,9 @@ public class Util {
     public static int identity(int a) {
         return a;
     }
+
+    public static int identity(int a, int b) {
+        return a + b;
+    }
+
 }

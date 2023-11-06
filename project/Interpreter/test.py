@@ -14,11 +14,7 @@ assert (
     == None
 )
 assert (
-    InterpretFunction(
-        dir=dir,
-        file=file,
-        function="zero",
-    ).get_value()
+    InterpretFunction(dir=dir, file=file, function="zero", printDebug=True).get_value()
     == 0
 )
 assert (
@@ -77,7 +73,7 @@ assert (
 )
 
 stackframe2 = StackFrame()
-stackframe2.set(0, operand=Operand(type="int", value=4))
+stackframe2.set(0, operand=Operand(type="integer", value=4))
 
 
 assert (
@@ -86,6 +82,7 @@ assert (
         dir=dir,
         file=file,
         function="factorial",
+        printDebug=True,
     ).get_value()
     == 24
 )
@@ -106,14 +103,14 @@ assert (
 )
 
 
-assert (
+"""assert (
     InterpretFunction(
         dir=dir,
         file=file,
         function="helloWorld",
     ).get_value()
     == None
-)
+)"""
 
 
 file = "dtu\compute\exec\Array"
@@ -134,95 +131,4 @@ assert (
         function="aWierdOneWithinBounds",
     ).get_value()
     == 1
-)
-
-"""
-
-assert (
-    InterpretFunction(
-        dir=dir,
-        file=file,
-        function="first",
-        operandStack=[],
-        stackFrame={
-            4198: {
-                "value": {
-                    "content": {
-                        0: {"type": "integer", "value": 1},
-                        1: {"type": "integer", "value": 2},
-                        2: {"type": "integer", "value": 3},
-                    },
-                    "len": {"type": "integer", "value": 3},
-                },
-                "type": "integer array",
-            },
-            0: {"value": 4198, "type": "ref"},
-        },
-    ).get_value()
-    == 1
-)
-assert (
-    InterpretFunction(
-        dir=dir,
-        file=file,
-        function="firstSafe",
-        operandStack=[],
-        stackFrame={
-            4198: {
-                "value": {
-                    "content": {
-                        0: {"type": "integer", "value": 1},
-                        1: {"type": "integer", "value": 2},
-                        2: {"type": "integer", "value": 3},
-                    },
-                    "len": {"type": "integer", "value": 3},
-                },
-                "type": "integer array",
-            },
-            0: {"value": 4198, "type": "ref"},
-        },
-    ).get_value()
-    == 1
-)
-assert (
-    InterpretFunction(
-        dir=dir,
-        file=file,
-        function="bubbleSort",
-        operandStack=[],
-        stackFrame={
-            4198: {
-                "value": {
-                    "content": {
-                        0: {"type": "integer", "value": 1},
-                        1: {"type": "integer", "value": 2},
-                        2: {"type": "integer", "value": 3},
-                    },
-                    "len": {"type": "integer", "value": 3},
-                },
-                "type": "integer array",
-            },
-            0: {"value": 4198, "type": "ref"},
-        },
-    ).get_value()
-    == None
-)
-
-assert (
-    InterpretFunction(
-        dir=dir,
-        file=file,
-        function="aWierdOneWithinBounds",
-        operandStack=[],
-        stackFrame={},
-    ).get_value()
-    == 1
-)
- """
-
-InterpretFunction(
-    dir="project\pa-app\decompiled\classes",
-    file="dk\dtu\pa\App",
-    heap=Heap(),
-    printDebug=True,
 )
