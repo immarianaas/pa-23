@@ -1,6 +1,11 @@
 package com.example;
 
 public class Main {
+
+    public Main() {
+
+    }
+
     public static void main(String[] args) {
         Test.test1();
         Test.test2();
