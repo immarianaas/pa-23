@@ -47,6 +47,9 @@ class Heap:
         self.next += 1
         return ptr
 
+    def set(self, ptr, value):
+        self.map[ptr] = value
+
     def get(self, ptr: int) -> Object:
         return self.map[ptr]
 
@@ -108,6 +111,10 @@ class StackFrame:
     def get(self, ptr: int) -> Operand:
         return self.map[ptr]
 
+    def add(self, operand: Operand) -> None:
+        ptr = len(self.map)
+        self.map[ptr] = operand
+
     def set(self, ptr: int, operand: Operand) -> None:
         self.map[ptr] = operand
 
@@ -129,11 +136,11 @@ def PrintError(byteObj):
 
 def printStackTrace(heap, operandStack, stackFrame, index, byte_object):
     print(
-        "#\n#    -- ",
+        "#\n#    - heap          - ",
         heap,
-        "\n#    -- ",
+        "\n#    - operand stack - ",
         operandStack,
-        "\n#    -- ",
+        "\n#    - stack frame   - ",
         stackFrame,
         "\n#\n#",
         index,

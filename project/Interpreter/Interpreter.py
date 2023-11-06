@@ -29,17 +29,19 @@ def InterpretFunction(
     stackFrame=StackFrame(),
     printDebug=False,
 ):
+    if printDebug:
+        print(
+            "---------------- function: ",
+            file + "/" + function + " ---------------------------",
+        )
+    if file == "java/lang/Object" or "java/io/PrintStream":
+        return Operand()
     f = open(dir + "/" + file + ".json", "r")
     f.close
     json_object = json.load(f)
     method_list = json_object["methods"]
     method = [f for f in method_list if f["name"] == function][0]
 
-    if printDebug:
-        print(
-            "---------------- function: ",
-            file + "/" + method["name"] + " ---------------------------",
-        )
     byte_array = method["code"]["bytecode"]
 
     return interpretBytecode(
@@ -50,6 +52,24 @@ def InterpretFunction(
         printDebug=printDebug,
         heap=heap,
     )
+
+
+def new_object(dir, file, heap: Heap):
+    if file == "java/lang/Object":
+        return {"class": file, "fields": StackFrame()}
+    f = open(dir + "/" + file + ".json", "r")
+    f.close
+    json_object = json.load(f)
+    stack_frame = StackFrame()
+    if json_object.get("super"):
+        ptr = heap.malloc()
+        obj = new_object(dir=dir, file=json_object.get("super")["name"], heap=heap)
+        heap.set(ptr, obj)
+        stack_frame.add(Operand(value=ptr, type="ref"))
+    fields = json_object["fields"]
+    for f in fields:
+        print("New not implemented")
+    return {"class": file, "fields": stack_frame}
 
 
 def get_static(dir: str, field: {}, heap: Heap):
@@ -200,6 +220,22 @@ def interpretBytecode(
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
+            if access != "static":
+                ref = operandStack.pop()
+                sf = heap.get(ref.get_value())["fields"]
+
+                for i in reversed(range(len(method["args"]))):
+                    sf.set(i, operandStack.pop())
+
+                res = InterpretFunction(
+                    dir=dir,
+                    file=method["ref"]["name"],
+                    function=method["name"],
+                    stackFrame=sf,
+                    heap=heap,
+                    printDebug=printDebug,
+                )
+                operandStack.push(ref)
             if access == "static":
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
@@ -214,30 +250,7 @@ def interpretBytecode(
                     printDebug=printDebug,
                 )
                 operandStack.push(res)
-            elif access == "virtual":
-                sf = StackFrame()
-                for i in reversed(range(len(method["args"]))):
-                    sf.set(i, operandStack.pop())
-                ref = operandStack.pop()
-                if method["ref"]["name"] == "java/io/PrintStream":
-                    operandStack.push(Operand())
-                else:
-                    PrintError(byte_object)
-            elif access == "special":
-                sf = StackFrame()
-                for i in reversed(range(len(method["args"]))):
-                    sf.set(i, operandStack.pop())
-                ref = operandStack.pop()
-                res = InterpretFunction(
-                    dir=dir,
-                    file=method["ref"]["name"],
-                    function=method["name"],
-                    stackFrame=sf,
-                    heap=heap,
-                    printDebug=printDebug,
-                )
-                ptr = heap.malloc(res)
-                OperandStack.push(Operand(value=ptr, type="ref"))
+
             else:
                 PrintError(byteObj=byte_object)
                 return
@@ -246,9 +259,9 @@ def interpretBytecode(
             # assert object.get_type() == PrimitiveTypes(byte_object["type"])
             operandStack.push(copy.deepcopy(object))
         case "new":
-            ptr = heap.malloc({"class": byte_object["class"]})
-            o = Operand(value=ptr, type="ref")
-            operandStack.push(o)
+            object = new_object(dir=dir, file=byte_object["class"], heap=heap)
+            ptr = heap.malloc(object)
+            operandStack.push(Operand(value=ptr, type="ref"))
 
         case "newarray":
             lenght = operandStack.pop().get_value()
@@ -263,7 +276,11 @@ def interpretBytecode(
             operand = Operand(type=value["type"], value=value["value"])
             operandStack.push(operand)
         case "return":
-            if operandStack.is_empty():
+            if printDebug:
+                print(
+                    "----------------------- return ----------------------------------"
+                )
+            if byte_object["type"] == None:
                 return Operand()
             else:
                 return operandStack.pop()
