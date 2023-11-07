@@ -1,3 +1,4 @@
+import copy
 from enum import Enum
 import json
 
@@ -61,7 +62,9 @@ class Heap:
         #  check count and release memory
 
     def __str__(self) -> str:
-        return (", ").join([str(ptr) + ": " + str(self.map[ptr]) for ptr in self.map])
+        return str(self.map)
+
+    __repr__ = __str__
 
 
 class Operand:
@@ -86,22 +89,26 @@ class Operand:
         typ = str(self.type) if self.type is not None else "None"
         return "(" + val + ", " + typ + ")"
 
+    __repr__ = __str__
+
 
 class OperandStack:
     def __init__(self) -> None:
         self.stack = []
 
     def pop(self) -> Operand:
-        return self.stack.pop()
+        return copy.deepcopy(self.stack.pop())
 
     def push(self, val: Operand):
-        self.stack.append(val)
+        self.stack.append(copy.deepcopy(val))
 
     def is_empty(self) -> bool:
         return len(self.stack) <= 0
 
     def __str__(self) -> str:
         return (", ").join([str(o) for o in self.stack])
+
+    __repr__ = __str__
 
 
 class StackFrame:
@@ -120,6 +127,8 @@ class StackFrame:
 
     def __str__(self) -> str:
         return (", ").join([str(ptr) + ": " + str(self.map[ptr]) for ptr in self.map])
+
+    __repr__ = __str__
 
 
 def min_kode():

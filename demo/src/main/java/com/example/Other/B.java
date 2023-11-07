@@ -7,7 +7,7 @@ public class B extends A {
     }
 
     public int bar(int a) {
-        return a / 42;
+        return a + a;
     }
 
 }

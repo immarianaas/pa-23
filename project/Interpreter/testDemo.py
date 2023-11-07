@@ -1,4 +1,4 @@
-from Util import Heap, Operand, PrimitiveTypes, StackFrame
+from Util import Heap, Operand, OperandStack, PrimitiveTypes, StackFrame
 from Interpreter import InterpretFunction
 
 
@@ -11,17 +11,59 @@ assert (
         dir=dir,
         file=file,
         function="test1",
+        # printDebug=True,
     ).get_value()
     == 1
 )
 
 
 assert (
-    InterpretFunction(dir=dir, file=file, function="test2", printDebug=True).get_value()
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        heap=Heap(),
+        function="test2",
+        # printDebug=True,
+    ).get_value()
     == None
 )
 
 assert (
-    InterpretFunction(dir=dir, file=file, function="test3", printDebug=True).get_value()
-    == 43
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test3",
+        # printDebug=True,
+    ).get_value()
+    == 5
+)
+
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test4",
+        # printDebug=True,
+    ).get_value()
+    == None
+)
+
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test5",
+        # printDebug=True,
+    ).get_value()
+    == 45
+)
+
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test6",
+        printDebug=True,
+    ).get_value()
+    == 5
 )
