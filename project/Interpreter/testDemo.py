@@ -11,8 +11,8 @@ assert (
         dir=dir,
         file=file,
         function="test1",
-        # printDebug=True,
-    ).get_value()
+        printDebug=True,
+    )[0].get_value()
     == 1
 )
 
@@ -24,7 +24,7 @@ assert (
         heap=Heap(),
         function="test2",
         # printDebug=True,
-    ).get_value()
+    )[0].get_value()
     == None
 )
 
@@ -34,7 +34,7 @@ assert (
         file=file,
         function="test3",
         # printDebug=True,
-    ).get_value()
+    )[0].get_value()
     == 5
 )
 
@@ -44,7 +44,7 @@ assert (
         file=file,
         function="test4",
         # printDebug=True,
-    ).get_value()
+    )[0].get_value()
     == None
 )
 
@@ -54,7 +54,7 @@ assert (
         file=file,
         function="test5",
         # printDebug=True,
-    ).get_value()
+    )[0].get_value()
     == 45
 )
 
@@ -63,7 +63,7 @@ assert (
         dir=dir,
         file=file,
         function="test6",
-        printDebug=True,
-    ).get_value()
+        # printDebug=True,
+    )[0].get_value()
     == 5
 )
