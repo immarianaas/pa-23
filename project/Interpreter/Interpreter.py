@@ -54,7 +54,19 @@ def InterpretFunction(
         stackFrame=stackFrame,
         printDebug=printDebug,
         heap=heap,
+        function_name=getFunctionAnnotation(file, function, method),
     )
+
+
+def getFunctionAnnotation(file, function, method):
+    args = []
+    for p in method["params"]:
+        if p["type"].get("base"):
+            args.append(p["type"]["base"])
+        elif p["type"].get("kind") == "class":
+            args.append(p["type"]["name"])
+    print(method["params"])
+    return file + "/" + function + "(" + ",".join(args)
 
 
 def get_static(dir: str, field: {}, heap: Heap):
@@ -84,6 +96,7 @@ def get_static(dir: str, field: {}, heap: Heap):
 def interpretBytecode(
     byte_array,
     dir,
+    function_name,
     operandStack: OperandStack,
     stackFrame: StackFrame,
     printDebug: bool,
@@ -206,7 +219,16 @@ def interpretBytecode(
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
-            print(access, method)
+            print(method["args"])
+            function_name = (
+                method["ref"]["name"]
+                + "/"
+                + method["name"]
+                + "("
+                + ",".join(method["args"])
+                + ")"
+            )
+            print(function_name)
             if access == "static":
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
@@ -324,6 +346,7 @@ def interpretBytecode(
     return interpretBytecode(
         byte_array=byte_array,
         dir=dir,
+        function_name=function_name,
         operandStack=operandStack,
         stackFrame=stackFrame,
         index=index,
