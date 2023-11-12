@@ -23,11 +23,12 @@ from Util import (
 def InterpretFunction(
     dir: str,
     file: str,
+    edges=set(),
     heap: Heap = Heap(),
     function: str = "main",
     stackFrame=StackFrame(),
     printDebug=False,
-):
+) -> (Operand, []):
     if printDebug:
         print(
             "---------------- function: ",
@@ -37,7 +38,7 @@ def InterpretFunction(
         if printDebug:
             print("----------------------- return ----------------------------------")
 
-        return Operand()
+        return (Operand(), edges)
     f = open(dir + "/" + file + ".json", "r")
     f.close
 
@@ -50,6 +51,7 @@ def InterpretFunction(
     return interpretBytecode(
         byte_array=byte_array,
         dir=dir,
+        edges=edges,
         operandStack=OperandStack(),
         stackFrame=stackFrame,
         printDebug=printDebug,
@@ -65,7 +67,6 @@ def getFunctionAnnotation(file, function, method):
             args.append(p["type"]["base"])
         elif p["type"].get("kind") == "class":
             args.append(p["type"]["name"])
-    print(method["params"])
     return file + "/" + function + "(" + ",".join(args)
 
 
@@ -97,12 +98,13 @@ def interpretBytecode(
     byte_array,
     dir,
     function_name,
+    edges,
     operandStack: OperandStack,
     stackFrame: StackFrame,
     printDebug: bool,
     heap: Heap,
     index: int = 0,
-):
+) -> (Operand, []):
     byte_object = byte_array[index]
 
     if printDebug:
@@ -124,7 +126,10 @@ def interpretBytecode(
         case "binary":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            if not (v1.get_type() == v2.get_type()) or not (v1.get_type() == "integer"):
+            print(v1, v2)
+            if not (v1.get_type() == v2.get_type()) or not (
+                (v1.get_type() == "integer") or (v1.get_type() == "int")
+            ):
                 print("Binary type error")
             operand = Operand()
             operand.set_type(PrimitiveTypes("int"))
@@ -219,29 +224,36 @@ def interpretBytecode(
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
-            print(method["args"])
-            function_name = (
+            params = []
+            for p in params:
+                if p.get("name"):
+                    params.append(p.get("name"))
+                else:
+                    params.append(p)
+            function_name2 = (
                 method["ref"]["name"]
                 + "/"
                 + method["name"]
                 + "("
-                + ",".join(method["args"])
+                + ",".join(params)
                 + ")"
             )
-            print(function_name)
+            edges.add((function_name, function_name2))
             if access == "static":
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
                     sf.set(i, operandStack.pop())
 
-                res = InterpretFunction(
+                res, e = InterpretFunction(
                     dir=dir,
                     file=method["ref"]["name"],
                     function=method["name"],
                     stackFrame=sf,
                     heap=heap,
                     printDebug=printDebug,
+                    edges=edges,
                 )
+                edges.update(e)
                 if res.get_value() is not None:
                     operandStack.push(res)
 
@@ -253,14 +265,16 @@ def interpretBytecode(
                 sf.add(ref)
                 for a in args:
                     sf.add(a)
-                res = InterpretFunction(
+                res, e = InterpretFunction(
                     dir=dir,
                     file=object["class"],
                     function=method["name"],
                     stackFrame=sf,
                     heap=heap,
                     printDebug=printDebug,
+                    edges=edges,
                 )
+                edges.update(e)
                 if res.get_value() is not None:
                     operandStack.push(res)
 
@@ -271,14 +285,16 @@ def interpretBytecode(
                 sf.add(ref)
                 for a in args:
                     sf.add(a)
-                res = InterpretFunction(
+                res, e = InterpretFunction(
                     dir=dir,
                     file=method["ref"]["name"],
                     function=method["name"],
                     stackFrame=sf,
                     heap=heap,
                     printDebug=printDebug,
+                    edges=edges,
                 )
+                edges.update(e)
                 if res.get_value() is not None:
                     operandStack.push(res)
 
@@ -311,6 +327,9 @@ def interpretBytecode(
             o.set_type("ref")
             o.set_value(ptr)
             operandStack.push(o)
+        case "pop":
+            for i in range(byte_object["words"]):
+                operandStack.pop()
         case "push":
             value = byte_object["value"]
             operand = Operand(type=value["type"], value=value["value"])
@@ -331,14 +350,15 @@ def interpretBytecode(
             if byte_object["type"] == None:
                 if not operandStack.is_empty():
                     operandStack.pop()
-                return Operand()
+                return (Operand(), edges)
             else:
-                return operandStack.pop()
+                return (operandStack.pop(), edges)
         case "store":
             operand = operandStack.pop()
             stackFrame.set(byte_object["index"], operand)
         case _:
             PrintError(byte_object)
+            RuntimeError("Case Not implemented")
             return
 
     if len(byte_array) <= index:
@@ -352,4 +372,5 @@ def interpretBytecode(
         index=index,
         printDebug=printDebug,
         heap=heap,
+        edges=edges,
     )
