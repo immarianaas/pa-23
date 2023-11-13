@@ -5,7 +5,7 @@ sign = Enum(
 )
 
 
-class abstact_int:
+class abstract_int:
     def __init__(self, i: int = None) -> None:
         if i == None:
             self.value = sign.all
@@ -26,12 +26,21 @@ class abstact_int:
         sign2 = val.value
         if sign1 == sign2:
             return self
+        else:
+            if {sign1, sign2} == {sign.neg, sign.zero}:
+                return sign.neg.name
+            elif {sign1, sign2} == {sign.pos, sign.zero}:
+                return abstract_int(1)
+            elif {sign1, sign2} == {sign.pos, sign.neg}:
+                return abstract_int(None)
+        
+            
 
     def mul(self, val):
         sign1 = self.value
         sign2 = val.value
         if sign1 == sign.zero or sign2 == sign.zero:
-            return abstact_int(0)
+            return abstract_int(0)
 
     def sub(self, val):
         sign1 = self.value
@@ -41,7 +50,3 @@ class abstact_int:
         sign1 = self.value
         sign2 = val.value
 
-
-x = abstact_int(0)
-y = abstact_int()
-print(x.mul(y))
