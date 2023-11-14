@@ -62,6 +62,9 @@ class InvocationRepr():
         self.parameters : list[str | TemporaryType ] = parameters
         self.owner : list[str | TemporaryType | ClassRepr ] = owner
     
+    #def tuple_name(self):
+    #    return f"{self.owner.tuple_name()}.{self.method_name}"
+
     def pretty_name(self):
         return f"{self.method_name}{helper_print_arguments(self.parameters)}"
     
@@ -103,6 +106,11 @@ class MethodRepr():
         res = { var for var in self.variables if var.name == var_name }
         return res.pop() if len(res) > 0 else None
 
+    def tuple_name(self, owner: any):
+        owner_name = owner.pretty_name().split(" ")[1].replace(".", "/")
+        return f"{owner_name}.{self.method_name}({','.join([ param.tuple_name() for param in self.parameters ])})"
+        
+
     def pretty_name(self):
         return f"{self.method_name}{helper_print_arguments(self.parameters)} : {self.return_type}"
 
@@ -142,13 +150,31 @@ class ClassRepr():
         found = { var for var in self.variables if var.name == var_name }
         return found.pop() if len(found) > 0 else None
     
+    def find_method_just_name(self, method_name: str):
+        for m in self.methods:
+            if m.method_name == method_name:
+                return m        
+
     def find_method(self, method_name : str, parameters : list) -> MethodRepr:
         for m in self.methods:
             if m.method_name == method_name and set(m.parameters) == set(parameters):
                 return m
 
+    def is_method_from_here(self, method: MethodRepr) -> MethodRepr:
+        for m in self.methods:
+            if m == method:
+                return True
+        return False
+
+    def tuple_name(self):
+        return self.pretty_name().split(" ")[1].replace(".", "/")
+
     def pretty_name(self):
         return f"({self.class_type}) {self.package}.{self.class_name}"
+
+    # checks if the `class_name` corresponds to this class
+    def is_name(self, class_name):
+        return self.pretty_name().split(" ")[1] == class_name
 
     def __str__(self):
         return f"({self.class_type}) {self.package}.{self.class_name}"

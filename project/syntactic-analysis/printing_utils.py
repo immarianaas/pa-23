@@ -14,9 +14,12 @@ def print_data(DATA):
             print( func_str )
 
             for inv in method.invocations:
+                if inv.owner is None:
+                    continue
                 print(f"| - - {inv.owner:30s}...{inv.pretty_name()}")
             
             for inv in method.final_invocations:
+
                 print(f"| - * {inv.pretty_name()}")
 
 
@@ -27,6 +30,9 @@ def get_java_types():
     string = ClassRepr(class_name="String", package="java.lang", class_type="c", is_ours=False)
     string.add_method(
         MethodRepr( method_name="valueOf", parameters={"int"}, return_type="String" )
+    )
+    string.add_method(
+        MethodRepr( method_name="valueOf", parameters={"float"}, return_type="String" )
     )
     string.add_method(
         MethodRepr( method_name="concat", parameters={"String"}, return_type="String" )
@@ -98,6 +104,9 @@ def handle_static(DATA, temp_type: TemporaryType) -> ClassRepr:
 
 
 def search_method_return_return(DATA, inv:InvocationRepr):
+    if inv.owner is None:
+        return None
+
     inv_method = inv.owner.find_method( inv.method_name, inv.parameters )
     if inv_method is not None:
         return inv_method.return_type
@@ -105,6 +114,7 @@ def search_method_return_return(DATA, inv:InvocationRepr):
 def set_function_owner(DATA, inv: InvocationRepr, curr_class: ClassRepr, method: MethodRepr ):
     if isinstance(inv.owner, str) and inv.owner == "this":
         inv.owner = curr_class # it's own class class
+        #not here
         ret = search_method_return_return(DATA, inv)
         return ret
     
@@ -115,6 +125,7 @@ def set_function_owner(DATA, inv: InvocationRepr, curr_class: ClassRepr, method:
             owner_class = find_class( DATA, inv_owner_variable.get_most_specific_type() )
             if owner_class is not None:
                 inv.owner = owner_class
+                # not here
                 ret = search_method_return_return(DATA, inv)
                 return ret
         
@@ -128,7 +139,8 @@ def set_function_owner(DATA, inv: InvocationRepr, curr_class: ClassRepr, method:
         owner_class = set_function_owner( DATA, inv.owner, curr_class, method )
         
         inv.owner = owner_class
-
+        # not here i guess?
+        # maybe here
         ret = search_method_return_return(DATA, inv)
         return ret if ret is not None else inv.owner
 
@@ -233,7 +245,6 @@ def complete(DATA):
                     inv.owner = owner_class
                 """
 
-
     # second iteration
     for class_info in DATA:
         for method in class_info.methods:
@@ -241,6 +252,7 @@ def complete(DATA):
                 if not isinstance(inv.owner, ClassRepr):
                     # ignore for now
                     print("invocation has no defined owner yet", inv)
+                    print("**", inv.owner)
                     continue
 
                 found_method = inv.owner.find_method( inv.method_name, inv.parameters )
@@ -248,12 +260,11 @@ def complete(DATA):
                     method.add_final_invocation( found_method )
                 else:
                     print("::: method not found:", inv.owner, inv.method_name, inv.parameters)
-
-
-
-    
     
     return DATA
+
+
+
 
 
 
@@ -261,3 +272,50 @@ def complete(DATA):
 # Known current limitations:
 # - we do not handle class-level variables (only local ones in the method-level)
 # - we do not consider arguments as variables
+
+
+
+def find_class_by_name(DATA, class_name):
+    for classRepr in DATA:
+        if classRepr.is_name( class_name ):
+            return classRepr
+
+def get_starting_method(DATA, class_name, method_name):
+    classRepr = find_class_by_name(DATA, class_name)
+    assert classRepr is not None
+
+    methodRepr = classRepr.find_method_just_name(method_name)
+    assert methodRepr is not None
+
+    return methodRepr, classRepr
+
+
+def find_class_of_method(DATA, method):
+    for classRepr in DATA:
+        if classRepr.is_method_from_here(method):
+            return classRepr
+        
+def print_tuple(classRepr1, method1, classRepr2, method2):
+    
+    print(f"({method1.tuple_name(classRepr1)}, {method2.tuple_name(classRepr2)})")
+
+
+def get_tuples(DATA, class_name, method_name):
+    method, classRepr = get_starting_method(DATA, class_name, method_name)
+    print(method)
+
+    print(  method.tuple_name( classRepr ))
+
+    for fi in method.final_invocations:
+        class_inv= find_class_of_method(DATA, fi)
+        assert class_inv is not None
+        print_tuple(classRepr, method, class_inv, fi)
+
+        
+
+
+
+
+
+
+

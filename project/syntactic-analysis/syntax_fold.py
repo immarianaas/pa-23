@@ -71,6 +71,26 @@ class FunctionFunctions(SyntaxFold):
 
         self.data = defaultdict(list)
         
+    def constructor_declaration(self, node, results):
+        function_name = node.child_by_field_name("name")
+        parameters = { self.visit(elem).pop() for elem in node.children_by_field_name("parameters") if self.visit(elem) != set()}
+        
+
+        this_method_repr = MethodRepr( 
+            method_name=function_name.text.decode(), 
+            parameters=parameters, # list of VariableRepr
+            return_type= function_name.text.decode(),
+            variables=parameters.copy()
+        )
+        
+        function_block = FunctionBlock( this_method_repr )
+        function_block.visit(node) 
+        
+        self.class_repr.add_method(
+            this_method_repr
+        )
+
+        return set()
 
     def method_declaration(self, node, results):
         # if node.parent.type != "program":
@@ -92,7 +112,7 @@ class FunctionFunctions(SyntaxFold):
                 method_name=function_name.text.decode(), 
                 parameters=parameters, # list of VariableRepr
                 return_type= return_type, # list of strings
-                variables=parameters
+                variables=parameters.copy()
                 # function calls missing!
             )
         
@@ -103,7 +123,6 @@ class FunctionFunctions(SyntaxFold):
         self.class_repr.add_method(
             this_method_repr
         )
-
 
         # self.data[function_name.text.decode()] += [ 
         #     MethodRepr(  )
@@ -168,8 +187,6 @@ class FunctionFunctions(SyntaxFold):
         return { node.text.decode() }
 
 
-
-
 class FunctionBlock(SyntaxFold):
     def __init__(self, outter_function):
         self.data = defaultdict(list)
@@ -177,9 +194,7 @@ class FunctionBlock(SyntaxFold):
 
         self.outter_function : MethodRepr = outter_function
 
-    # def block( self, node, results):
-    #     print("um here")
-    #     return set()
+
     
     def method_invocation(self, node, results):
         if node.parent.type == "argument_list":
@@ -190,6 +205,9 @@ class FunctionBlock(SyntaxFold):
             variable = node.child_by_field_name("object")
             if variable is not None:
                 variable = node.text.decode()            
+
+
+            
 
             return  { TemporaryType(var_name=variable, method_name=func_name ) }
             
@@ -267,6 +285,19 @@ class FunctionBlock(SyntaxFold):
         return set()
     
     def object_creation_expression(self, node, results):
+        owner = node.child_by_field_name("type").text.decode()
+        owner = TemporaryType( var_name=owner )
+        name = owner # constructor!
+
+        args = { self.visit(elem).pop() for elem in node.children_by_field_name("arguments") if self.visit(elem) != set()}
+        repeated_args = [ params["parameters"] == args for params in self.data[ name ] ]
+
+        if any(repeated_args):
+            return names
+        
+        inv = InvocationRepr( name, args, owner )
+        self.outter_function.add_invocation(inv)
+        
         return { node.child_by_field_name("type").text.decode() }
     
     def string_literal(self, node, results):

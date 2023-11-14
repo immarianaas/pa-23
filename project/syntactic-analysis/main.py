@@ -49,6 +49,11 @@ def main():
 
             aaa = FunctionFunctions(class_repr)
             help = aaa.visit(tree.root_node)
+
+            print("*************************")
+            print( aaa.class_repr.methods) 
+            print("*************************")
+
             # print(help)
             # print("RESULT:", aaa.data)
 
@@ -80,4 +85,7 @@ if __name__ == "__main__":
 
     print_data( DATA )
 
-    #print(DATA)
+    print("----------------------------------------------------------------------------------------------------------------------")
+
+    get_tuples( DATA, "dk.dtu.pa.geometry.ResizeShapes", "resize")
+    get_tuples( DATA, "dk.dtu.pa.App", "main")
