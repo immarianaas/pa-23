@@ -1,6 +1,11 @@
 package com.example;
 
 public class Util {
+
+    public Util() {
+
+    }
+
     public static int getOne() {
         return 1;
     }

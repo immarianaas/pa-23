@@ -306,13 +306,24 @@ def get_tuples(DATA, class_name, method_name):
 
     print(  method.tuple_name( classRepr ))
 
-    for fi in method.final_invocations:
-        class_inv= find_class_of_method(DATA, fi)
-        assert class_inv is not None
-        print_tuple(classRepr, method, class_inv, fi)
+    print_tuples_rec(DATA, method, classRepr)
 
         
 
+def print_tuples_rec(DATA, method1, classRepr1, passed = set()):
+    if method1 in passed:
+        return
+
+    passed.add(method1)
+
+    for fi in method1.final_invocations:
+        class_inv= find_class_of_method(DATA, fi)
+        assert class_inv is not None
+        print_tuple(classRepr1, method1, class_inv, fi)
+
+        print_tuples_rec(DATA, fi, class_inv, passed)
+        
+    
 
 
 
