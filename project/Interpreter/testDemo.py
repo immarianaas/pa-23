@@ -6,6 +6,13 @@ dir = "demo\decompiled\classes"
 file = "com\example\Test"
 
 
+InterpretFunction(
+    dir=dir,
+    file=file,
+    function="test1",
+    printDebug=True,
+)
+
 assert (
     InterpretFunction(
         dir=dir,

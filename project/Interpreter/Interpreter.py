@@ -238,7 +238,7 @@ def interpretBytecode(
                 + ",".join(params)
                 + ")"
             )
-            edges.add((function_name, function_name2))
+            edges.add((Path(function_name), Path(function_name2)))
             if access == "static":
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
