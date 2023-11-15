@@ -1,9 +1,13 @@
 from Util import Heap, Operand, OperandStack, PrimitiveTypes, StackFrame
 from Interpreter import InterpretFunction
 
-
+# For window
 dir = "demo\decompiled\classes"
 file = "com\example\Test"
+
+# For linux
+# dir = "demo/decompiled/classes"
+# file = "com/example/Test"
 
 
 InterpretFunction(
