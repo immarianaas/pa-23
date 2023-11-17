@@ -230,15 +230,23 @@ def interpretBytecode(
                     params.append(p.get("name"))
                 else:
                     params.append(p)
+            argument = ''
+            for value in method["args"]:
+                if isinstance(value, dict):
+                    argument = value.get("name")
+                elif isinstance(value, str):
+                    argument = value
             function_name2 = (
                 method["ref"]["name"]
                 + "/"
                 + method["name"]
                 + "("
+                + argument
                 + ",".join(params)
                 + ")"
             )
-            edges.add((function_name, function_name2))
+            print(edges)
+            edges.add((Path(function_name), Path(function_name2)))
             if access == "static":
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
