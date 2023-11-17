@@ -1,0 +1,89 @@
+digraph {
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/persons/Person.getAddress()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Person.getAddress()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/teacher/Teacher.favouriteSubject()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/teacher/Teacher.favouriteSubject()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/geometry/Triangle.isAreaBigEnough()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Triangle.isAreaBigEnough()"
+	"dk/dtu/pa/geometry/Triangle.isAreaBigEnough()" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/geometry/Triangle.returnTrue()" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/geometry/Triangle.isAreaBigEnough()" -> "dk/dtu/pa/geometry/Triangle.returnTrue()"
+	"dk/dtu/pa/geometry/Triangle.isAreaBigEnough()" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/geometry/Triangle.returnFalse()" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/geometry/Triangle.isAreaBigEnough()" -> "dk/dtu/pa/geometry/Triangle.returnFalse()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/teacher/Teacher.classMethod()" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/teacher/Teacher.classMethod()"
+	"dk/dtu/pa/teacher/Teacher.classMethod()" [color="#ffcccb" style=filled]
+	"java/lang/PrintStream.println(java/lang/String)" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/teacher/Teacher.classMethod()" -> "java/lang/PrintStream.println(java/lang/String)"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/geometry/Triangle.returnFalse()" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Triangle.returnFalse()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/persons/Address.function2(java/lang/String)" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Address.function2(java/lang/String)"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/persons/Person.getName()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Person.getName()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/persons/Person.isOlderThan(dk/dtu/pa/persons/Person)" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Person.isOlderThan(dk/dtu/pa/persons/Person)"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/geometry/Square.getNumberOfSides()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Square.getNumberOfSides()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/teacher/Assistant.isAssistant()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/teacher/Assistant.isAssistant()"
+	"dk/dtu/pa/teacher/Assistant.isAssistant()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/teacher/Teacher.one_plus_one()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/teacher/Assistant.isAssistant()" -> "dk/dtu/pa/teacher/Teacher.one_plus_one()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"dk/dtu/pa/geometry/Square.getArea()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Square.getArea()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90" style=filled]
+	"java/lang/PrintStream.println()" [color="#90EE90" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "java/lang/PrintStream.println()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/persons/Address.function3(java/lang/String" [color="#ffcccb" style=filled]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Address.function3(java/lang/String"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/persons/Person.getAddress()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Person.getAddress()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/teacher/Teacher.favouriteSubject()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/teacher/Teacher.favouriteSubject()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/geometry/Triangle.isAreaBigEnough()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Triangle.isAreaBigEnough()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/persons/Person.getName()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Person.getName()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/persons/Person.isOlderThan(dk/dtu/pa/persons/Person)" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Person.isOlderThan(dk/dtu/pa/persons/Person)"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/geometry/Square.getNumberOfSides()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Square.getNumberOfSides()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/teacher/Assistant.isAssistant()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/teacher/Assistant.isAssistant()"
+	"dk/dtu/pa/teacher/Assistant.isAssistant()" [color="#90EE90"]
+	"dk/dtu/pa/teacher/Teacher.one_plus_one()" [color="#90EE90"]
+	"dk/dtu/pa/teacher/Assistant.isAssistant()" -> "dk/dtu/pa/teacher/Teacher.one_plus_one()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"dk/dtu/pa/geometry/Square.getArea()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Square.getArea()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#90EE90"]
+	"java/lang/PrintStream.println()" [color="#90EE90"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "java/lang/PrintStream.println()"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#ffcccb"]
+	"dk/dtu/pa/persons/Address.function3(java/lang/String)" [color="#ffcccb"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/persons/Address.function3(java/lang/String)"
+	"dk/dtu/pa/App.main(java/lang/String[])" [color="#ffcccb"]
+	"dk/dtu/pa/geometry/Square.NONEXISTENT()" [color="#ffcccb"]
+	"dk/dtu/pa/App.main(java/lang/String[])" -> "dk/dtu/pa/geometry/Square.NONEXISTENT()"
+}

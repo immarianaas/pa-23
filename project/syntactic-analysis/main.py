@@ -1,14 +1,19 @@
 import os
 from tree_sitter import Language, Parser
 import glob
+import sys
 
 from syntax_fold import *
 from printing_utils import *
 from complete_utils import *
 
-LANGUAGE_FILE = "./java.so" # the ./ is important
+this_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(this_path)
+
+
+LANGUAGE_FILE = this_path+"/java.so" # the ./ is important
 #PATH_TO_TREE_SITTER_JAVA = "tree-sitter-java"
-PATH_TO_TREE_SITTER_JAVA = "./tree-sitter-java"
+PATH_TO_TREE_SITTER_JAVA = this_path+"/tree-sitter-java"
 Language.build_library(LANGUAGE_FILE, [PATH_TO_TREE_SITTER_JAVA])
 
 # Initialize the Tree-sitter parser with the Java grammar
