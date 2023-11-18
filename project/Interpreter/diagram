@@ -1,0 +1,19 @@
+// Tests
+digraph {
+	"com/example/Other/E/<init>()" -> "java/lang/Object/<init>()"
+	"com/example/Other/B/<init>()" -> "com/example/Other/A/<init>()"
+	"com/example/Test/test5()" -> "com/example/Other/C/baz(com/example/Other/A)"
+	"com/example/Test/test6()" -> "com/example/Other/D/<init>(int)"
+	"com/example/Other/C/baz(com/example/Other/A)" -> "com/example/Other/A/foo(int)"
+	"com/example/Other/D/<init>(int)" -> "java/lang/Object/<init>()"
+	"com/example/Other/F/<init>(int)" -> "java/lang/Object/<init>()"
+	"com/example/Test/test4()" -> "com/example/Other/B/<init>()"
+	"com/example/Test/test3()" -> "com/example/Other/F/<init>(int)"
+	"com/example/Other/A/<init>()" -> "java/lang/Object/<init>()"
+	"com/example/Test/test5()" -> "com/example/Other/B/<init>()"
+	"com/example/Other/C/baz(com/example/Other/A)" -> "com/example/Other/A/bar(int)"
+	"com/example/Test/test2()" -> "com/example/Other/E/<init>()"
+	"com/example/Test/test1()" -> "com/example/Util/identity(int)"
+	"com/example/Test/test6()" -> "com/example/Other/D/getA()"
+	"com/example/Test/test1()" -> "com/example/Util/getOne()"
+}

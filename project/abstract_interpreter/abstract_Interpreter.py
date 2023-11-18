@@ -18,6 +18,7 @@ from Util import (
     isPrimitiveType,
     printStackTrace,
 )
+from abstraction import abstract_int
 
 
 def InterpretFunction(
@@ -104,12 +105,12 @@ def interpretBytecode(
     printDebug: bool,
     heap: Heap,
     index: int = 0,
+    skipGoto: bool = False,
 ) -> (Operand, []):
     byte_object = byte_array[index]
 
     if printDebug:
         printStackTrace(heap, operandStack, stackFrame, index, byte_object)
-
     index = index + 1
     match byte_object["opr"]:
         case "array_load":
@@ -162,7 +163,10 @@ def interpretBytecode(
                 name = byte_object["field"]["name"]
                 operandStack.push(heap.get(ref.get_value())["fields"][name])
         case "goto":
-            index = byte_object["target"]
+            if skipGoto:
+                skipGoto = False
+            else:
+                index = byte_object["target"]
         case "if":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
@@ -331,7 +335,7 @@ def interpretBytecode(
                 operandStack.pop()
         case "push":
             value = byte_object["value"]
-            operand = Operand(type=value["type"], value=value["value"])
+            operand = Operand(type=value["type"], value=abstract_int(value["value"]))
             operandStack.push(operand)
         case "put":
             if byte_object["static"]:
