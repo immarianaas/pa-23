@@ -10,22 +10,16 @@ file = "com\example\Test"
 # dir = "demo/decompiled/classes"
 # file = "com/example/Test"
 
-
-InterpretFunction(
-    dir=dir,
-    file=file,
-    function="test1",
-    printDebug=True,
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test1",
+    )[0]
+    .get_value()
+    .size()
+    == abstract_int(1).size()
 )
-
-assert InterpretFunction(
-    dir=dir,
-    file=file,
-    function="test1",
-    printDebug=True,
-)[
-    0
-].get_value() == abstract_int(1)
 
 
 assert (
@@ -39,12 +33,17 @@ assert (
     == None
 )
 
-assert InterpretFunction(
-    dir=dir,
-    file=file,
-    function="test3",
-    # printDebug=True,
-)[0].get_value() == abstract_int(5)
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test3",
+        # printDebug=True,
+    )[0]
+    .get_value()
+    .size()
+    == abstract_int(5).size()
+)
 
 assert (
     InterpretFunction(
@@ -56,16 +55,26 @@ assert (
     == None
 )
 
-assert InterpretFunction(
-    dir=dir,
-    file=file,
-    function="test5",
-    # printDebug=True,
-)[0].get_value() == abstract_int(45)
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test5",
+        # printDebug=True,
+    )[0]
+    .get_value()
+    .size()
+    == abstract_int(45).size()
+)
 
-assert InterpretFunction(
-    dir=dir,
-    file=file,
-    function="test6",
-    # printDebug=True,
-)[0].get_value() == abstract_int(5)
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test6",
+        # printDebug=True,
+    )[0]
+    .get_value()
+    .size()
+    == abstract_int(5).size()
+)

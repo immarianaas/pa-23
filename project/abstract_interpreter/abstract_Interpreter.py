@@ -127,7 +127,7 @@ def interpretBytecode(
         case "binary":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            if not (v1.get_type() == v2.get_type()) or not (
+            if (v1.get_type() != v2.get_type()) or not (
                 (v1.get_type() == "integer") or (v1.get_type() == "int")
             ):
                 print("Binary type error")
@@ -135,15 +135,19 @@ def interpretBytecode(
             operand.set_type(PrimitiveTypes("int"))
             match byte_object["operant"]:
                 case "add":
-                    operand.set_value(v1.get_value() + v2.get_value())
+                    operand.set_value(v1.get_value().add(v2.get_value()))
                 case "sub":
-                    operand.set_value(v1.get_value() - v2.get_value())
+                    operand.set_value(v1.get_value().sub(v2.get_value()))
                 case "div":
-                    operand.set_value(v1.get_value() // v2.get_value())
+                    operand.set_value(v1.get_value().div(v2.get_value()))
                 case "mul":
-                    operand.set_value(v1.get_value() * v2.get_value())
+                    operand.set_value(v1.get_value().mul(v2.get_value()))
                 case "rem":
-                    operand.set_value(math.remainder(v1.get_value() + v2.get_value()))
+                    operand.set_value(
+                        abstract_int(
+                            math.remainder(v1.get_value().size(), v2.get_value().size())
+                        )
+                    )
                 case _:
                     RuntimeError("Binary operation not implemented")
             operandStack.push(operand)
@@ -170,60 +174,89 @@ def interpretBytecode(
         case "if":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            # assert v1.get_type() == v2.get_type()
-            # assert v1.get_type() == PrimitiveTypes("int")
-            match byte_object["condition"]:
-                case "eq":
-                    if v1.get_value() == v2.get_value():
-                        index = byte_object["target"]
-                case "ne":
-                    if v1.get_value() != v2.get_value():
-                        index = byte_object["target"]
-                case "gt":
-                    if v1.get_value() > v2.get_value():
-                        index = byte_object["target"]
-                case "ge":
-                    if v1.get_value() >= v2.get_value():
-                        index = byte_object["target"]
-                case "lt":
-                    if v1.get_value() < v2.get_value():
-                        index = byte_object["target"]
-                case "le":
-                    if v1.get_value() <= v2.get_value():
-                        index = byte_object["target"]
-                case _:
-                    RuntimeError("if operation not implemented")
+            if v1.get_value().size() == None or v2.get_value().size() == None:
+                skipGoto = True
+            else:
+                match byte_object["condition"]:
+                    case "eq":
+                        if v1.get_value().size() == 0 and v2.get_value().size() == 0:
+                            index = byte_object["target"]
+                        elif v1.get_value() == v2.get_value():
+                            # if they are equal but not 0 then we cannot say whether they are actually equal or not
+                            skipGoto == False
+                        # if they are not equal then the actual values are not equal
+                    case "ne":
+                        # if the abstractions are not eqaul, then they are not equal
+                        if v1.get_value().size() != v2.get_value().size():
+                            index = byte_object["target"]
+                        # if the abstractions are eqaul we cannot say whether they are eqaul or not, exept if they are zero
+                        elif v1.get_value().size() != 0 and v2.get_value().size() != 0:
+                            skipGoto == False
+                    case "gt":
+                        # if the abstract v1 > abstract v2 then the real v1 > than the real v2
+                        if v1.get_value().size() > v2.get_value().size():
+                            index = byte_object["target"]
+                        #  if they are equal we cannot say anything
+                        elif v1.get_value().size() == v2.get_value().size():
+                            skipGoto == False
+                        # but otherwise we can say that v1 > v2 is false
+                    case "ge":
+                        # if the abstract v1 > abstract v2 then the real v1 > than the real v2
+                        # we can only argue equallity if 0
+                        if v1.get_value().size() > v2.get_value().size() or (
+                            v1.get_value().size() == 0 and v2.get_value().size() == 0
+                        ):
+                            index = byte_object["target"]
+                        # same as gt
+                        elif v1.get_value().size() == v2.get_value().size():
+                            skipGoto == False
+                    case "lt":
+                        if v1.get_value().size() < v2.get_value().size():
+                            index = byte_object["target"]
+                        elif v1.get_value().size() == v2.get_value().size():
+                            skipGoto == False
+                    case "le":
+                        if v1.get_value().size() < v2.get_value().size() or (
+                            v1.get_value().size() == 0 and v2.get_value().size() == 0
+                        ):
+                            index = byte_object["target"]
+                        elif v1.get_value().size() == v2.get_value().size():
+                            skipGoto == False
+                    case _:
+                        RuntimeError("if operation not implemented")
         case "ifz":
             v = operandStack.pop()
-            zero = 0 if v.get_type() == PrimitiveTypes("int") else None
-            match byte_object["condition"]:
-                case "eq":
-                    if v.get_value() == zero:
-                        index = byte_object["target"]
-                case "ne":
-                    if v.get_value() != zero:
-                        index = byte_object["target"]
-                case "gt":
-                    if v.get_value() > zero:
-                        index = byte_object["target"]
-                case "ge":
-                    if v.get_value() >= zero:
-                        index = byte_object["target"]
-                case "lt":
-                    if v.get_value() < zero:
-                        index = byte_object["target"]
-                case "le":
-                    if v.get_value() <= zero:
-                        index = byte_object["target"]
-                case _:
-                    RuntimeError("if operation not implemented")
+            if v.get_value().size() == None:
+                skipGoto = True
+            else:
+                match byte_object["condition"]:
+                    case "eq":
+                        if v.get_value().size() == 0:
+                            index = byte_object["target"]
+                    case "ne":
+                        if v.get_value().size() != 0:
+                            index = byte_object["target"]
+                    case "gt":
+                        if v.get_value().size() > 0:
+                            index = byte_object["target"]
+                    case "ge":
+                        if v.get_value().size() >= 0:
+                            index = byte_object["target"]
+                    case "lt":
+                        if v.get_value().size() < 0:
+                            index = byte_object["target"]
+                    case "le":
+                        if v.get_value().size() <= 0:
+                            index = byte_object["target"]
+                    case _:
+                        RuntimeError("if operation not implemented")
         case "incr":
-            amount = byte_object["amount"]
             ptr = byte_object["index"]
             o = stackFrame.get(ptr)
             v = o.get_value()
-            o.set_value(v + amount)
-            stackFrame.set(ptr, o)
+            if v.size() == 0:
+                o.set_value(abstract_int(1))
+                stackFrame.set(ptr, o)
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
@@ -376,4 +409,5 @@ def interpretBytecode(
         printDebug=printDebug,
         heap=heap,
         edges=edges,
+        skipGoto=skipGoto,
     )
