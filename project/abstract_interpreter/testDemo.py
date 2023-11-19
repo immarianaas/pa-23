@@ -1,4 +1,4 @@
-from Util import Heap, Operand, OperandStack, PrimitiveTypes, StackFrame
+from Util import Heap
 from abstract_Interpreter import InterpretFunction
 from abstraction import abstract_int
 

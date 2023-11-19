@@ -7,7 +7,7 @@ from pathlib import Path
 import random
 import numpy
 
-from Util import (
+from abstract_interpreter.Util import (
     Array,
     Heap,
     Operand,
@@ -18,7 +18,7 @@ from Util import (
     isPrimitiveType,
     printStackTrace,
 )
-from abstraction import abstract_int
+from abstract_interpreter.abstraction import abstract_int
 
 
 def InterpretFunction(

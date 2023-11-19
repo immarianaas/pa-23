@@ -7,7 +7,7 @@ from pathlib import Path
 import random
 import numpy
 
-from Util import (
+from Interpreter.Util import (
     Array,
     Heap,
     Operand,
@@ -256,7 +256,7 @@ def interpretBytecode(
                 if res.get_value() is not None:
                     operandStack.push(res)
 
-            elif access == "virtual" or access == "interface":
+            elif access == "virtual":
                 args = [operandStack.pop() for _ in method["args"]]
                 ref = operandStack.pop()
                 object = heap.get(ref.get_value())

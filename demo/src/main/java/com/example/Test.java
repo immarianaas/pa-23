@@ -43,4 +43,9 @@ public class Test {
         D d = new D(5);
         return d.getA();
     }
+
+    public static int test7() {
+        D d = new D(5);
+        return d.getA();
+    }
 }
