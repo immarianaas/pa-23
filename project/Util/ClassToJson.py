@@ -3,9 +3,10 @@ import os
 from pathlib import Path
 import subprocess
 
-dir = Path("demo/")
+dir = Path("../pa-app/")
 
 for file in (dir).glob("target/**/*.class"):
+    print(file)
     temp = file.relative_to(dir / "target")
     decompiled = dir / "decompiled" / temp.with_suffix("").with_suffix(".json")
     decompiled.parent.mkdir(parents=True, exist_ok=True)

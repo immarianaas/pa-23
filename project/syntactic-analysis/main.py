@@ -92,5 +92,5 @@ if __name__ == "__main__":
 
     print("----------------------------------------------------------------------------------------------------------------------")
 
-    get_tuples( DATA, "dk.dtu.pa.geometry.ResizeShapes", "resize")
-    get_tuples( DATA, "dk.dtu.pa.App", "main")
+    # get_tuples( DATA, "dk.dtu.pa.geometry.ResizeShapes", "resize")
+    get_tuples( DATA, "dk.dtu.pa.App", "appMain")

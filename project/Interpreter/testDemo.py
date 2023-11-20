@@ -96,3 +96,19 @@ print(test1_set)
 
 print("\n\n\n")
 print(test6_set)
+
+
+
+dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
+file = os.path.join("dk", "dtu", "pa", "App")
+
+print(os.path.join(dir, file))
+
+main_set = set()
+InterpretFunction(
+    dir=dir,
+    file=file,
+    edges = main_set,
+    function="appMain",
+    # printDebug=True,
+)
