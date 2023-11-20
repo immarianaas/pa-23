@@ -26,51 +26,46 @@ public class Util {
         return a + b + c;
     }
 
-    public static void A() {
-
+    public static void a() {
     }
 
-    public static void B() {
-
+    public static void b() {
     }
 
-    public static void C() {
-
+    public static void c() {
     }
 
-    public static void D() {
-
+    public static void d() {
     }
 
-    public static void E() {
-
+    public static void e() {
     }
 
-    public static void F() {
+    public static void f() {
     }
 
-    public static void G() {
+    public static void g() {
     }
 
-    public static void H() {
+    public static void h() {
     }
 
-    public static void I() {
+    public static void i() {
     }
 
-    public static void J() {
+    public static void j() {
     }
 
-    public static void K() {
+    public static void k() {
     }
 
-    public static void L() {
+    public static void l() {
     }
 
-    public static void M() {
+    public static void m() {
     }
 
-    public static void N() {
+    public static void n() {
     }
 
 }

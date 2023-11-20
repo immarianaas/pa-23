@@ -232,7 +232,9 @@ def interpretBytecode(
                         RuntimeError("if operation not implemented")
         case "ifz":
             v = operandStack.pop()
-            if v.get_value().size() == None:
+            if v.get_type() == "ref":
+                skipGoto == True
+            elif v.get_value().size() == None:
                 skipGoto = True
             else:
                 match byte_object["condition"]:
@@ -259,10 +261,15 @@ def interpretBytecode(
         case "incr":
             ptr = byte_object["index"]
             o = stackFrame.get(ptr)
+            amount = byte_object["amount"]
             v = o.get_value()
             if v.size() == 0:
-                o.set_value(abstract_int(1))
+                o.set_value(abstract_int(amount))
                 stackFrame.set(ptr, o)
+            elif v.size() == None:
+                o.set_value(abstract_int())
+            elif (v.size() > 0 and amount < 0) or (v.size() < 0 and amount > 0):
+                o.set_value(abstract_int())
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]

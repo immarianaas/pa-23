@@ -7,50 +7,50 @@ public class Main {
     }
 
     public static void TestConditionals() {
-        if (Util.identity(1) < Util.identity(2)) {
-            Util.A();
+        if (Util.identity(1) > Util.identity(2)) {
+            Util.a();
         }
         if (Util.identity(-1) > Util.identity(2)) {
-            Util.B();
+            Util.b();
         }
         if (Util.identity(1) < Util.identity(0)) {
-            Util.C();
+            Util.c();
         }
         if (Util.identity(1) != Util.identity(2)) {
-            Util.D();
+            Util.d();
         }
         if (Util.identity(0) != Util.identity(2)) {
-            Util.E();
+            Util.e();
         }
         if (Util.identity(-1) != Util.identity(-2)) {
-            Util.F();
+            Util.f();
         }
         if (Util.identity(-1) != Util.identity(2)) {
-            Util.G();
+            Util.g();
         }
     }
 
     public static void TestOperations() {
         if (10 + 20 != Util.identity(30)) {
-            Util.H();
+            Util.h();
         }
         if (20 - 10 != Util.identity(10)) {
-            Util.I();
+            Util.i();
         }
         if (-10 * 20 != Util.identity(-200)) {
-            Util.J();
+            Util.j();
         }
         if (-10 + 10 != Util.identity(0)) {
-            Util.K();
+            Util.k();
         }
         if (0 + 10 != Util.identity(10)) {
-            Util.L();
+            Util.l();
         }
         if (10 - -10 != Util.identity(20)) {
-            Util.M();
+            Util.m();
         }
         if (0 * 10 != Util.identity(10)) {
-            Util.N();
+            Util.n();
         }
     }
 }
