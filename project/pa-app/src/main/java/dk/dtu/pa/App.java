@@ -3,6 +3,7 @@ package dk.dtu.pa;
 //import java.util.ArrayList;
 
 import dk.dtu.pa.geometry.*;
+import dk.dtu.pa.payment.Order;
 import dk.dtu.pa.persons.*;
 import dk.dtu.pa.teacher.*;
 import dk.dtu.pa.utils.EntryPoint;
@@ -12,6 +13,15 @@ import dk.dtu.pa.utils.EntryPoint;
  *
  */
 public class App {
+
+    public static void main() {
+        Order order = new Order();
+        int total = order.calcTotal();
+        
+    }
+
+
+
     public static void main(String[] args) {
 
         // Triangle obj - INTERFACE - ABSTRACT - CLASS - ENUM
