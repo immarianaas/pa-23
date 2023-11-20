@@ -7,7 +7,9 @@ from pathlib import Path
 import random
 import numpy
 
-from Interpreter.Util import (
+this_path = os.path.dirname(os.path.abspath(__file__))
+
+from Util import (
     Array,
     Heap,
     Operand,
@@ -40,8 +42,8 @@ def InterpretFunction(
 
         return (Operand(), edges)
     f = open(dir + "/" + file + ".json", "r")
-    f.close
-
+    # f.close
+    print("opened file: ", dir + "/" + file + ".json")
     json_object = json.load(f)
     method_list = json_object["methods"]
     method = [f for f in method_list if f["name"] == function][0]
