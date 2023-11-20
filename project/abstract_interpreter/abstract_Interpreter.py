@@ -6,8 +6,14 @@ import os
 from pathlib import Path
 import random
 import numpy
+import sys
 
-from abstract_interpreter.Util import (
+
+this_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(this_path)
+
+
+from Util import (
     Array,
     Heap,
     Operand,
@@ -18,7 +24,7 @@ from abstract_interpreter.Util import (
     isPrimitiveType,
     printStackTrace,
 )
-from abstract_interpreter.abstraction import abstract_int
+from abstraction import abstract_int
 
 
 def InterpretFunction(
