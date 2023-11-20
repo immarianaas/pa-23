@@ -48,4 +48,12 @@ public class Test {
         D d = new D(5);
         return d.getA();
     }
+
+    public static int test8() {
+        D a = new D(9);
+        while (a != null) {
+            a = new D(10);
+        }
+        return 0;
+    }
 }

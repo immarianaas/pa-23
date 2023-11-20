@@ -3,12 +3,12 @@ from abstract_Interpreter import InterpretFunction
 from abstraction import abstract_int
 
 # For window
-dir = "demo\decompiled\classes"
-file = "com\example\Test"
+#dir = "demo\decompiled\classes"
+#file = "com\example\Test"
 
 # For linux
-# dir = "demo/decompiled/classes"
-# file = "com/example/Test"
+dir = "demo/decompiled/classes"
+file = "com/example/Test"
 
 assert (
     InterpretFunction(
@@ -77,4 +77,16 @@ assert (
     .get_value()
     .size()
     == abstract_int(5).size()
+)
+
+assert (
+    InterpretFunction(
+        dir=dir,
+        file=file,
+        function="test8",
+        #printDebug=True,
+    )[0]
+    .get_value()
+    .size()
+    == 0
 )

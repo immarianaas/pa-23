@@ -180,7 +180,9 @@ def interpretBytecode(
         case "if":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            if v1.get_value().size() == None or v2.get_value().size() == None:
+            if v1.get_type() == "ref" and v2.get_type() == "ref":
+                skipGoto == True
+            elif v1.get_value().size() == None or v2.get_value().size() == None:
                 skipGoto = True
             else:
                 match byte_object["condition"]:
