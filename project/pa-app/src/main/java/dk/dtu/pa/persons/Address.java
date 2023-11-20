@@ -4,6 +4,9 @@ public class Address {
 
     private String value;
 
+    public Address() {
+    }
+
     public Address function1(String str, Person person) {
         String personName = person.getName();
         Person personOld = new Person("Alex", 30, new Address());
