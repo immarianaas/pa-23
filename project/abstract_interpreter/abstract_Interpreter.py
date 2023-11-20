@@ -141,8 +141,10 @@ def interpretBytecode(
             operand.set_type(PrimitiveTypes("int"))
             match byte_object["operant"]:
                 case "add":
+                    print("add")
                     operand.set_value(v1.get_value().add(v2.get_value()))
                 case "sub":
+                    print("sub")
                     operand.set_value(v1.get_value().sub(v2.get_value()))
                 case "div":
                     operand.set_value(v1.get_value().div(v2.get_value()))

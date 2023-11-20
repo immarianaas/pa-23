@@ -85,3 +85,9 @@ assert (
     .size()
     == 0
 )
+
+
+assert InterpretFunction(
+    dir=dir,
+    file="com/example/Main",
+)[0]

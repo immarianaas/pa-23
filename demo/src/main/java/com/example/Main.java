@@ -31,25 +31,26 @@ public class Main {
     }
 
     public static void TestOperations() {
-        if (10 + 20 != Util.identity(30)) {
+        int ten = 10;
+        if (ten + 20 != Util.identity(30)) {
             Util.h();
         }
-        if (20 - 10 != Util.identity(10)) {
+        if (20 - ten != Util.identity(10)) {
             Util.i();
         }
-        if (-10 * 20 != Util.identity(-200)) {
+        if (-ten * 20 != Util.identity(-200)) {
             Util.j();
         }
-        if (-10 + 10 != Util.identity(0)) {
+        if (-10 + ten != Util.identity(0)) {
             Util.k();
         }
-        if (0 + 10 != Util.identity(10)) {
+        if (0 + ten != Util.identity(10)) {
             Util.l();
         }
-        if (10 - -10 != Util.identity(20)) {
+        if (ten - -10 != Util.identity(20)) {
             Util.m();
         }
-        if (0 * 10 != Util.identity(10)) {
+        if (0 * ten != Util.identity(10)) {
             Util.n();
         }
     }
