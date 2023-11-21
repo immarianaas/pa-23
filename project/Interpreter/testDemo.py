@@ -112,3 +112,11 @@ InterpretFunction(
     function="appMain",
     # printDebug=True,
 )
+
+ 
+def print_set( sett ):
+    for tup in main_set:
+        print( f"({tup[0]}, {tup[1]})" )
+
+print_set( main_set )
+
