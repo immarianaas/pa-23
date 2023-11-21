@@ -110,7 +110,7 @@ def get_tuples(DATA, class_name: str, func_name: str):
 
 def print_tuples_from_method(method: MethodRepr):
     for inv in method.invocations:
-        print(f"({method.print_full()}, {inv.print_full()})")
+        print(f"({method.print_full()} , {inv.print_full()})")
         print_tuples_from_method(inv)
         
 
