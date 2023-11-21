@@ -113,10 +113,12 @@ InterpretFunction(
     # printDebug=True,
 )
 
+print(main_set)
+
  
-def print_set( sett ):
+def print_set(sett):
     for tup in main_set:
-        print( f"({tup[0]}, {tup[1]})" )
+        print( f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})" )
 
 print_set( main_set )
 
