@@ -43,7 +43,7 @@ def InterpretFunction(
         return (Operand(), edges)
     f = open(dir + "/" + file + ".json", "r")
     # f.close
-    print("opened file: ", dir + "/" + file + ".json")
+    # print("opened file: ", dir + "/" + file + ".json")
     json_object = json.load(f)
     method_list = json_object["methods"]
     method = [f for f in method_list if f["name"] == function][0]
@@ -227,10 +227,12 @@ def interpretBytecode(
             method = byte_object["method"]
             argument = ""
             for value in method["args"]:
+                print("value: ", value)
                 if isinstance(value, dict):
-                    argument = value.get("name")
+                    argument += value.get("name") + ","
                 elif isinstance(value, str):
-                    argument = value
+                    argument += value + ","
+            argument = argument[:-1]
             function_name2 = (
                 method["ref"]["name"] + "/" + method["name"] + "(" + argument + ")"
             )
