@@ -54,4 +54,8 @@ public class Main {
             Util.n();
         }
     }
+
+    public static void TestRefrences() {
+
+    }
 }
