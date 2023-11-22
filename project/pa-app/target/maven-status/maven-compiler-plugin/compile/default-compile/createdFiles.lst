@@ -1,0 +1,8 @@
+dk/dtu/pa/payment/Cash.class
+dk/dtu/pa/payment/Order.class
+dk/dtu/pa/payment/OrderDetail.class
+dk/dtu/pa/Util.class
+dk/dtu/pa/App.class
+dk/dtu/pa/payment/Credit.class
+dk/dtu/pa/payment/Payment.class
+dk/dtu/pa/payment/Customer.class
