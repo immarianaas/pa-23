@@ -21,10 +21,9 @@ parser.set_language(Language(LANGUAGE_FILE, "java"))
 # PROJ_PATH = "../../course-02242-examples" # JAVA PROJECT TO ANALYSE
 PROJ_PATH = "../pa-app" # JAVA PROJECT TO ANALYSE
 
-DATA = []
 
-def main():
-    global DATA
+def main_func():
+    DATA = []
     # DATA += get_java_types()
 
     for file in glob.iglob(PROJ_PATH + "/**/*.java", recursive=True):
@@ -50,14 +49,20 @@ def main():
 
             DATA.append( class_repr )
 
+    resolve_temp_methods(DATA)
+    resolve_return_types(DATA)
+
+    #for c in DATA:
+    #    c.pprint()
+
+
+    # get_tuples( DATA, "dk.dtu.pa.App", "appMain")
+
 def find_method_from_temp_in_class(temp_method: TempMethodRepr, related_class: ClassRepr):
     for m in related_class.methods:
         if temp_method.method_name == m.name:
             if ( temp_method.parameters == m.parameter_types ):
                 return m
-            print("here", temp_method.parameters, m.parameter_types)
-            print("--> searching for method", temp_method)
-        
             
 def find_method_from_temp(DATA, method: TempMethodRepr, this_class: ClassRepr):
     if method.related_class.specific_name == "<this>":
@@ -115,14 +120,6 @@ def print_tuples_from_method(method: MethodRepr):
         
 
 
-main()
-resolve_temp_methods(DATA)
-resolve_return_types(DATA)
-print("-------"*3)
+#main()
 
-for c in DATA:
-    c.pprint()
-
-
-get_tuples( DATA, "dk.dtu.pa.App", "appMain")
 

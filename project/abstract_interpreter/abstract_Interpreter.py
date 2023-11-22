@@ -135,7 +135,8 @@ def interpretBytecode(
             if not (v1.get_type() == v2.get_type()) or not (
                 (v1.get_type() == "integer") or (v1.get_type() == "int")
             ):
-                print("Binary type error")
+                if printDebug:
+                    print("Binary type error")
             operand = Operand()
             operand.set_type(PrimitiveTypes("int"))
             match byte_object["operant"]:
@@ -272,7 +273,8 @@ def interpretBytecode(
             method = byte_object["method"]
             arguments = []
             for value in method["args"]:
-                print("value: ", value)
+                if printDebug:
+                    print("value: ", value)
                 if isinstance(value, dict):
                     arguments.append(value.get("name"))
                 elif isinstance(value, str):

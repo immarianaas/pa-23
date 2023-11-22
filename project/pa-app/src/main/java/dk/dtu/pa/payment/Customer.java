@@ -4,12 +4,8 @@ public class Customer {
     
     public Customer() {}
 
-    public String getName() {
-        return "name example";
-    }
+    public void getName() {}
 
-    public String getAddress() {
-        return "address";
-    }
+    public void getAddress() {}
     
 }

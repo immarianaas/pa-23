@@ -97,15 +97,23 @@ assert InterpretFunction(
 
 """
 
-this_path = os.path.dirname(os.path.abspath(__file__))
+def main_func():
 
-dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
-file = os.path.join("dk", "dtu", "pa", "App")
+    this_path = os.path.dirname(os.path.abspath(__file__))
 
-new_set = set()
-InterpretFunction(
-    dir=dir,
-    edges = new_set,
-    file=file,
-    function="appMain"
-)
+    dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
+    file = os.path.join("dk", "dtu", "pa", "App")
+
+    new_set = set()
+    InterpretFunction(
+        dir=dir,
+        edges = new_set,
+        file=file,
+        function="appMain"
+    )
+    
+    # for tup in new_set:
+    #     print( f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})" )
+
+
+# main_func()
