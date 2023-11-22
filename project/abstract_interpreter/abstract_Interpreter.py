@@ -357,6 +357,17 @@ def interpretBytecode(
             object = stackFrame.get(byte_object["index"])
             # assert object.get_type() == PrimitiveTypes(byte_object["type"])
             operandStack.push(copy.deepcopy(object))
+        case "negate":
+            o = operandStack.pop()
+            v = o.get_value()
+            if v.size() == None:
+                operandStack.push(Operand(abstract_int(), "int"))
+            elif v.size() == 0:
+                operandStack.push(Operand(abstract_int(0), "int"))
+            elif v.size() > 0:
+                operandStack.push(Operand(abstract_int(-1), "int"))
+            else:
+                operandStack.push(Operand(abstract_int(1), "int"))
         case "new":
             ptr = heap.malloc()
             file = byte_object["class"]
