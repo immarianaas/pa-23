@@ -1,7 +1,9 @@
 from Util import Heap
 from abstract_Interpreter import InterpretFunction
 from abstraction import abstract_int
+import os 
 
+"""
 dir = "demo/decompiled/classes"
 file = "com/example/Test"
 
@@ -91,3 +93,19 @@ assert InterpretFunction(
     dir=dir,
     file="com/example/Main",
 )[0]
+
+
+"""
+
+this_path = os.path.dirname(os.path.abspath(__file__))
+
+dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
+file = os.path.join("dk", "dtu", "pa", "App")
+
+new_set = set()
+InterpretFunction(
+    dir=dir,
+    edges = new_set,
+    file=file,
+    function="appMain"
+)
