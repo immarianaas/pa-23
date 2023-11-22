@@ -6,9 +6,11 @@ import os
 from pathlib import Path
 import random
 import numpy
+import sys
 
 this_path = os.path.dirname(os.path.abspath(__file__))
 
+sys.path.append(this_path)
 from Util import (
     Array,
     Heap,
@@ -42,8 +44,8 @@ def InterpretFunction(
 
         return (Operand(), edges)
     f = open(dir + "/" + file + ".json", "r")
-    # f.close
-    # print("opened file: ", dir + "/" + file + ".json")
+    f.close
+
     json_object = json.load(f)
     method_list = json_object["methods"]
     method = [f for f in method_list if f["name"] == function][0]
@@ -225,16 +227,20 @@ def interpretBytecode(
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
-            argument = ""
+            arguments = []
             for value in method["args"]:
                 print("value: ", value)
                 if isinstance(value, dict):
-                    argument += value.get("name") + ","
+                    arguments.append(value.get("name"))
                 elif isinstance(value, str):
-                    argument += value + ","
-            argument = argument[:-1]
+                    arguments.append(value)
             function_name2 = (
-                method["ref"]["name"] + "/" + method["name"] + "(" + argument + ")"
+                method["ref"]["name"]
+                + "/"
+                + method["name"]
+                + "("
+                + ",".join(arguments)
+                + ")"
             )
             edges.add(
                 (
@@ -308,6 +314,11 @@ def interpretBytecode(
             object = stackFrame.get(byte_object["index"])
             # assert object.get_type() == PrimitiveTypes(byte_object["type"])
             operandStack.push(copy.deepcopy(object))
+        case "negate":
+            o = operandStack.pop()
+            v = o.get_value()
+            o.set_value(v * -1)
+            operandStack.push(o)
         case "new":
             ptr = heap.malloc()
             file = byte_object["class"]

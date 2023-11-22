@@ -8,11 +8,9 @@ import random
 import numpy
 import sys
 
-
 this_path = os.path.dirname(os.path.abspath(__file__))
+
 sys.path.append(this_path)
-
-
 from Util import (
     Array,
     Heap,
@@ -117,6 +115,7 @@ def interpretBytecode(
 
     if printDebug:
         printStackTrace(heap, operandStack, stackFrame, index, byte_object)
+
     index = index + 1
     match byte_object["opr"]:
         case "array_load":
@@ -133,7 +132,7 @@ def interpretBytecode(
         case "binary":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            if (v1.get_type() != v2.get_type()) or not (
+            if not (v1.get_type() == v2.get_type()) or not (
                 (v1.get_type() == "integer") or (v1.get_type() == "int")
             ):
                 print("Binary type error")
@@ -141,21 +140,15 @@ def interpretBytecode(
             operand.set_type(PrimitiveTypes("int"))
             match byte_object["operant"]:
                 case "add":
-                    print("add")
                     operand.set_value(v1.get_value().add(v2.get_value()))
                 case "sub":
-                    print("sub")
                     operand.set_value(v1.get_value().sub(v2.get_value()))
                 case "div":
                     operand.set_value(v1.get_value().div(v2.get_value()))
                 case "mul":
                     operand.set_value(v1.get_value().mul(v2.get_value()))
                 case "rem":
-                    operand.set_value(
-                        abstract_int(
-                            math.remainder(v1.get_value().size(), v2.get_value().size())
-                        )
-                    )
+                    operand.set_value()
                 case _:
                     RuntimeError("Binary operation not implemented")
             operandStack.push(operand)
@@ -277,14 +270,20 @@ def interpretBytecode(
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
-            argument = ""
+            arguments = []
             for value in method["args"]:
+                print("value: ", value)
                 if isinstance(value, dict):
-                    argument = value.get("name")
+                    arguments.append(value.get("name"))
                 elif isinstance(value, str):
-                    argument = value
+                    arguments.append(value)
             function_name2 = (
-                method["ref"]["name"] + "/" + method["name"] + "(" + argument + ")"
+                method["ref"]["name"]
+                + "/"
+                + method["name"]
+                + "("
+                + ",".join(arguments)
+                + ")"
             )
             edges.add(
                 (
@@ -358,6 +357,17 @@ def interpretBytecode(
             object = stackFrame.get(byte_object["index"])
             # assert object.get_type() == PrimitiveTypes(byte_object["type"])
             operandStack.push(copy.deepcopy(object))
+        case "negate":
+            o = operandStack.pop()
+            v = o.get_value()
+            if v.size() == None:
+                operandStack.push(Operand(abstract_int(), "int"))
+            elif v.size() == 0:
+                operandStack.push(Operand(abstract_int(0), "int"))
+            elif v.size() > 0:
+                operandStack.push(Operand(abstract_int(-1), "int"))
+            else:
+                operandStack.push(Operand(abstract_int(1), "int"))
         case "new":
             ptr = heap.malloc()
             file = byte_object["class"]
