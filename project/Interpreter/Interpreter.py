@@ -256,7 +256,7 @@ def interpretBytecode(
                 if res.get_value() is not None:
                     operandStack.push(res)
 
-            elif access == "virtual" or acces == "interface":
+            elif access == "virtual" or access == "interface":
                 args = [operandStack.pop() for _ in method["args"]]
                 ref = operandStack.pop()
                 object = heap.get(ref.get_value())
