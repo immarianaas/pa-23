@@ -225,16 +225,20 @@ def interpretBytecode(
         case "invoke":
             access = byte_object["access"]
             method = byte_object["method"]
-            argument = ""
+            arguments = []
             for value in method["args"]:
                 print("value: ", value)
                 if isinstance(value, dict):
-                    argument += value.get("name") + ","
+                    arguments.append(value.get("name"))
                 elif isinstance(value, str):
-                    argument += value + ","
-            argument = argument[:-1]
+                    arguments.append(value)
             function_name2 = (
-                method["ref"]["name"] + "/" + method["name"] + "(" + argument + ")"
+                method["ref"]["name"]
+                + "/"
+                + method["name"]
+                + "("
+                + ",".join(arguments)
+                + ")"
             )
             edges.add(
                 (
