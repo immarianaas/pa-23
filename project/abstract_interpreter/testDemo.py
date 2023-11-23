@@ -1,7 +1,12 @@
 from Util import Heap
 from abstract_Interpreter import InterpretFunction
 from abstraction import abstract_int
-import os 
+import os
+
+
+this_path = os.path.dirname(os.path.abspath(__file__))
+dir = os.path.join(this_path, "..", "..", "demo", "decompiled", "classes")
+file = os.path.join("com", "example", "Test")
 
 """
 dir = "demo/decompiled/classes"
@@ -97,23 +102,35 @@ assert InterpretFunction(
 
 """
 
-def main_func():
 
-    this_path = os.path.dirname(os.path.abspath(__file__))
+dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
+file = os.path.join("dk", "dtu", "pa", "App")
 
-    dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
-    file = os.path.join("dk", "dtu", "pa", "App")
+print(os.path.join(dir, file))
 
-    new_set = set()
-    InterpretFunction(
-        dir=dir,
-        edges = new_set,
-        file=file,
-        function="appMain"
-    )
-    
-    # for tup in new_set:
-    #     print( f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})" )
+main_set = set()
+InterpretFunction(
+    dir=dir,
+    file=file,
+    edges=main_set,
+    function="appMain",
+    printDebug=True,
+)
+
+# print(main_set)
+
+main_list = list(main_set)
+main_list.sort()
 
 
-# main_func()
+def print_set(sett):
+    for tup in main_list:
+        print(f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})")
+
+
+f = open("project\evaluation\sem.txt", "w")
+for tup in main_list:
+    f.write(f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})\n")
+f.close()
+
+print_set(main_set)

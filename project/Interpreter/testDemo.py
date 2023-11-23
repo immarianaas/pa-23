@@ -9,14 +9,14 @@ file = os.path.join("com", "example", "Test")
 # file = os.path.join(dir, "com", "example", "Test")
 
 # For window
-#dir = "demo\decompiled\classes"
-#file = "com\example\Test"
+# dir = "demo\decompiled\classes"
+# file = "com\example\Test"
 
 # For linux
-#dir = "demo/decompiled/classes"
-#file = "com/example/Test"
+# dir = "demo/decompiled/classes"
+# file = "com/example/Test"
 
-test1_set = set()
+"""test1_set = set()
 InterpretFunction(
     dir=dir,
     file=file,
@@ -96,7 +96,7 @@ print(test1_set)
 
 print("\n\n\n")
 print(test6_set)
-
+"""
 
 
 dir = os.path.join(this_path, "..", "pa-app", "decompiled", "classes")
@@ -108,17 +108,25 @@ main_set = set()
 InterpretFunction(
     dir=dir,
     file=file,
-    edges = main_set,
+    edges=main_set,
     function="appMain",
     # printDebug=True,
 )
 
-print(main_set)
+# print(main_set)
 
- 
+main_list = list(main_set)
+main_list.sort()
+
+
 def print_set(sett):
-    for tup in main_set:
-        print( f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})" )
+    for tup in main_list:
+        print(f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})")
 
-print_set( main_set )
 
+f = open("project\evaluation\\true.txt", "w")
+for tup in main_list:
+    f.write(f"({tup[0].replace('/','.')} , {tup[1].replace('/','.')})\n")
+f.close()
+
+print_set(main_set)

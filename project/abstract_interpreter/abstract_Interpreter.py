@@ -114,6 +114,7 @@ def interpretBytecode(
     byte_object = byte_array[index]
 
     if printDebug:
+        print("skipgoto:", skipGoto)
         printStackTrace(heap, operandStack, stackFrame, index, byte_object)
 
     index = index + 1
@@ -176,8 +177,10 @@ def interpretBytecode(
         case "if":
             v2 = operandStack.pop()
             v1 = operandStack.pop()
-            if v1.get_type() == "ref" and v2.get_type() == "ref":
-                skipGoto == True
+            print(v1, v2)
+            if v1.get_type() == "ref" or v2.get_type() == "ref":
+                skipGoto = True
+                print("heeeellloooooo")
             elif v1.get_value().size() == None or v2.get_value().size() == None:
                 skipGoto = True
             else:
@@ -187,7 +190,7 @@ def interpretBytecode(
                             index = byte_object["target"]
                         elif v1.get_value() == v2.get_value():
                             # if they are equal but not 0 then we cannot say whether they are actually equal or not
-                            skipGoto == False
+                            skipGoto = True
                         # if they are not equal then the actual values are not equal
                     case "ne":
                         # if the abstractions are not eqaul, then they are not equal
@@ -195,14 +198,14 @@ def interpretBytecode(
                             index = byte_object["target"]
                         # if the abstractions are eqaul we cannot say whether they are eqaul or not, exept if they are zero
                         elif v1.get_value().size() != 0 and v2.get_value().size() != 0:
-                            skipGoto == False
+                            skipGoto = True
                     case "gt":
                         # if the abstract v1 > abstract v2 then the real v1 > than the real v2
                         if v1.get_value().size() > v2.get_value().size():
                             index = byte_object["target"]
                         #  if they are equal we cannot say anything
                         elif v1.get_value().size() == v2.get_value().size():
-                            skipGoto == False
+                            skipGoto = True
                         # but otherwise we can say that v1 > v2 is false
                     case "ge":
                         # if the abstract v1 > abstract v2 then the real v1 > than the real v2
@@ -213,19 +216,21 @@ def interpretBytecode(
                             index = byte_object["target"]
                         # same as gt
                         elif v1.get_value().size() == v2.get_value().size():
-                            skipGoto == False
+                            skipGoto = True
                     case "lt":
                         if v1.get_value().size() < v2.get_value().size():
                             index = byte_object["target"]
                         elif v1.get_value().size() == v2.get_value().size():
-                            skipGoto == False
+                            skipGoto = True
                     case "le":
+                        print("heeeellloooooo2")
                         if v1.get_value().size() < v2.get_value().size() or (
                             v1.get_value().size() == 0 and v2.get_value().size() == 0
                         ):
                             index = byte_object["target"]
                         elif v1.get_value().size() == v2.get_value().size():
-                            skipGoto == False
+                            print("helloo")
+                            skipGoto = True
                     case _:
                         RuntimeError("if operation not implemented")
         case "ifz":
@@ -297,7 +302,6 @@ def interpretBytecode(
                 sf = StackFrame()
                 for i in reversed(range(len(method["args"]))):
                     sf.set(i, operandStack.pop())
-
                 res, e = InterpretFunction(
                     dir=dir,
                     file=method["ref"]["name"],
@@ -408,16 +412,28 @@ def interpretBytecode(
                 name = byte_object["field"]["name"]
                 heap.get(ref.get_value())["fields"][name] = v
         case "return":
-            if printDebug:
-                print(
-                    "----------------------- return ----------------------------------"
-                )
+            print(len(byte_array), index, skipGoto)
             if byte_object["type"] == None:
                 if not operandStack.is_empty():
                     operandStack.pop()
-                return (Operand(), edges)
+                if not skipGoto or (index >= len(byte_array) - 1):
+                    if printDebug:
+                        print(
+                            "----------------------- ",
+                            function_name,
+                            " return ----------------------------------",
+                        )
+                    return (Operand(), edges)
             else:
-                return (operandStack.pop(), edges)
+                o = operandStack.pop()
+                if not skipGoto or (index >= len(byte_array) - 1):
+                    if printDebug:
+                        print(
+                            "----------------------- ",
+                            function_name,
+                            " return ----------------------------------",
+                        )
+                    return (o, edges)
         case "store":
             operand = operandStack.pop()
             stackFrame.set(byte_object["index"], operand)
@@ -427,6 +443,7 @@ def interpretBytecode(
             return
 
     if len(byte_array) <= index:
+        print("errororororororororororo")
         return "Error - index out of range"
     return interpretBytecode(
         byte_array=byte_array,

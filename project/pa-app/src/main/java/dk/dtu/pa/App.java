@@ -15,8 +15,6 @@ public class App {
         Order order = new Order();
         int total = order.calcTotal();
 
-        order.payOrder();
-
         Customer customer = new Customer();
         customer.getName();
 
@@ -25,7 +23,7 @@ public class App {
     }
 
     public static void TestConditionals() {
-        if (Util.identity(1) < Util.identity(2)) {
+        if (Util.identity(1) > Util.identity(2)) {
             Util.a();
         }
         if (Util.identity(-1) > Util.identity(2)) {
@@ -34,45 +32,44 @@ public class App {
         if (Util.identity(1) < Util.identity(0)) {
             Util.c();
         }
-        if (Util.identity(1) != Util.identity(2)) {
+        if (Util.identity(1) == Util.identity(2)) {
             Util.d();
         }
-        if (Util.identity(0) != Util.identity(2)) {
+        if (Util.identity(0) == Util.identity(2)) {
             Util.e();
         }
-        if (Util.identity(-1) != Util.identity(-2)) {
+        if (Util.identity(-1) != Util.identity(-1)) {
             Util.f();
         }
-        if (Util.identity(-1) != Util.identity(2)) {
+        if (Util.identity(-1) == Util.identity(2)) {
             Util.g();
         }
+
     }
 
     public static void TestOperations() {
-        if (10 + 20 != Util.identity(30)) {
+        if (Util.identity(10) + 20 == Util.identity(0)) {
             Util.h();
         }
-        if (20 - 10 != Util.identity(10)) {
+        if (20 - Util.identity(10) != Util.identity(10)) {
             Util.i();
         }
-        if (-10 * 20 != Util.identity(-200)) {
+        if (-Util.identity(10) * 20 != Util.identity(-200)) {
             Util.j();
         }
-        if (-10 + 10 != Util.identity(0)) {
+        if (-10 + Util.identity(10) != Util.identity(0)) {
             Util.k();
         }
-        if (0 + 10 != Util.identity(10)) {
+        if (0 + Util.identity(10) == Util.identity(0)) {
             Util.l();
         }
-        if (10 - -10 != Util.identity(20)) {
+        if (10 - -Util.identity(10) != Util.identity(20)) {
             Util.m();
         }
-        if (0 * 10 != Util.identity(10)) {
+        if (0 * Util.identity(10) != Util.identity(10)) {
             Util.n();
         }
     }
-
-
 
     public static void main(String[] args) {
         App.appMain();
