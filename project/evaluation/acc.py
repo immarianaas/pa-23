@@ -63,34 +63,72 @@ def f1score(truth, testing):
     recall_ = recall(truth, testing)
     return 2*precision_*recall_/(precision_+recall_)
 
+def false_neg_rate(truth, testing):
+    FP = get_num_false_positives(truth, testing)
+    TP = get_num_true_positives(truth, testing)
+    return FP / (FP+TP)
 
 
 def main(output = False):
     truth_dict = defaultdict(list)
     syn_dict = defaultdict(list)
+    sem_dict = defaultdict(list)
 
     # first let's read the truth, main function:
-    with open("truth-main.txt", "r") as truth:
+    with open("true.txt", "r") as truth:
         for line in truth:
-            meth1, meth2 = line[1:-2].split(", ")
+            line = line.strip()
+            if len(line) == 0:
+                continue
+            meth1, meth2 = line[1:-2].split(" , ")
 
             truth_dict[meth1].append( meth2 )
 
 
     # then let's read the syn, main function:
-    with open("syn-main.txt", "r") as truth:
+    with open("syn.txt", "r") as truth:
         for line in truth:
-            meth1, meth2 = line[1:-2].split(", ")
+            line = line.strip()
+            if len(line) == 0:
+                continue
+            meth1, meth2 = line[1:-2].split(" , ")
 
             syn_dict[meth1].append( meth2 )
 
-    if output:
-        print("total entries truth:", get_num_entries(truth_dict))
-        print("total entries syn:", get_num_entries(syn_dict))
-        print("number of true positives:", get_num_true_positives(truth_dict, syn_dict ))
+    # then let's read the sem, main function:
+    with open("sem.txt", "r") as truth:
+        for line in truth:
+            line = line.strip()
+            if len(line) == 0:
+                continue
+            meth1, meth2 = line[1:-2].split(" , ")
 
-        print("Precision:", precision(truth_dict, syn_dict))
-        print("F1-score:", f1score(truth_dict, syn_dict))
+            sem_dict[meth1].append( meth2 )
+
+    if output:
+        # print("total entries truth:", get_num_entries(truth_dict))
+        # print("total entries syn:", get_num_entries(syn_dict))
+        # print("number of true positives:", get_num_true_positives(truth_dict, syn_dict ))
+
+        print( f"SYNTACTIC Precision: {precision(truth_dict.copy(), syn_dict.copy()):.4f}")
+        print( f"SYNTACTIC Recall: {recall(truth_dict.copy(), syn_dict.copy()):.4f}")
+        print( f"SYNTACTIC F1-score: {f1score(truth_dict.copy(), syn_dict.copy()):.4f}")
+        
+        print( f"SEMANTIC Precision: {precision(truth_dict.copy(), sem_dict.copy()):.4f}")
+        print( f"SEMANTIC Recall: {recall(truth_dict.copy(), sem_dict.copy()):.4f}")
+        print( f"SEMANTIC F1-score: {f1score(truth_dict.copy(), sem_dict.copy()):.4f}")
+
+
+        print(f"SYN false neg rate", false_neg_rate(truth_dict.copy(), syn_dict.copy()))
+        print(f"SEM false neg rate", false_neg_rate(truth_dict.copy(), sem_dict.copy()))
+        
+
+        # print( f"F1-score: {f1score(truth_dict, syn_dict):.4f}" )
+        # print( f"F1-score: {f1score(truth_dict, syn_dict):.4f}" )
+        # print("Precision:", precision(truth_dict, syn_dict))
+        # print("F1-score:", f1score(truth_dict, syn_dict))
+        # print("F1-score:", f1score(truth_dict, syn_dict))
+        # print(f"F1-score: {f1score(truth_dict, syn_dict):.2f}" )
 
 
 
@@ -101,7 +139,7 @@ def main(output = False):
 
 main(output= True)
 
-iterations = 1000
-total_time = timeit("main()", number=iterations, globals=globals())
-print("Total time:", total_time)
-print("Average time:", total_time/iterations)
+# iterations = 1000
+# total_time = timeit("main()", number=iterations, globals=globals())
+# print("Total time:", total_time)
+# print("Average time:", total_time/iterations)
