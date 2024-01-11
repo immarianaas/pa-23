@@ -8,7 +8,9 @@ Even though the project topic was quite broad, it was important that we showed c
 ## What's done
 
 ### Idea
-We decided to build our project around the idea of comparing 2 different analysis techniques: semantic and syntactic. For a better idea of what we set up to do, the abstract of our report provides a good summary.
+We decided to build our project around the idea of comparing 2 different analysis techniques: semantic and syntactic. Our comparison was based on 3 metrics: **accuracy**, **performance** and **complexity**. We compare the benchmark of these two techniques for a tool that can generate a call graph. Furthermore, other techniques - such as concolic execution, and syntactic analysis through the use of regular expressions - are discussed.
+
+For a better idea of what we set up to do, the abstract of our report provides a good summary.
 
 > In this paper, we conduct a comparative analysis
 of two static approaches aimed at identifying dead code in
@@ -36,6 +38,9 @@ be preferred due to the more precise result.
 
 [![Python][python-shield]][antlr-url] [![Java][java-shield]][java-url] [![Jvm2Json][jvm2json-shield]][jvm2json-url] [![Tree-sitter][treesitter-shield]][treesitter-url]
 
+### Report & Presentation
+- For a quick glance of our results, please refer to the [presentation](???). 
+- For the in-depth report in IEEE format, please take a look at our [report](???).
 
 ### :page_with_curl: Challenge
 This exercise challenged us to solve the same problem as in the previous weeks - determine which inputs can lead functions to throw one of 4 exceptions. For this week, we were to develop this tool with a **dynamic analysis** point of view. In specific, using **concolic execution**.
@@ -58,7 +63,7 @@ No slide was created for this challenge, since the focus at this point was on st
 [java-url]: ???
 -->
 
-[java-shield]: https://img.shields.io/badge/Java-007CBD?style=for-the-badge
+[java-shield]: https://img.shields.io/badge/Java-EC2025?style=for-the-badge
 [java-url]: https://www.java.com/
 
 [treesitter-shield]: https://img.shields.io/badge/tree%20sitter-7E8F31?style=for-the-badge&logoColor=white
