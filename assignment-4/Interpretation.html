@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Christian Gram Kalhauge">
+  <title>Interpretation</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head><body><header id="title-block-header">
+<h1 class="title">Interpretation</h1>
+<p class="subtitle">02242: Assignment 04</p>
+<p class="author">Christian Gram Kalhauge</p>
+</header>
+<h1 id="description">Description</h1>
+<p>In this exercise we are going to build the first semantic analysis, which also happens to be a dynamic analysis. Essentially, we want to create an interpreter for JVM bytecode. Use <a href="https://gitlab.gbar.dtu.dk/chrg/jvm2json">jvm2json</a>, systematically chose operations that you will allow in your implementation of the JVM.</p>
+<p>You should create operational semantics for all implemented operations. The structure is going over a tuple <span class="math inline">\(\left&lt;\mu, \psi\right&gt;\)</span> representing the machine, where</p>
+<ol type="1">
+<li><span class="math inline">\(\mu\)</span> is the memory,
+<ol type="a">
+<li>which we can access and set:
+<ol type="i">
+<li><span class="math inline">\(\mu[i]\)</span> means content at index <span class="math inline">\(i\)</span> (latex : <code>\mu[idx]</code>)</li>
+<li><span class="math inline">\(\mu[i \mapsto v]\)</span> means content at index <span class="math inline">\(i\)</span> set to <span class="math inline">\(v\)</span> (latex: <code>\mu[idx \mapsto v]</code>).</li>
+<li>Ei., <span class="math inline">\(\mu[i \mapsto v][i] = v\)</span></li>
+</ol>
+</li>
+<li>which contains elements from <span class="math inline">\(V_\mu\)</span>.</li>
+</ol>
+</li>
+<li><span class="math inline">\(\psi\)</span> is the method stack and consists of elements of <span class="math inline">\((\lambda, \sigma, \iota)\)</span>. Stacks are read from right to left, e.g., <span class="math inline">\(\psi = \dotsm\psi_2\psi_1\)</span> with <span class="math inline">\(\psi_1\)</span> being the top element. We’ll denote the empty stack <span class="math inline">\(\epsilon\)</span>. Here,
+<ol type="a">
+<li><span class="math inline">\(\lambda\)</span> is an array of local variables, indexed and accessed like the memory, but normally only contains 1-10 elements from <span class="math inline">\(V_\lambda\)</span>;</li>
+<li><span class="math inline">\(\sigma\)</span> is the operational stack (read as the <span class="math inline">\(\psi\)</span> stack), which contain typed values from <span class="math inline">\(V_\sigma\)</span>.</li>
+<li><span class="math inline">\(\iota\)</span> is the absolute program counter, containing both the absolute method name <span class="math inline">\(m\)</span> and the index of the operation <span class="math inline">\(i\)</span>: <span class="math inline">\(m/i\)</span>. Given that <span class="math inline">\(\iota = m/i\)</span>, we’ll just write <span class="math inline">\(\iota' = \iota/23\)</span> to mean <span class="math inline">\(\iota' = m/23\)</span>, and <span class="math inline">\(\iota' = \iota + 1\)</span> to mean <span class="math inline">\(\iota' = m/(i+1)\)</span>.</li>
+</ol>
+</li>
+</ol>
+<p>The values are defined<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> as: <span class="math display">\[ \begin{aligned} V_\mu &amp; := (\mathtt{int}~n) ~|~(\mathtt{float}~f) ~|~(\mathtt{array}~n~a) ~|~(\mathtt{class}~cn~fs) \\ V_\lambda &amp; := (\mathtt{int}~n) ~|~(\mathtt{float}~f) ~|~(\mathtt{ref}~r) \\ V_\sigma &amp; := (\mathtt{byte}~b) ~|~(\mathtt{char}~c) ~|~(\mathtt{short}~s) ~|~V_\lambda \end{aligned} \]</span></p>
+<ul>
+<li>
+<p><span class="math inline">\((\mathtt{array}~n~a)\)</span> is an array of <span class="math inline">\(n\)</span> elements from <span class="math inline">\(V_\sigma\)</span>. <span class="math inline">\(a\)</span> can be accessed and set like memory. E.g., given <span class="math inline">\((\mathtt{array}~n~a)\)</span> we can create an array with the 2nd element updated: <span class="math inline">\((\mathtt{array}~n~(a[2 \mapsto (\mathtt{int}~10)]))\)</span></p>
+</li>
+<li>
+<p><span class="math inline">\((\mathtt{class}~cn~fs)\)</span> is a class with name <span class="math inline">\(cn\)</span>, which has a mapping from absolute field names (field names with class names) to <span class="math inline">\(V_\sigma\)</span>. E.g., creating a class with the field <code>Point.x</code> set to 2.3, is done like this: <span class="math inline">\((\mathtt{class}~cn~(fs[\texttt{Point.x} \mapsto (\mathtt{float}~2.3)]))\)</span>.</p>
+</li>
+</ul>
+<p>The single step semantics should be defined as steps over the state of the machine, in the context of a program <span class="math inline">\(h, bc\)</span>: <span class="math display">\[ h, bc \vdash \left&lt;\mu, \lambda, \sigma\right&gt; \to \left&lt;\mu, \lambda, \sigma\right&gt;.\]</span></p>
+<p>In the program we can access the bytecode given the program counter <span class="math inline">\(bc[\iota]\)</span>, and information about the class hieracy using <span class="math inline">\(h[cn]\)</span>.</p>
+<p>To get you started, here are three examples. The first <span class="math inline">\((\texttt{pop}_1)\)</span>, pops an element <span class="math inline">\(s\)</span> of the stack (check the spec <a href="https://docs.oracle.com/javase/specs/jvms/se19/html/jvms-6.html#jvms-6.5.pop">here</a>), the second <span class="math inline">\((\texttt{pop}_2)\)</span> pops two elements. <span class="math display">\[ \frac{ b = bc[\iota] \quad b.opr = \texttt{"pop"} \quad b.words = 1 }{ h, bc \vdash \left&lt;\mu, \psi(\lambda, \sigma s_1, \iota)\right&gt; \to \left&lt;\mu, \psi(\lambda, \sigma, \iota + 1) \right&gt; }(\texttt{pop}_1) \]</span> <span class="math display">\[ \frac{ b = bc[\iota] \quad b.opr = \texttt{"pop"} \quad b.words = 2 }{ h, bc \vdash \left&lt;\mu, \psi(\lambda, \sigma s_2 s_1, \iota)\right&gt; \to \left&lt;\mu, \psi(\lambda, \sigma, \iota + 1) \right&gt; }(\texttt{pop}_2) \]</span> The rule <span class="math inline">\((\texttt{invoke}_v)\)</span>, does a virtual invocation of the reference. <span class="math display">\[ \frac{ \begin{gather} b = bc[\iota] \quad b.opr = \texttt{"invoke"} \quad b.access = \texttt{"virtual"} \\ n = |b.method.args| \quad \mu[r] = (\mathtt{class}~cn~fls) \\ m = \texttt{lookup}_{v}(h, b.method, cn) \\ \lambda'[0] = (\mathtt{ref}~r) \quad \lambda'[1] = \sigma_1 \quad \dotsc \quad \lambda'[n] = (\mathtt{ref}~r) \quad \lambda'[n] = \sigma_n \end{gather} }{ h, bc \vdash \left&lt;\mu, \psi(\lambda, \sigma (\mathtt{ref}~r) \sigma'_1 \sigma'_2 \dotsm \sigma'_n, \iota)\right&gt; \to \left&lt;\mu, \psi(\lambda, \sigma, \iota + 1) (\lambda', \epsilon, m/0) \right&gt; }(\texttt{invoke}_v) \]</span></p>
+<p>Where <span class="math inline">\(\texttt{lookup}_v\)</span> is a function that finds the absolute method to call given the class hierachy, the virtual method name and class name. Get the full specification <a href="https://docs.oracle.com/javase/specs/jvms/se19/html/jvms-6.html#jvms-6.5.invokevirtual">here</a>.</p>
+<h1 id="deliverable">Deliverable</h1>
+<p>A single slide in the <a href="https://dtudk.sharepoint.com/:p:/r/sites/course167889/Delte%20dokumenter/General/Assignments/Assignment%2004.pptx?d=wf781c02ba7cb4ae5ae1e9ed175a804ee&amp;csf=1&amp;web=1&amp;e=uNKucA">slide deck</a> containing:</p>
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">a link to your source code;</li>
+<li><input type="checkbox" disabled="disabled">one SOS rule from the JVM instructions (different from the other slides):</li>
+<li><input type="checkbox" disabled="disabled">selected single-step traces of one or two methods;</li>
+<li><input type="checkbox" disabled="disabled">a table of the methods annotated with <code>@Case</code> in <a href="https://gitlab.gbar.dtu.dk/chrg/course-02242-examples">course-02242-examples</a> and if you executed them correctly;</li>
+<li><input type="checkbox" disabled="disabled">the answers to the following questions;
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">what was hardest to implement?</li>
+<li><input type="checkbox" disabled="disabled">which operations did you purposefully not implement?</li>
+</ul>
+</li>
+</ul>
+<h1 id="hints">Hints</h1>
+<ul>
+<li>
+<p>Don’t expect to implement the full language, try focus on the operations used in the examples.</p>
+</li>
+<li>
+<p>Start by assuming that <span class="math inline">\(\psi\)</span> is not a stack but only a single tuple – you can implement method calls later.</p>
+</li>
+<li>
+<p>Create a nice representation of the machine state so you can print it out; by doing this you print the execution trace for all your test cases. This will help you dramatically in developing fast. You can even save a trace to file for each <code>@Case</code> and commit them to source control, that way you ensure you don’t regress (see <a href="https://medium.com/@jarifibrahim/golden-files-why-you-should-use-them-47087ec994bf">golden tests</a>).</p>
+</li>
+<li>
+<p>Your implementation should be super dumb, most of your work should be in defining the semantics and then have one-to-one correspondence between:</p>
+<div class="sourceCode" id="cb1">
+<pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Interpreter:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p : Program, verbose : Optional[TextIO]):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.program <span class="op">=</span> program</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.verbose <span class="op">=</span> verbose</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.memory <span class="op">=</span> {}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.stack <span class="op">=</span> []</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>, f : Tuple[Locals, OperStack, ProgramCounter]):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.stack.append(f)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.log_start()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.log_state()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">self</span>.step():</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.log_state()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.log_done()</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        (l, s, pc) <span class="op">=</span> <span class="va">self</span>.stack[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> <span class="va">self</span>.program.bytecode[pc]</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">hasattr</span>(<span class="va">self</span>, b[<span class="st">"opr"</span>]):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">getattr</span>(<span class="va">self</span>, b[<span class="st">"opr"</span>])(b)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> false</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> pop(<span class="va">self</span>, b):</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        (l, s, pc) <span class="op">=</span> <span class="va">self</span>.stack.pop(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Rule (pop_1)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> b[<span class="st">"words"</span>] <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">len</span>(s) <span class="op">&lt;</span> <span class="dv">1</span>: <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.stack.append((l, s[:<span class="op">-</span><span class="dv">1</span>], pc <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Rule (pop_2)</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        elsif b[<span class="st">"words"</span>] <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">len</span>(s) <span class="op">&lt;</span> <span class="dv">2</span>: <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.stack.append((l, s[:<span class="op">-</span><span class="dv">2</span>], pc <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">False</span></span></code></pre>
+</div>
+</li>
+<li>
+<p>Remember that <span class="math inline">\(=\)</span> is talking about equality and is not about “setting” stuff. Create new variables if stuff is different. E.g. <span class="math inline">\(x = x + 1\)</span> is clearly not true, instead write <span class="math inline">\(x' = x + 1\)</span>, and use <span class="math inline">\(x'\)</span> instead of <span class="math inline">\(x\)</span>.</p>
+</li>
+<li>
+<p>To type-set the operations you can use <a href="https://www.chachatelier.fr/latexit/">LaTeXiT</a>. I typeset the rule from above like this:</p>
+<div class="sourceCode" id="cb2">
+<pre class="sourceCode latex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\frac</span>{</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">\begin</span>{<span class="ex">gather</span>}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ss">    b = bc[</span><span class="sc">\iota</span><span class="ss">] </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">\quad</span><span class="ss"> b.opr = </span><span class="sc">\texttt</span>{"invoke"}<span class="ss"> </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">\quad</span><span class="ss"> b.access = </span><span class="sc">\texttt</span>{"virtual"}<span class="ss"> </span><span class="sc">\\</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ss">    n = |b.method.args| </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">\quad</span><span class="ss"> </span><span class="sc">\mu</span><span class="ss">[r] = </span><span class="sc">\eclass</span><span class="ss">{cn}{fls} </span><span class="sc">\\</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ss">    m = </span><span class="sc">\texttt</span>{lookup}<span class="ss">_{v}(h, b.method, cn) </span><span class="sc">\\</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">\lambda</span><span class="ss">'[0] = </span><span class="sc">\eref</span><span class="ss">{r} </span><span class="sc">\quad</span><span class="ss"> </span><span class="sc">\lambda</span><span class="ss">'[1] = </span><span class="sc">\sigma</span><span class="ss">_1 </span><span class="sc">\quad</span><span class="ss"> </span><span class="sc">\dotsc</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">\quad</span><span class="ss"> </span><span class="sc">\lambda</span><span class="ss">'[n] = </span><span class="sc">\eref</span><span class="ss">{r} </span><span class="sc">\quad</span><span class="ss"> </span><span class="sc">\lambda</span><span class="ss">'[n] = </span><span class="sc">\sigma</span><span class="ss">_n</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="kw">\end</span>{<span class="ex">gather</span>}</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}{</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    h, bc <span class="fu">\vdash</span> </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">\left</span>&lt;</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">\mu</span>, </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">\psi</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            (<span class="fu">\lambda</span>, <span class="fu">\sigma</span> <span class="fu">\eref</span>{r} <span class="fu">\sigma</span>'_1 <span class="fu">\sigma</span>'_2 <span class="fu">\dotsm</span> <span class="fu">\sigma</span>'_n, <span class="fu">\iota</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">\right</span>&gt; <span class="fu">\to</span> </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">\left</span>&lt;</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">\mu</span>, </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">\psi</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            (<span class="fu">\lambda</span>, <span class="fu">\sigma</span>, <span class="fu">\iota</span> + 1)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            (<span class="fu">\lambda</span>', <span class="fu">\epsilon</span>, m/0) </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">\right</span>&gt;</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    }(<span class="fu">\texttt</span>{invoke}_v)</span></code></pre>
+</div>
+</li>
+</ul>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><hr>
+<ol>
+<li id="fn1">
+<p>We do not care about <code>long</code> and <code>double</code>, for now.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p>
+</li>
+</ol>
+</section></body></html>
