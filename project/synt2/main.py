@@ -56,7 +56,7 @@ def main_func():
     #    c.pprint()
 
 
-    # get_tuples( DATA, "dk.dtu.pa.App", "appMain")
+    get_tuples( DATA, "dk.dtu.pa.App", "appMain")
 
 def find_method_from_temp_in_class(temp_method: TempMethodRepr, related_class: ClassRepr):
     for m in related_class.methods:
@@ -120,6 +120,6 @@ def print_tuples_from_method(method: MethodRepr):
         
 
 
-#main()
+main_func()
 
 

@@ -75,7 +75,7 @@ def main(output = False):
     sem_dict = defaultdict(list)
 
     # first let's read the truth, main function:
-    with open("truth.txt", "r") as truth:
+    with open("true.txt", "r") as truth:
         for line in truth:
             line = line.strip()
             if len(line) == 0:
