@@ -1,4 +1,13 @@
-# Final project
+
+<div align="center">
+
+### Identifying Dead Code in Java Programs with Call Graphs: a Comparative Study of Semantic and Syntactic Approaches
+
+[![Report][report-shield]][report-url]
+[![Presentation][presentation-shield]][presentation-url]
+
+</div>
+
 
 ## Introduction
 In the last 4 weeks of the course, we were challenge to put in practice the knowledge we had acquired, by developing a project and submitting a report according to the IEEE format.
@@ -6,6 +15,9 @@ In the last 4 weeks of the course, we were challenge to put in practice the know
 Even though the project topic was quite broad, it was important that we showed competences, and demonstrated knowledge, in all the different analyses techniques covered in class.
 
 ## What's done
+In one sentence, we set up ourselves to answer the following question:
+
+> Considering accuracy, speed and complexity: is semantic analysis better than syntactic analysis for creating call graphs in Java programs to identify dead code?
 
 ### Idea
 We decided to build our project around the idea of comparing 2 different analysis techniques: semantic and syntactic. Our comparison was based on 3 metrics: **accuracy**, **performance** and **complexity**. We compare the benchmark of these two techniques for a tool that can generate a call graph. Furthermore, other techniques - such as concolic execution, and syntactic analysis through the use of regular expressions - are discussed.
@@ -38,20 +50,9 @@ be preferred due to the more precise result.
 
 [![Python][python-shield]][antlr-url] [![Java][java-shield]][java-url] [![Jvm2Json][jvm2json-shield]][jvm2json-url] [![Tree-sitter][treesitter-shield]][treesitter-url]
 
-### Report & Presentation
-- For a quick glance of our results, please refer to the [presentation](???). 
-- For the in-depth report in IEEE format, please take a look at our [report](???).
 
-### :page_with_curl: Challenge
-This exercise challenged us to solve the same problem as in the previous weeks - determine which inputs can lead functions to throw one of 4 exceptions. For this week, we were to develop this tool with a **dynamic analysis** point of view. In specific, using **concolic execution**.
-
-Similarly to the last few weeks', this exercise was based on the analysis of Java bytecode, using the [jvm2json](https://gitlab.gbar.dtu.dk/chrg/jvm2json) tool.
-
-The challenge is detailed on [Concolic-Execution.html](https://github.com/immarianaas/pa-23/blob/master/assignment-7/Concolic-Execution.html).
-
-### :bar_chart: Results
-
-No slide was created for this challenge, since the focus at this point was on starting working towards the course project.
+## Try on your machine?
+Unfortunately if you try to run the code, it will fail because of problems with the paths. To fix this problem and organise the repository correctly, it would require some time. Ultimately, at this point, doing this wouldn't make sense. Maybe in the future... :cactus:
 
 
 
@@ -72,6 +73,11 @@ No slide was created for this challenge, since the focus at this point was on st
 [jvm2json-shield]: https://img.shields.io/badge/jvm2json-000000?style=for-the-badge&logoColor=white
 [jvm2json-url]: https://gitlab.gbar.dtu.dk/chrg/jvm2json
 
+[presentation-shield]: https://img.shields.io/badge/presentation-555?style=for-the-badge&logoColor=black
+[presentation-url]: https://github.com/immarianaas/pa-23/blob/master/project/presentation.pdf
+
+[report-shield]: https://img.shields.io/badge/report-555?style=for-the-badge&logoColor=black
+[report-url]: https://github.com/immarianaas/pa-23/blob/master/project/report.pdf
 
 [example-shield]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [example-url]: https://getbootstrap.com/
