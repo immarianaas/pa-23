@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Christian Gram Kalhauge / DTU Compute">
+  <title>02242: Project Description</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+    }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+
+h1 {
+    font-size: 110%;
+}
+
+h2 {
+    font-size: 105%;
+}
+
+h3 {
+    font-size: 102%;
+}
+
+
+.title {
+    font-size: 120%;
+}
+ol li {
+    border-left-style: solid;
+    padding-left: 10px;
+    border-left-color: lightgray;
+    border-left-width: 2px;
+    margin-bottom: 6px;
+}
+.block, .assignment { 
+    padding-left: 20px;
+    padding-right: 20px;
+    border-left-style: solid;
+    border-left-color: lightgray;
+    border-left-width: 2px;
+}
+.assignment > p:first-child::before {
+  content: "Assignment: ";
+  font: ultra-condensed small-caps 102% "Fira Sans", sans-serif;
+}
+
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head><body><header id="title-block-header">
+<h1 class="title">02242: Project Description</h1>
+<p class="author">Christian Gram Kalhauge / DTU Compute</p>
+</header>
+<p>The goal of this project is to demonstrate that you have achieved the learning objectives of the course. To reiterate, a student who has met the objectives of the course will be able to:</p>
+<ul>
+<li>
+<p>explain the concepts of soundness and completeness and the limitations of program analysis;</p>
+</li>
+<li>
+<p>explain the benefits and tradeoffs associated with syntactic, semantic, dynamic and static analyses;</p>
+</li>
+<li>
+<p>design an analysis to solve a specific problem;</p>
+</li>
+<li>
+<p>formulate theoretical guarantees and limitations of the analysis;</p>
+</li>
+<li>
+<p>argument for the approach in a project proposal;</p>
+</li>
+<li>
+<p>implement an analysis for part of a real programming language;</p>
+</li>
+<li>
+<p>design and motivate a series of experiments using this analysis and interpret the results obtained;</p>
+</li>
+<li>
+<p>communicate their results in a clear and precise manner in a paper format; and</p>
+</li>
+<li>
+<p>achieve the above goals in a group effort while at the same time maintaining individual accountability.</p>
+</li>
+</ul>
+<p>To effectively test all of this, you as the students in groups of four, will work on first crafting a proposal of the project, and then carrying out the project. Handing in the results as a 10-page paper, which is defended orally.</p>
+<h1>Timeline</h1>
+<p>The project has the following timeline:</p>
+<table><colgroup> <col style="width: 28%;"> <col style="width: 71%;"> </colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Date</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>10/23</code></td>
+<td>Last day for handing in project proposals.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>11/23</code></td>
+<td>Final paper deadline.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>12/07</code> + <code>12/08</code></td>
+<td>Oral Exam.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="formats">Formats</h1>
+<p><em>WARNING: Deviating from the formatting requirements may result in a automated failed grade</em></p>
+<p>Both the proposal and the final paper MUST be formatted according to the <a href="https://www.ieee.org/conferences/publishing/templates.html">IEEE - Manuscript Templates for Conference Proceedings</a>. For maximal ease, use the <a href="https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn">Overleaf Template</a>. We strongly recommend that you use LaTeX to format your paper. The proposal can be no longer than 2 pages (excluding references), and the paper can be no longer than 10 pages. All responsible authors of the paper should be listed with student IDs. Only admissions in PDF are accepted.</p>
+<h1 id="the-project">The Project</h1>
+<p>The project should solve a problem, either with an application of a program analysis or by an implementation an analysis technique. Note, that this course defines program analysis broadly as extracting information from a program. The project can analyze any programming language, and use any technique you find interesting, however, we expect you to use good academic judgement and show fulfillment of the learning objectives.</p>
+<h1 id="the-proposal">The Proposal</h1>
+<p>The proposal should be the introduction of the paper (see next section), but instead of stating your solution, you should state your planned solution as well as hypotheses. On top of the proposal you should also include a week by week plan for how to achieve the goals set out in the proposal, and an evaluation strategy.</p>
+<ul>
+<li>
+<p>Remember, 4 weeks are not a lot of time, you should have a good idea of where you are going, when you propose the project.</p>
+</li>
+<li>
+<p>Experiment early, even before handing in the proposal, so that you know the risks of the project.</p>
+</li>
+<li>
+<p>Do not wait for approval before starting the project, but be ready to pivot.</p>
+</li>
+</ul>
+<h1 id="the-paper">The Paper</h1>
+<p>First! Consider the advice in this <a href="https://youtu.be/WP-FkUaOcOM?si=LgiiK5xSVdUED9Ix">lecture, by Simon Peyton Jones.</a></p>
+<p>The final paper should contain the following sections (approximate page numbers in parentheses):</p>
+<ul>
+<li>An abstract, describing the paper.</li>
+<li>An introduction (1-2 pages), with
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">a good motivation and description of the problem you are trying to solve (consider using examples),</li>
+<li><input type="checkbox" disabled="disabled">the problem stated as a research question,
+<ul>
+<li>e.g., “Is pentagons better than bound at approximating the state space of our examples?”</li>
+</ul>
+</li>
+<li><input type="checkbox" disabled="disabled">a short description of your solution, and</li>
+<li><input type="checkbox" disabled="disabled">a list of contributions with forward references, described in the lecture by Simon P. Jones.</li>
+</ul>
+</li>
+<li>A high level description of the technique used to analyze (2-4 pages), with
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">a formal description of the approach;</li>
+<li><input type="checkbox" disabled="disabled">a walkthrough of the theory needed to understand the technique; and</li>
+<li><input type="checkbox" disabled="disabled">any theoretical guarantees of the approach.</li>
+</ul>
+</li>
+<li>A description the implementation and setup (1/2 - 1 page), with
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">a link to your source code; and</li>
+<li><input type="checkbox" disabled="disabled">a high level description of the code.</li>
+</ul>
+</li>
+<li>A describing the evaluation and the results (2-3 pages), with
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">an empirical evaluation of the approach,</li>
+<li><input type="checkbox" disabled="disabled">compared against at least one other technique (or variations (optimizations) of your technique),</li>
+<li><input type="checkbox" disabled="disabled">an analysis of the results, and</li>
+<li><input type="checkbox" disabled="disabled">a discussion of the threats to validity.</li>
+</ul>
+</li>
+<li>A discussion of the technique, and alternatives techniques to solve the same problem (1 - 2 pages), with
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">an explanation why other techniques form the lectures (and potentially the literature) were not used, and</li>
+<li><input type="checkbox" disabled="disabled">a discussion of the good and the bad things about your approach.</li>
+</ul>
+</li>
+<li>A conclusion (0 - 1/2 page), which is
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">A short recap of the paper.</li>
+</ul>
+</li>
+</ul>
+<h2 id="project-ideas">Project Ideas</h2>
+<p>You are free to choose your own project, but here are some ideas:</p>
+<p><em>Not all of these projects are completely doable in 4 weeks, choose with caution!</em></p>
+<ul>
+<li>
+<p>Build a tool that can make detailed sequence diagrams from executions.</p>
+</li>
+<li>
+<p>Implement a concolic executor in Python, by dynamically overloading the <code>+</code> and <code>-</code> operations of most objects.</p>
+</li>
+<li>
+<p>Implement Pentagons in your current framework <span class="citation" data-cites="logozzo2008pentagons">(Logozzo and Fähndrich 2008)</span>.</p>
+</li>
+<li>
+<p>Check if a java program contains null-pointers, using the <code>@NotNull</code> and <code>@Nullable</code> annotations: <a href="https://docs.oracle.com/javaee/7/api/javax/validation/constraints/NotNull.html">NotNull (Java(TM) EE 7 Specification APIs)</a>.</p>
+</li>
+<li>
+<p>Build a decompiler from Java byte code.</p>
+</li>
+<li>
+<p>Build an extremely efficient static analysis, by optimizing the analysis algorithm.</p>
+</li>
+<li>
+<p>Build a static analysis that works for method calls and classes as well.</p>
+</li>
+<li>
+<p>Interpret, analyze, and optimize <a href="https://en.wikipedia.org/wiki/Brainfuck">brainfuck</a> code.</p>
+</li>
+<li>
+<p>Build a tool that can predict which tests to rerun given a change in a program.</p>
+</li>
+<li>
+<p>Build a tool that can predict the <a href="https://semver.org/">semantic versioning</a> of a piece of code.</p>
+</li>
+</ul>
+<h2 id="errata">Errata</h2>
+<ul>
+<li>Add evaluation strategy to project proposal.</li>
+</ul>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-logozzo2008pentagons" class="csl-entry" role="doc-biblioentry">Logozzo, Francesco, and Manuel Fähndrich. 2008. <span>“Pentagons: A Weakly Relational Abstract Domain for the Efficient Validation of Array Accesses.”</span> In <em>Proceedings of the 2008 ACM Symposium on Applied Computing</em>, 184–88.</div>
+</div></body></html>

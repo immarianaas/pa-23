@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Christian Gram Kalhauge">
+  <title>Concolic Execution</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+h1 {
+    font-size: 110%;
+}
+
+h2 {
+    font-size: 105%;
+}
+
+h3 {
+    font-size: 102%;
+}
+
+
+.title {
+    font-size: 120%;
+}
+ol li {
+    border-left-style: solid;
+    padding-left: 10px;
+    border-left-color: lightgray;
+    border-left-width: 2px;
+    margin-bottom: 6px;
+}
+.block, .assignment { 
+    padding-left: 20px;
+    padding-right: 20px;
+    border-left-style: solid;
+    border-left-color: lightgray;
+    border-left-width: 2px;
+}
+.assignment > p:first-child::before {
+  content: "Assignment: ";
+  font: ultra-condensed small-caps 102% "Fira Sans", sans-serif;
+}
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head><body><header id="title-block-header">
+<h1 class="title">Concolic Execution</h1>
+<p class="subtitle">02242: Assignment 07</p>
+<p class="author">Christian Gram Kalhauge</p>
+</header>
+<p>In this assignment we want to solve the exact same problem we have solved the last couples of weeks, but this time from the dynamic analysis point of view.</p>
+<div class="assignment">
+<p>Given a method <span class="math inline">\(m\)</span> and sets of initial states <span class="math inline">\(S_I\)</span>; decide if <span class="math inline">\(\exists s \in S_I.\ h, bc \vdash s \to_k e\)</span>, where <span class="math inline">\(e\)</span> is one of <code>IndexOutOfBoundsExecption</code>, <code>ArithmeticException</code>, <code>NullPointerException</code>, or <code>UnsupportedOperationException</code>, for some <span class="math inline">\(k\)</span>.</p>
+<p>You can answer (Yes, with input state <span class="math inline">\(s\)</span> and <span class="math inline">\(e\)</span>), No, or Maybe.</p>
+</div>
+<p>To do this you should use concolic execution. It works by running the program with inputs and collecting path constraints. Path constraints are constraints n input symbols that describe which path to take. These can be negated to come up with new paths into the system.</p>
+<p>Or in sudo code:</p>
+<div class="sourceCode" id="cb1">
+<pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">WARNING</span><span class="co">: NOT WORKIN PYTHON CODE (See video for that)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> concolic(p : Program, k <span class="op">=</span> <span class="dv">1000</span>):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    formula <span class="op">=</span> <span class="va">True</span> <span class="co"># formula over the input variables in p</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># As long as the formula is solvable:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (solution <span class="op">:=</span> formula.check()):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create a input state with solution</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        si <span class="op">=</span> State({</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            k: (solution.get_value_of(k), Symbol(k)) </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> k <span class="kw">in</span> p.params()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            }, [])</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Set the current state to the initial, and the path to True</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        s, path <span class="op">=</span> si, <span class="va">True</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># While we have stepped less that k steps.</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(k):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Compute a new concolic state, and capture any path constraints you can.</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            s, path_constaint <span class="op">=</span> p.step(s)  </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            <span class="co"># If the state is what we look for return</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> s <span class="kw">in</span> {IndexOutOfBoundsException, ...}:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> (si, s)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            <span class="co"># else and any path_constraints with the current path</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            path <span class="op">=</span> path <span class="op">/</span>\ path_constraint</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            <span class="co"># if done stop the execution</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> s <span class="op">==</span> done: <span class="cf">break</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Finaly require that all new solutions should not cover the current path.</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        formula <span class="op">=</span> formula <span class="op">/</span>\ <span class="kw">not</span> (path)</span></code></pre>
+</div>
+<h1 id="getting-started-exercise">Getting Started Exercise</h1>
+<ol type="1">
+<li>
+<p>Install Z3 and (optionally) one of the API’s to interface with it.</p>
+<ul>
+<li>You can interface directly with Z3 using API’s like the <a href="https://ericpony.github.io/z3py-tutorial/guide-examples.htm">Python API</a> (download here: <a href="https://pypi.org/project/z3-solver/">z3-solver · PyPI</a>) and the <a href="https://z3prover.github.io/api/html/namespacecom_1_1microsoft_1_1z3.html">Java API</a> (download here: <a href="https://mvnrepository.com/artifact/com.microsoft.z3">Maven Repository: com.microsoft.z3</a>).</li>
+</ul>
+</li>
+<li>
+<p>You can download Z3 directly from their homepage: <a href="https://github.com/Z3Prover/z3/releases">Releases · Z3Prover/z3</a>, checkout <a href="https://github.com/z3prover/z3#z3-bindings">GitHub - Z3Prover/z3: The Z3 Theorem Prover</a> for more.</p>
+</li>
+<li>
+<p>Now try to solve the equation <span class="math inline">\(x1 = a * 20 \land y1 = b + 5 \land y1 &lt; x1\)</span>.</p>
+</li>
+</ol>
+<p>In stmlib, is written like this:</p>
+<pre class="smtlib"><code>(declare-const a Int)
+(declare-const b Int)
+(declare-const x1 Int)
+(declare-const x2 Int)
+(assert (= x1 (* a 20))
+(assert (= y1 (+ b 5))
+(assert (&lt; y1 x1))
+(check-sat)
+(get-model)</code></pre>
+<p>Here are some examples of how to use that (Thanks Benjamin.):</p>
+<p>In java:</p>
+<div class="sourceCode" id="cb3">
+<pre class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> Documentation<span class="co">:</span> https<span class="co">://</span>z3prover<span class="co">.</span>github<span class="co">.</span>io<span class="co">/</span>api<span class="co">/</span>html<span class="co">/</span>namespacecom_1_1microsoft_1_1z3<span class="co">.</span>html</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> Compile<span class="co">:</span> <span class="co">`</span>javac <span class="co">-</span>cp <span class="co">"/</span>path<span class="co">/</span>to<span class="co">/</span>z3<span class="co">/</span>bin<span class="co">/</span>com<span class="co">.</span>microsoft<span class="co">.</span>z3<span class="co">.</span>jar<span class="co">"</span> Test<span class="co">.</span>java<span class="co">`</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> Run<span class="co">:</span> <span class="co">`</span>java <span class="co">-</span>cp <span class="co">".;/</span>path<span class="co">/</span>to<span class="co">/</span>z3<span class="co">/</span>bin<span class="co">/</span>com<span class="co">.</span>microsoft<span class="co">.</span>z3<span class="co">.</span>jar<span class="co">"</span> Test<span class="co">`</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a> <span class="co">*/</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">com</span><span class="op">.</span><span class="im">microsoft</span><span class="op">.</span><span class="im">z3</span><span class="op">.*;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Test <span class="op">{</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Context</span> ctx <span class="op">=</span> <span class="kw">new</span> <span class="bu">Context</span><span class="op">();</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        IntExpr a <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkIntConst</span><span class="op">(</span><span class="st">"a"</span><span class="op">);</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        IntExpr b <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkIntConst</span><span class="op">(</span><span class="st">"b"</span><span class="op">);</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        IntExpr x1 <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkIntConst</span><span class="op">(</span><span class="st">"x1"</span><span class="op">);</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        IntExpr y1 <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkIntConst</span><span class="op">(</span><span class="st">"y1"</span><span class="op">);</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        BoolExpr e1 <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkEq</span><span class="op">(</span>x1<span class="op">,</span> ctx<span class="op">.</span><span class="fu">mkMul</span><span class="op">(</span>a<span class="op">,</span> ctx<span class="op">.</span><span class="fu">mkInt</span><span class="op">(</span><span class="dv">20</span><span class="op">)));</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        BoolExpr e2 <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkEq</span><span class="op">(</span>y1<span class="op">,</span> ctx<span class="op">.</span><span class="fu">mkAdd</span><span class="op">(</span>b<span class="op">,</span> ctx<span class="op">.</span><span class="fu">mkInt</span><span class="op">(</span><span class="dv">5</span><span class="op">)));</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        BoolExpr e3 <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkLt</span><span class="op">(</span>y1<span class="op">,</span> x1<span class="op">);</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        Solver solver <span class="op">=</span> ctx<span class="op">.</span><span class="fu">mkSolver</span><span class="op">();</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        solver<span class="op">.</span><span class="fu">add</span><span class="op">(</span><span class="kw">new</span> BoolExpr<span class="op">[]{</span>e1<span class="op">,</span> e2<span class="op">,</span> e3<span class="op">});</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        Status result <span class="op">=</span> solver<span class="op">.</span><span class="fu">check</span><span class="op">();</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>result<span class="op">);</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>result <span class="op">==</span> Status<span class="op">.</span><span class="fu">SATISFIABLE</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>solver<span class="op">.</span><span class="fu">getModel</span><span class="op">());</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre>
+</div>
+<p>And in python:</p>
+<div class="sourceCode" id="cb4">
+<pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Documentation: https://z3prover.github.io/api/html/namespacez3py.html</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># PYTHONPATH (might be needed): /path/to/z3/bin/python</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> z3 <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> Int(<span class="st">"a"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> Int(<span class="st">"b"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>x1 <span class="op">=</span> Int(<span class="st">"x1"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>y1 <span class="op">=</span> Int(<span class="st">"y1"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>e1 <span class="op">=</span> x1 <span class="op">==</span> a <span class="op">*</span> <span class="dv">20</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>e2 <span class="op">=</span> y1 <span class="op">==</span> b <span class="op">+</span> <span class="dv">5</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>e3 <span class="op">=</span> y1 <span class="op">&lt;</span> x1</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>solver <span class="op">=</span> Solver()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>solver.add(e1, e2, e3)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> solver.check()</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (result <span class="op">==</span> sat):</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(solver.model())</span></code></pre>
+</div>
+<h1 id="deliverable">Deliverable</h1>
+<p>A slide in the <a href="https://dtudk.sharepoint.com/:p:/r/sites/course167889/Delte%20dokumenter/General/Assignments/Assignment%2007.pptx?d=w6c4c49c4876d454d92f1dde4e751eea1&amp;csf=1&amp;web=1&amp;e=QlkwQu">slide deck</a>, with:</p>
+<ul class="task-list">
+<li><input type="checkbox" disabled="disabled">a table with the results from the previous two weeks, including a new column with the results from this day.</li>
+<li><input type="checkbox" disabled="disabled">answer the following questions:
+<ul>
+<li>Which language feature gave you the biggest hurdle?</li>
+<li>What did you learn from the last 4 weeks?</li>
+<li>Which technique was best for what?</li>
+</ul>
+</li>
+</ul>
+<h1 id="hints">Hints</h1>
+<p>First get familiar with Z3, you can checkout the online editor <a href="https://jfmc.github.io/z3-play/">here</a>. You can run the commands below in that, if you want.</p>
+<p>To do concolic execution you have to execute the methods using a <em>concrete</em> input, and then collect <em>symbolic</em> constraints while running the program. You can then, negate the path constraints and solve them using Z3.</p>
+<div class="sourceCode" id="cb5">
+<pre class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="dt">int</span> <span class="fu">magic</span><span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> x <span class="op">=</span> a <span class="op">/</span> <span class="dv">20</span><span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">var</span> y <span class="op">=</span> b <span class="op">+</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>y <span class="op">&lt;</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>b <span class="op">==</span> y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> a<span class="op">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> b<span class="op">;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre>
+</div>
+<p>We start out without having any constraints, simply that the two input variables are integers. Constraints can be written in the <a href="https://smtlib.cs.uiowa.edu/">smt-lib</a> format, and let’s assume that we always put them in the <code>formula.smt</code> file:</p>
+<pre class="smtlib"><code>(declare-const a Int)
+(declare-const b Int)
+(check-sat)
+(get-model)</code></pre>
+<p>We can now run it and see that, <span class="math inline">\(a = 0, b = 0\)</span> is a solution:</p>
+<pre><code>$&gt; z3 -smt2 formula.smt
+sat
+(
+  (define-fun b () Int
+    0)
+  (define-fun a () Int
+    0)
+)</code></pre>
+<p>Cool, now we can run the program with that input and keep track of the symbolic constraints. We’ll write a concolic value like this <span class="math inline">\(\text{concrete} \ (\text{symbolic})\)</span>.</p>
+<p>The inital execution goes like this:</p>
+<ul>
+<li>Initially <span class="math inline">\(a = 0\ (a), b = 0\ (b)\)</span>.</li>
+<li><span class="math inline">\(x = 0\ (a / 20)\)</span></li>
+<li><span class="math inline">\(y = 5\ (b + 5)\)</span></li>
+<li>check <span class="math inline">\((5 (b + 5) &lt; 0\ (a/20))\)</span> which is false, so we add <span class="math inline">\(\neg (b + 5 &lt; a / 20)\)</span> as a path constraint.</li>
+<li>finally we return <span class="math inline">\(0\ (b)\)</span>.</li>
+</ul>
+<p>To get a new path in the system we have to negate the path constraint: <span class="math inline">\(\neg \neg (b + 5 &lt; a / 20) = b + 5 &lt; a / 20.\)</span></p>
+<pre class="smtlib"><code>(declare-const a Int)
+(declare-const b Int)
+(declare-const y Int)
+(assert (not (not (&lt; (+ b 5) (div a 20)))))
+(check-sat)
+(get-model)</code></pre>
+<p>Now we get a possible solution to be, <span class="math inline">\(a = 120\)</span> and <span class="math inline">\(b = 0\)</span>.</p>
+<pre><code>$&gt; z3 -smt2 formula.smt
+sat
+(
+  (define-fun a () Int
+    120)
+  (define-fun b () Int
+    0)
+)</code></pre>
+<p>We can now use that as a solution in the next run.</p>
+<p>The execution goes like this:</p>
+<ul>
+<li>Initially <span class="math inline">\(a = 120\ (a), b = 0\ (b)\)</span>.</li>
+<li><span class="math inline">\(x = 6\ (a / 20)\)</span></li>
+<li><span class="math inline">\(y = 5\ (b + 5)\)</span></li>
+<li>check <span class="math inline">\((5 (b + 5) &lt; 6\ (a/20))\)</span> which is true, so we add <span class="math inline">\(b + 5 &lt; a / 20\)</span> as a path constraint.</li>
+<li><span class="math inline">\(y = 1\ (1)\)</span></li>
+<li>check <span class="math inline">\((0 (b) = 1\ (1))\)</span>, which is false, so we add <span class="math inline">\(\neg (b = 1)\)</span> as the path constraint.</li>
+<li>finally we return <span class="math inline">\(0\ (0)\)</span>.</li>
+</ul>
+<p>Our path constrains are now <span class="math inline">\((b + 5 &lt; a / 20) \land \neg (b = 1)\)</span>, which we can negate together with negation of the other constraint, to get an input that gets us a new path:</p>
+<pre class="smtlib"><code>(declare-const a Int)
+(declare-const b Int)
+(assert (not (not (&lt; (+ b 5) (div a 20)))))
+(assert (not (and 
+    (&lt; (+ b 5) (div a 20))
+    (not (= b 1))
+)))
+(check-sat)
+(get-model)</code></pre>
+<p>Running this we get the solution <span class="math inline">\(a=140\)</span> and <span class="math inline">\(b=1\)</span>.</p>
+<pre><code>$&gt; z3 -smt2 
+sat
+(
+  (define-fun a () Int
+    140)
+  (define-fun b () Int
+    1)
+)</code></pre>
+<p>The execution now goes like this:</p>
+<ul>
+<li>Initially <span class="math inline">\(a = 140\ (a), b = 1\ (b)\)</span>.</li>
+<li><span class="math inline">\(x = 7\ (a / 20)\)</span></li>
+<li><span class="math inline">\(y = 6\ (b + 5)\)</span></li>
+<li>check <span class="math inline">\((6 (b + 5) &lt; 7\ (a/20))\)</span> which is true, so we add <span class="math inline">\(b + 5 &lt; a / 20\)</span> as a path constraint.</li>
+<li><span class="math inline">\(y = 1\ (1)\)</span></li>
+<li>check <span class="math inline">\((1 (b) = 1\ (1))\)</span>, which is true, so we add <span class="math inline">\(b = 1\)</span> as the path constraint.</li>
+<li>finally we return <span class="math inline">\(140\ (a)\)</span>.</li>
+</ul>
+<p>The path constraints are now <span class="math inline">\(b + 5 &lt; a / 20 \land b = 1\)</span>, which we negate:</p>
+<pre class="smtlib"><code>(declare-const a Int)
+(declare-const b Int)
+(assert (not (not (&lt; (+ b 5) (div a 20)))))
+(assert (not (and 
+    (&lt; (+ b 5) (div a 20))
+    (not (= b 1))
+)))
+(assert (not (and 
+    (&lt; (+ b 5) (div a 20))
+    (= b 1)
+)))
+(check-sat)
+(get-model)</code></pre>
+<p>This returns <code>unsat</code>, claiming that there are no solution, which means that there are no paths left uncovered.</p>
+<pre><code>unsat
+(error "line 13 column 10: model is not available")</code></pre>
+<h1 id="extra-reading">Extra Reading</h1>
+<ul>
+<li>https://cmu-program-analysis.github.io/2020/lecture-notes/notes12-concolic-testing.pdf</li>
+<li>https://github.com/season-lab/survey-symbolic-execution</li>
+<li>https://www.fuzzingbook.org/html/ConcolicFuzzer.html</li>
+</ul></body></html>
